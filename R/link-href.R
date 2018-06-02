@@ -33,8 +33,7 @@ href_expr <- function(expr, bare_symbol = FALSE) {
 
     if (fun_name == "vignette") {
       expr <- lang_standardise(expr)
-      topic <- as.character(expr[[2]])
-      href_article(topic, expr$package)
+      href_article(expr$topic, expr$package)
     } else if (fun_name == "?") {
       if (n_args == 1) {
         topic <- expr[[2]]
@@ -97,7 +96,7 @@ href_topic_local <- function(topic) {
       return(NA_character_)
     } else {
       obj <- env_get(ns, topic, inherit = TRUE)
-      package <- ns_env_name(get_env(obj))
+      package <- find_reexport_source(obj, ns, topic)
       return(href_topic_remote(topic, package))
     }
   }

@@ -5,6 +5,10 @@ as_html <- function(x, ...) {
 # Various types of text ------------------------------------------------------
 
 flatten_para <- function(x, ...) {
+  if (length(x) == 0) {
+    return(character())
+  }
+
   # Look for "\n" TEXT blocks after a TEXT block, and not at end of file
   is_nl <- purrr::map_lgl(x, is_newline, trim = TRUE)
   is_text <- purrr::map_lgl(x, inherits, "TEXT")
@@ -211,19 +215,23 @@ method_usage <- function(x, type) {
 
 #' @export
 as_html.tag_Sexpr <- function(x, ...) {
-  # Currently assume output is always Rd
-  options <- attr(x, "Rd_option")
   code <- flatten_text(x, escape = FALSE)
+  options <- parse_opts(attr(x, "Rd_option"))
 
   # Needs to be package root
   old_wd <- setwd(context_get("src_path"))
   on.exit(setwd(old_wd), add = TRUE)
 
   # Environment shared across a file
-  expr <- eval(parse(text = code), context_get("sexpr_env"))
+  res <- eval(parse(text = code), context_get("sexpr_env"))
 
-  rd <- rd_text(as.character(expr))
-  as_html(rd, ...)
+  results <- options$results %||% "rd"
+  switch(results,
+    text = as.character(res),
+    rd = flatten_text(rd_text(as.character(res))),
+    hide = "",
+    stop("\\Sexpr{result=", results, "} not yet supported", call. = FALSE)
+  )
 }
 
 #' @export
@@ -252,10 +260,8 @@ as_html.tag_tabular <- function(x, ...) {
   row_sep <- purrr::map_lgl(contents, inherits, "tag_cr")
   col_sep <- purrr::map_lgl(contents, inherits, "tag_tab")
 
-  last <- rev(which(row_sep))[1] - 1L
-  contents <- contents[seq_len(last)]
   sep <- col_sep | row_sep
-  cell_grp <- cumsum(sep)[seq_len(last)]
+  cell_grp <- cumsum(sep)
   cells <- split(contents[!sep], cell_grp[!sep])
 
   cell_contents <- vapply(cells, flatten_text, ...,
@@ -335,6 +341,10 @@ parse_items <- function(rd, ...) {
 }
 
 parse_descriptions <- function(rd, ...) {
+  if (length(rd) == 0) {
+    return(character())
+  }
+
   is_item <- purrr::map_lgl(rd, inherits, "tag_item")
 
   parse_item <- function(x) {
@@ -501,5 +511,26 @@ trim_ws_nodes <- function(x, side = c("both", "left", "right")) {
   }
 
   x[start:end]
+}
+
+
+# Helpers -----------------------------------------------------------------
+
+parse_opts <- function(string) {
+  if (is.null(string)) {
+    return(list())
+  }
+
+  args <- list("text", "verbatim", "rd", "hide", "build", "install", "render")
+  names(args) <- args
+  arg_env <- child_env(baseenv(), !!!args)
+
+  args <- strsplit(string, ",")[[1]]
+  exprs <- parse_exprs(args)
+
+  env <- child_env(arg_env)
+  purrr::walk(exprs, eval_bare, env = env)
+
+  as.list(env)
 }
 

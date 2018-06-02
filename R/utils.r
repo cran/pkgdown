@@ -39,6 +39,30 @@ is_syntactic <- function(x) x == make.names(x)
 
 str_trim <- function(x) gsub("^\\s+|\\s+$", "", x)
 
+## For functions, we can just take their environment.
+
+find_reexport_source <- function(obj, ns, topic) {
+  if (is.function(obj)) {
+    ns_env_name(get_env(obj))
+  } else {
+    find_reexport_source_from_imports(ns, topic)
+  }
+}
+
+## For other objects, we need to check the import env of the package,
+## to see where 'topic' is coming from. The import env has redundant
+## information. It seems that we just need to find a named list
+## entry that contains `topic`. We take the last match, in case imports
+## have name clashes.
+
+find_reexport_source_from_imports  <- function(ns, topic)  {
+  imp <- getNamespaceImports(ns)
+  imp <- imp[names(imp) != ""]
+  wpkgs <- purrr::map_lgl(imp, `%in%`, x = topic)
+  if (!any(wpkgs)) stop("Cannot find reexport source for `", topic, "`")
+  pkgs <- names(wpkgs)[wpkgs]
+  pkgs[[length(pkgs)]]
+}
 
 # devtools metadata -------------------------------------------------------
 
@@ -83,4 +107,8 @@ print_yaml <- function(x) {
 #' @export
 print.print_yaml <- function(x, ...) {
   cat(yaml::as.yaml(x), "\n", sep = "")
+}
+
+skip_if_no_pandoc <- function() {
+  testthat::skip_if_not(rmarkdown::pandoc_available("1.12.3"))
 }

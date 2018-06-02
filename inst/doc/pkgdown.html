@@ -297,6 +297,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li><p>A <a href="https://bootswatch.com"><code>bootswatch</code></a> theme name to easily tweak the overall appearance of the site.</p></li>
 </ul>
 <p>Other options control the appearance of the other parts of the site.</p>
+<p>pkgdown checks for a site configuration file in these locations:</p>
+<ol style="list-style-type: decimal">
+<li><code>_pkgdown.yml</code></li>
+<li><code>_pkgdown.yaml</code></li>
+<li><code>pkgdown/_pkgdown.yml</code></li>
+<li><code>inst/_pkgdown.yml</code></li>
+</ol>
+<p>Including the configuration file in <code>inst/</code> enables sites to be built from packages on CRAN without needing the development version of a package.</p>
 <div id="home-page" class="section level2">
 <h2>Home page</h2>
 <p>The home page will be automatically generated from one of the following four files:</p>
@@ -421,7 +429,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>If you are building your own custom Docsearch index, you can also include your Docsearch <code>app_id</code> in <code>_pkgdown.yml</code>.</p>
 <p>Finally, you need to add a <code>url:</code> field to <code>_pkgdown.yml</code> that specifies the location of your documentation on the web. For pkgdown, the URL field is:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="fu">url:</span><span class="at"> http://pkgdown.r-lib.org</span></a></code></pre></div>
-<p>You should have a functional search bar after re-building your site with this new configuration.</p>
+<p>You should have a functional search bar after re-building your site with this new configuration. Once search is enabled on your site, pressing <code>shift + /</code> (i.e., “?”) will move the focus to the search bar.</p>
 </div>
 </div>
 

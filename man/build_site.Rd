@@ -4,14 +4,17 @@
 \alias{build_site}
 \title{Build pkgdown website}
 \usage{
-build_site(pkg = ".", examples = TRUE, run_dont_run = FALSE,
-  seed = 1014, mathjax = TRUE, lazy = FALSE, override = list(),
-  preview = NA)
+build_site(pkg = ".", examples = TRUE, document = TRUE,
+  run_dont_run = FALSE, seed = 1014, mathjax = TRUE, lazy = FALSE,
+  override = list(), preview = NA, new_process = TRUE)
 }
 \arguments{
 \item{pkg}{Path to package.}
 
 \item{examples}{Run examples?}
+
+\item{document}{If \code{TRUE}, will run \code{\link[devtools:document]{devtools::document()}} before
+updating the site.}
 
 \item{run_dont_run}{Run examples that are surrounded in \\dontrun?}
 
@@ -28,6 +31,10 @@ values in \code{_pkgdown.yml}}
 
 \item{preview}{If \code{TRUE}, or \code{is.na(preview) && interactive()}, will preview
 freshly generated section in browser.}
+
+\item{new_process}{If \code{TRUE}, will run \code{build_site()} in a separate process.
+This enhances reproducibility by ensuring nothing that you have loaded
+in the current process affects the build process.}
 }
 \description{
 \code{build_site()} is a convenient wrapper around six functions:
@@ -70,7 +77,7 @@ text:\preformatted{authors:
     href: http://hadley.nz
   RStudio:
     href: https://www.rstudio.com
-    html: <img src="http://tidyverse.org/rstudio-logo.svg" height="24" />
+    html: <img src="https://tidyverse.org/rstudio-logo.svg" height="24" />
 }
 }
 
@@ -217,6 +224,11 @@ correspond to your
 \href{https://support.google.com/analytics/answer/1032385}{tracking id}.\preformatted{template:
   params:
     ganalytics: UA-000000-01
+}
+
+Suppress indexing of your pages by web robots by setting \code{noindex: true}:\preformatted{template:
+  params:
+    noindex: true
 }
 
 You can also override the default templates and provide additional

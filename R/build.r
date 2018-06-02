@@ -42,7 +42,7 @@
 #'     href: http://hadley.nz
 #'   RStudio:
 #'     href: https://www.rstudio.com
-#'     html: <img src="http://tidyverse.org/rstudio-logo.svg" height="24" />
+#'     html: <img src="https://tidyverse.org/rstudio-logo.svg" height="24" />
 #' ```
 #'
 #' @section Development mode:
@@ -209,6 +209,15 @@
 #'     ganalytics: UA-000000-01
 #' ```
 #'
+#' Suppress indexing of your pages by web robots by setting `noindex:
+#' true`:
+#'
+#' ```
+#' template:
+#'   params:
+#'     noindex: true
+#' ```
+#'
 #' You can also override the default templates and provide additional
 #' assets. You can do so by either storing in a `package` with
 #' directories `inst/pkgdown/assets` and `inst/pkgdown/templates`,
@@ -235,6 +244,9 @@
 #' @inheritParams build_reference
 #' @param lazy If `TRUE`, will only rebuild articles and reference pages
 #'   if the source is newer than the destination.
+#' @param new_process If `TRUE`, will run `build_site()` in a separate process.
+#'   This enhances reproducibility by ensuring nothing that you have loaded
+#'   in the current process affects the build process.
 #' @export
 #' @examples
 #' \dontrun{
@@ -244,6 +256,76 @@
 #' }
 build_site <- function(pkg = ".",
                        examples = TRUE,
+                       document = TRUE,
+                       run_dont_run = FALSE,
+                       seed = 1014,
+                       mathjax = TRUE,
+                       lazy = FALSE,
+                       override = list(),
+                       preview = NA,
+                       new_process = TRUE) {
+
+  if (new_process) {
+    build_site_external(
+      pkg = pkg,
+      examples = examples,
+      document = document,
+      run_dont_run = run_dont_run,
+      seed = seed,
+      mathjax = mathjax,
+      lazy = lazy,
+      override = override,
+      preview = preview
+    )
+  } else {
+    build_site_local(
+      pkg = pkg,
+      examples = examples,
+      document = document,
+      run_dont_run = run_dont_run,
+      seed = seed,
+      mathjax = mathjax,
+      lazy = lazy,
+      override = override,
+      preview = preview
+    )
+  }
+}
+
+build_site_external <- function(pkg = ".",
+                                examples = TRUE,
+                                document = TRUE,
+                                run_dont_run = FALSE,
+                                seed = 1014,
+                                mathjax = TRUE,
+                                lazy = FALSE,
+                                override = list(),
+                                preview = NA) {
+  args <- list(
+    pkg = pkg,
+    examples = examples,
+    document = document,
+    run_dont_run = run_dont_run,
+    seed = seed,
+    mathjax = mathjax,
+    lazy = lazy,
+    override = override,
+    preview = FALSE,
+    new_process = FALSE
+  )
+  callr::r(
+    function(...) pkgdown::build_site(...),
+    args = args,
+    show = TRUE
+  )
+
+  preview_site(pkg, preview = preview)
+  invisible()
+}
+
+build_site_local <- function(pkg = ".",
+                       examples = TRUE,
+                       document = TRUE,
                        run_dont_run = FALSE,
                        seed = 1014,
                        mathjax = TRUE,
@@ -263,6 +345,7 @@ build_site <- function(pkg = ".",
   build_home(pkg, override = override, preview = FALSE)
   build_reference(pkg,
     lazy = lazy,
+    document = document,
     examples = examples,
     run_dont_run = run_dont_run,
     mathjax = mathjax,
@@ -274,17 +357,6 @@ build_site <- function(pkg = ".",
   build_tutorials(pkg, override = override, preview = FALSE)
   build_news(pkg, override = override, preview = FALSE)
 
-  preview_site(pkg, preview = preview)
   rule("DONE", line = 2)
-}
-
-build_site_rstudio <- function(pkg = ".") {
-  devtools::document()
-  callr::r(
-    function(...) pkgdown::build_site(...),
-    args = list(pkg = pkg),
-    show = TRUE
-  )
-  preview_site(pkg)
-  invisible()
+  preview_site(pkg, preview = preview)
 }

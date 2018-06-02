@@ -5,7 +5,7 @@
 
 [![Travis-CI Build
 Status](https://travis-ci.org/r-lib/pkgdown.svg?branch=master)](https://travis-ci.org/r-lib/pkgdown)
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/pkgdown)](https://cran.r-project.org/package=pkgdown)
 [![Coverage
 Status](https://img.shields.io/codecov/c/github/r-lib/pkgdown/master.svg)](https://codecov.io/github/r-lib/pkgdown?branch=master)
@@ -18,11 +18,11 @@ latest version of pkgdown. Learn more in `vignette("pkgdown")` or
 
 ## Installation
 
-pkgdown is not currently available from CRAN, but you can install the
-development version from github with:
-
 ``` r
-# install.packages("devtools")
+# Install release version from CRAN
+install.packages("pkgdown")
+
+# Install development version from GitHub
 devtools::install_github("r-lib/pkgdown")
 ```
 
@@ -53,8 +53,8 @@ in the documentation. Alternatively, you can also use
 
 ## In the wild
 
-As at last count, pkgdown is used [by over 1600
-packages](https://github.com/search?q=pkgdown.css+in%3Apath+path%3Adocs&type=Code).
+As at last count, pkgdown is used [by over 1800
+packages](https://github.com/search?o=desc&q=pkgdown.css+in%3Apath+path%3Adocs&s=indexed&type=Code).
 
 Here are a few examples created by people contributors to pkgdown:
 
