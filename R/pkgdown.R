@@ -3,11 +3,12 @@
 #' @importFrom R6 R6Class
 #' @import rlang
 #' @import fs
-NULL
+#' @keywords internal
+"_PACKAGE"
 
 #' Determine if code is executed by pkgdown
 #'
-#' This is occassionally useful when you need different behaviour by
+#' This is occasionally useful when you need different behaviour by
 #' pkgdown and regular documentation.
 #'
 #' @export

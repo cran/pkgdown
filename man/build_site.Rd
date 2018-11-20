@@ -2,10 +2,10 @@
 % Please edit documentation in R/build.r
 \name{build_site}
 \alias{build_site}
-\title{Build pkgdown website}
+\title{Build a complete pkgdown website}
 \usage{
 build_site(pkg = ".", examples = TRUE, document = TRUE,
-  run_dont_run = FALSE, seed = 1014, mathjax = TRUE, lazy = FALSE,
+  run_dont_run = FALSE, seed = 1014, lazy = FALSE,
   override = list(), preview = NA, new_process = TRUE)
 }
 \arguments{
@@ -20,8 +20,6 @@ updating the site.}
 
 \item{seed}{Seed used to initialize so that random examples are
 reproducible.}
-
-\item{mathjax}{Use mathjax to render math symbols?}
 
 \item{lazy}{If \code{TRUE}, will only rebuild articles and reference pages
 if the source is newer than the destination.}
@@ -63,8 +61,15 @@ There are four top-level YAML settings that affect the entire site:
 paths will be taken relative to the package root.
 
 \code{url} optionally specifies the url where the site will be published.
-If you supply this, other pkgdown sites will link to your site when needed,
-rather than using generic links to \url{rdocumentation.org}.
+Supplying this will:
+\itemize{
+\item Allow other pkgdown sites will link to your site when needed,
+rather than using generic links to \url{https://rdocumentation.org}.
+\item Generate a \code{sitemap.xml}, increasing the searchability of your site.
+\item Automatically generate a \code{CNAME} when
+\link[=deploy_site_github]{deploying to github}.
+}\preformatted{url: http://pkgdown.r-lib.org
+}
 
 \code{title} overrides the default site title, which is the package name.
 It's used in the page title and default navbar.
@@ -77,7 +82,7 @@ text:\preformatted{authors:
     href: http://hadley.nz
   RStudio:
     href: https://www.rstudio.com
-    html: <img src="https://tidyverse.org/rstudio-logo.svg" height="24" />
+    html: <img src="https://www.tidyverse.org/rstudio-logo.svg" height="24" />
 }
 }
 
@@ -175,8 +180,8 @@ The following YAML snippet illustrates some of the most important features.\pref
 }
 
 Components can contain sub-\code{menu}s with headings (indicated by missing
-\code{href}) and separators (indiciated by a bunch of \code{-}). You can use \code{icon}s
-from fontawesome: see a full list \url{http://fontawesome.io/icons/}.
+\code{href}) and separators (indicated by a bunch of \code{-}). You can use \code{icon}s
+from fontawesome: see a full list \url{https://fontawesome.com/icons}.
 
 This yaml would override the default "articles" component, eliminate
 the "home" component, and add a new "twitter" component. Unless you
@@ -194,11 +199,7 @@ to add search to your site.\preformatted{template:
       index_name: INDEX_NAME
 }
 
-You also need to add a \code{url:} field to \code{_pkgdown.yml} that specifies the
-location of your documentation on the web. For pkgdown, the URL field is:\preformatted{url: http://pkgdown.r-lib.org
-}
-
-See \code{vignette("pkgdown")} for details.
+You also need to add a \code{url:} field, see above.
 }
 
 \section{YAML config - template}{
@@ -249,6 +250,15 @@ template:
 These settings are currently recommended for advanced users only. There
 is little documentation, and you'll need to read the existing source
 for pkgdown templates to ensure that you use the correct components.
+}
+
+\section{Internet}{
+
+Users with limited internet connectivity can disable CRAN checks by setting
+\code{options(pkgdown.internet = FALSE)}. This will also disable some features
+from pkgdown that requires an internet connectivity. However, if it is used
+to build docs for a package that requires internet connectivity in examples
+or vignettes, this connection is required as this option won't apply on them.
 }
 
 \examples{

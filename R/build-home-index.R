@@ -21,6 +21,7 @@ build_home_index <- function(pkg = ".", quiet = TRUE) {
       data$index <- markdown(src_path)
       render_page(pkg, "home", data, "index.html")
     } else if (file_ext == "Rmd") {
+      data$index <- "$body$"
       render_index(pkg, path_rel(src_path, pkg$src_path), data = data, quiet = quiet)
     }
   }
@@ -35,7 +36,10 @@ build_home_index <- function(pkg = ".", quiet = TRUE) {
 render_index <- function(pkg = ".", path, data = list(), quiet = TRUE) {
   pkg <- as_pkgdown(pkg)
 
-  format <- build_rmarkdown_format(pkg, depth = 0L, data = data, toc = FALSE)
+  format <- build_rmarkdown_format(pkg, "home",
+                                   depth = 0L,
+                                   data = data, toc = FALSE
+  )
   render_rmarkdown(
     pkg = pkg,
     input = path,
@@ -79,7 +83,8 @@ data_home_sidebar_links <- function(pkg = ".") {
   links <- c(
     link_url(paste0("Download from ", repo$repo), repo$url),
     link_url("Browse source code", pkg$github_url),
-    link_url("Report a bug", pkg$desc$get("BugReports")[[1]]),
+    if (pkg$desc$has_fields("BugReports"))
+      link_url("Report a bug", pkg$desc$get("BugReports")[[1]]),
     purrr::map_chr(meta, ~ link_url(.$text, .$href))
   )
 
@@ -101,7 +106,12 @@ sidebar_section <- function(heading, bullets, class = make_slug(heading)) {
 }
 
 repo_link <- memoise(function(pkg) {
+  if (!has_internet()) {
+    return(NULL)
+  }
+
   cran_url <- paste0("https://cloud.r-project.org/package=", pkg)
+
   if (!httr::http_error(cran_url)) {
     return(list(repo = "CRAN", url = cran_url))
   }

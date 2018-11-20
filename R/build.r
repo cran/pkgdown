@@ -1,4 +1,4 @@
-#' Build pkgdown website
+#' Build a complete pkgdown website
 #'
 #' @description
 #' `build_site()` is a convenient wrapper around six functions:
@@ -25,8 +25,16 @@
 #' paths will be taken relative to the package root.
 #'
 #' `url` optionally specifies the url where the site will be published.
-#' If you supply this, other pkgdown sites will link to your site when needed,
-#' rather than using generic links to \url{rdocumentation.org}.
+#' Supplying this will:
+#' * Allow other pkgdown sites will link to your site when needed,
+#'   rather than using generic links to <https://rdocumentation.org>.
+#' * Generate a `sitemap.xml`, increasing the searchability of your site.
+#' * Automatically generate a `CNAME` when
+#'   [deploying to github][deploy_site_github].
+#'
+#' ```yaml
+#' url: http://pkgdown.r-lib.org
+#' ```
 #'
 #' `title` overrides the default site title, which is the package name.
 #' It's used in the page title and default navbar.
@@ -42,7 +50,7 @@
 #'     href: http://hadley.nz
 #'   RStudio:
 #'     href: https://www.rstudio.com
-#'     html: <img src="https://tidyverse.org/rstudio-logo.svg" height="24" />
+#'     html: <img src="https://www.tidyverse.org/rstudio-logo.svg" height="24" />
 #' ```
 #'
 #' @section Development mode:
@@ -126,7 +134,7 @@
 #'
 #' The `components` describes the appearance of each element in the navbar.
 #' It uses the same
-#' syntax as \href{http://rmarkdown.rstudio.com/rmarkdown_websites.html#site_navigation}{RMarkdown}.
+#' syntax as [RMarkdown](http://rmarkdown.rstudio.com/rmarkdown_websites.html#site_navigation).
 #' The following YAML snippet illustrates some of the most important features.
 #'
 #' ```
@@ -150,8 +158,8 @@
 #' ```
 #'
 #' Components can contain sub-`menu`s with headings (indicated by missing
-#' `href`) and separators (indiciated by a bunch of `-`). You can use `icon`s
-#' from fontawesome: see a full list <http://fontawesome.io/icons/>.
+#' `href`) and separators (indicated by a bunch of `-`). You can use `icon`s
+#' from fontawesome: see a full list <https://fontawesome.com/icons>.
 #'
 #' This yaml would override the default "articles" component, eliminate
 #' the "home" component, and add a new "twitter" component. Unless you
@@ -170,14 +178,7 @@
 #'       index_name: INDEX_NAME
 #' ```
 #'
-#' You also need to add a `url:` field to `_pkgdown.yml` that specifies the
-#' location of your documentation on the web. For pkgdown, the URL field is:
-#'
-#' ```yaml
-#' url: http://pkgdown.r-lib.org
-#' ```
-#'
-#' See `vignette("pkgdown")` for details.
+#' You also need to add a `url:` field, see above.
 #'
 #' @section YAML config - template:
 #' You can get complete control over the appearance of the site using the
@@ -196,7 +197,7 @@
 #' ```
 #'
 #' See a complete list of themes and preview how they look at
-#' \url{https://gallery.shinyapps.io/117-shinythemes/}:
+#' <https://gallery.shinyapps.io/117-shinythemes/>:
 #'
 #' Optionally provide the `ganalytics` template parameter to enable
 #' [Google Analytics](https://www.google.com/analytics/). It should
@@ -240,6 +241,13 @@
 #' is little documentation, and you'll need to read the existing source
 #' for pkgdown templates to ensure that you use the correct components.
 #'
+#' @section Internet:
+#' Users with limited internet connectivity can disable CRAN checks by setting
+#' `options(pkgdown.internet = FALSE)`. This will also disable some features
+#' from pkgdown that requires an internet connectivity. However, if it is used
+#' to build docs for a package that requires internet connectivity in examples
+#' or vignettes, this connection is required as this option won't apply on them.
+#'
 #' @inheritParams build_articles
 #' @inheritParams build_reference
 #' @param lazy If `TRUE`, will only rebuild articles and reference pages
@@ -259,7 +267,6 @@ build_site <- function(pkg = ".",
                        document = TRUE,
                        run_dont_run = FALSE,
                        seed = 1014,
-                       mathjax = TRUE,
                        lazy = FALSE,
                        override = list(),
                        preview = NA,
@@ -272,7 +279,6 @@ build_site <- function(pkg = ".",
       document = document,
       run_dont_run = run_dont_run,
       seed = seed,
-      mathjax = mathjax,
       lazy = lazy,
       override = override,
       preview = preview
@@ -284,7 +290,6 @@ build_site <- function(pkg = ".",
       document = document,
       run_dont_run = run_dont_run,
       seed = seed,
-      mathjax = mathjax,
       lazy = lazy,
       override = override,
       preview = preview
@@ -297,7 +302,6 @@ build_site_external <- function(pkg = ".",
                                 document = TRUE,
                                 run_dont_run = FALSE,
                                 seed = 1014,
-                                mathjax = TRUE,
                                 lazy = FALSE,
                                 override = list(),
                                 preview = NA) {
@@ -307,16 +311,25 @@ build_site_external <- function(pkg = ".",
     document = document,
     run_dont_run = run_dont_run,
     seed = seed,
-    mathjax = mathjax,
     lazy = lazy,
     override = override,
     preview = FALSE,
-    new_process = FALSE
+    new_process = FALSE,
+    crayon_enabled = crayon::has_color(),
+    crayon_colors = crayon::num_colors(),
+    pkgdown_internet = has_internet()
   )
   callr::r(
-    function(...) pkgdown::build_site(...),
+    function(..., crayon_enabled, crayon_colors, pkgdown_internet) {
+      options(
+        crayon.enabled = crayon_enabled,
+        crayon.colors = crayon_colors,
+        pkgdown.internet = pkgdown_internet
+      )
+      pkgdown::build_site(...)
+    },
     args = args,
-    show = TRUE
+    show = TRUE,
   )
 
   preview_site(pkg, preview = preview)
@@ -328,7 +341,6 @@ build_site_local <- function(pkg = ".",
                        document = TRUE,
                        run_dont_run = FALSE,
                        seed = 1014,
-                       mathjax = TRUE,
                        lazy = FALSE,
                        override = list(),
                        preview = NA
@@ -348,7 +360,6 @@ build_site_local <- function(pkg = ".",
     document = document,
     examples = examples,
     run_dont_run = run_dont_run,
-    mathjax = mathjax,
     seed = seed,
     override = override,
     preview = FALSE

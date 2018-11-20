@@ -79,7 +79,6 @@ devtools_meta <- function(x) {
   ns[[".__DEVTOOLS__"]]
 }
 
-
 # CLI ---------------------------------------------------------------------
 
 dst_path <- function(...) {
@@ -111,4 +110,14 @@ print.print_yaml <- function(x, ...) {
 
 skip_if_no_pandoc <- function() {
   testthat::skip_if_not(rmarkdown::pandoc_available("1.12.3"))
+}
+
+has_internet <- function() {
+  return(getOption("pkgdown.internet", default = TRUE))
+}
+
+with_dir <- function(new, code) {
+  old <- setwd(dir = new)
+  on.exit(setwd(old))
+  force(code)
 }

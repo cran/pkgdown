@@ -47,7 +47,7 @@ tweak_md_links <- function(html) {
     return()
 
   hrefs <- xml2::xml_attr(links, "href")
-  md_exts <- grepl("\\.md$", hrefs)
+  needs_tweak <- grepl("\\.md$", hrefs) & xml2::url_parse(hrefs)$scheme == ""
 
   fix_links <- function(x) {
     x <- gsub("\\.md$", ".html", x)
@@ -55,10 +55,10 @@ tweak_md_links <- function(html) {
     x
   }
 
-  if (any(md_exts)) {
+  if (any(needs_tweak)) {
     purrr::walk2(
-      links[md_exts],
-      fix_links(hrefs[md_exts]),
+      links[needs_tweak],
+      fix_links(hrefs[needs_tweak]),
       xml2::xml_set_attr,
       attr = "href"
     )
@@ -70,9 +70,24 @@ tweak_md_links <- function(html) {
 tweak_tables <- function(html) {
   # Ensure all tables have class="table"
   table <- xml2::xml_find_all(html, ".//table")
-  xml2::xml_attr(table, "class") <- "table"
+
+  if (length(table) != 0) {
+
+    existing <- xml2::xml_attrs(table, "class")
+    tweaked <- purrr::map(existing, prepend_class)
+
+    xml2::xml_attrs(table, "class") <- tweaked
+  }
 
   invisible()
+}
+
+prepend_class <- function(x, class = "table") {
+  if (length(x) == 0) {
+    c(class = class)
+  } else {
+    c(class = paste(class, x[["class"]]))
+  }
 }
 
 # Autolinking -------------------------------------------------------------
@@ -153,7 +168,7 @@ find_qualifier <- function(node) {
     return(NA_character_)
   }
 
-  rematch::re_match("([[:alnum:]]+)$", xml2::xml_text(qual))[, 2]
+  rematch2::re_match(xml2::xml_text(qual), "([[:alnum:]]+)$")[[".match"]]
 }
 
 # File level tweaks --------------------------------------------

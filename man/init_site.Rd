@@ -2,7 +2,7 @@
 % Please edit documentation in R/init.R
 \name{init_site}
 \alias{init_site}
-\title{Initialise the site}
+\title{Initialise site infrastructure}
 \usage{
 init_site(pkg = ".")
 }
@@ -10,22 +10,30 @@ init_site(pkg = ".")
 \item{pkg}{Path to package.}
 }
 \description{
-This creates the output directory, creates \code{favicon.ico} from package
-logo, creates a machine readable description of the site, and sets up
-assets and extra files.
+This creates the output directory (\code{docs/}), a machine readable description
+of the site, and copies CSS/JS assets and extra files.
 }
+\section{Build-ignored files}{
+
+We recommend using \code{\link[usethis:use_pkgdown]{usethis::use_pkgdown()}} to build-ignore \code{docs/} and
+\code{_pkgdown.yml}. If use another directory, or create the site manually,
+you'll need to add them to \code{.Rbuildignore} yourself. A \code{NOTE} about
+an unexpected file during \code{R CMD CHECK} is an indication you have not
+correctly ignored these files.
+}
+
 \section{Custom CSS/JS}{
 
 If you want to do minor customisation of your pkgdown site, the easiest
 way is to add \code{pkgdown/extra.css} and \code{pkgdown/extra.js}. These
 will be automatically copied to \code{docs/} and inserted into the
-\code{<HEAD>} after the default pkgdown CSS and JSS.
+\code{<HEAD>} after the default pkgdown CSS and JS.
 }
 
 \section{Favicon}{
 
-If you include you package logo in the standard location of
-\code{man/figures/logo.png}, a favicon will be automatically created for
-you.
+You should manually run \code{\link[=build_favicon]{build_favicon()}} once to generate the favicon set
+from your logo. The result is stored in \code{pkgdown/favicon} and will
+automatically be copied to the relevant location when you run \code{\link[=init_site]{init_site()}}.
 }
 

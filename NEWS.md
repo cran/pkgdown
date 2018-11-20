@@ -1,3 +1,96 @@
+# pkgdown 1.2.0
+
+## New features
+
+* `deploy_site_github()` can be used from continuous intergration systems
+  (like travis) to automatically deploy your package website to GitHub Pages.
+  See documentation for how to set up details (@jimhester).
+
+* `build_favicon()` creates high resolution favicons from the package logo,
+  and saves them in `pkgdown/`. They are created using the 
+  <http://realfavicongenerator.net> API, and are better suited for modern web 
+  usage (e.g. retina display screens, desktop shortcuts, etc.). This also 
+  removes the dependency on the magick package, making automated deployment
+  a little easier (@bisaloo, #883).
+
+* Users with limited internet connectivity can explicitly disable internet
+  usage by pkgdown by setting `options(pkgdown.internet = FALSE)` (#774, #877).
+
+## Improvements to Rd translation
+
+* `rd2html()` is now exported to facilitate creation of translation reprexes.
+
+* `\Sexpr{}` conversion supports multiple arguments, eliminating 
+  `x must be a string or a R connection` errors when using `\doi{}` (#738).
+
+* `\tabular{}` conversion better handles empty cells (#780).
+
+* `\usage{}` now supports qualified functions eliminating  
+  `Error in fun_info(x) : Unknown call: ::` errors (#795).
+
+* Invalid tags now generate more informative errors (@BarkleyBG, #771, #891)
+
+## Front end
+
+* The default footer now displays the version of pkgdown used to build 
+  the site (#876). 
+
+* All third party resources are now fetched from a single CDN and are
+  give a SRI hash (@bisaloo, #893).
+  
+* The navbar version now has class "version" so you can more easily control 
+  its display (#680).
+
+* The default css has been tweaked to ensure that icons are visible on all
+  browsers (#852).
+
+## Bug fixes and minor improvements
+
+### Home page
+
+* Can now build sites for older packages that don't have a `Authors@R` field 
+  (#727).
+
+* Remote urls ending in `.md` are no tweaked to end in `.html` (#763).
+
+* Bug report link is only shown if there's a "BugReports" field (#855).
+
+* `content-home.html` template is now used when the homepage is an `.Rmd` 
+  (@goldingn, #787).
+
+* A link to the source `inst/CITATION` was added to the authors page (#714).
+
+### News
+
+* Uses stricter regular expression when linking to GitHub authors (#902).
+
+### Reference
+
+* Unexported functions and test helpers are no longer loaded (#789).
+  
+* Selectors that do not match topics now generate a warning. If none of the 
+  specified selectors have a match, no topics are selected (#728).
+
+### Articles
+
+* The display depth of vignette tables of contents can be configured by 
+  setting `toc: depth` in `_pkgdown.yml` (#821):
+
+  ```yaml
+  toc:
+    depth: 2
+  ```
+
+### Overall site
+
+* `init_site()` now creates a CNAME file if one doesn't already exist and the
+  site's metadata includes a `url` field.
+
+* `build_site()` loses vestigal `mathjax` parameter. This didn't appear to do 
+  anything and  no one could remember why it existed (#785).
+
+* `build_site()` now uses colors even if `new_process = TRUE` (@jimhester).
+
 # pkgdown 1.1.0
 
 ## New features
@@ -17,8 +110,9 @@
 ## Front end
 
 * Added a keyboard shortcut for searching. Press `shift` + `/` (`?`) to move 
-  focus to the search bar (#642). The Algolia logo is correctly shown in 
-  the search results (#673)
+  focus to the search bar (#642). 
+  
+* The Algolia logo is correctly shown in the search results (#673).
  
 * Navbar active tab highlighting uses a superior approach (suggested by 
   @jcheng5) which should mean that the active page is correctly highlighted

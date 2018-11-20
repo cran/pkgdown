@@ -4,7 +4,7 @@
       <h1>Reference</h1>
     </div>
 
-    <table class="ref-index">
+    <table class="ref-index{{#has_icons}} ref-index-icons{{/has_icons}}">
 
     <colgroup>
       {{#has_icons}}<col class="icon" />{{/has_icons}}
@@ -20,7 +20,7 @@
         </th>
       </tr>
       {{#contents}}<tr>
-        {{#has_icons}}<td>{{#icon}}<a href="{{path}}"><img src="icons/{{{.}}}" width="30" height="30" /></a>{{/icon}}</td>{{/has_icons}}
+        {{#has_icons}}<td>{{#icon}}<a href="{{path}}"><img src="icons/{{{.}}}" width="30" height="30" alt="" /></a>{{/icon}}</td>{{/has_icons}}
         <td>
           <p>{{#aliases}}<code><a href="{{path}}">{{{.}}}</a></code> {{/aliases}}</p>
         </td>

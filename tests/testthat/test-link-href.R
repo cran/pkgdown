@@ -28,6 +28,22 @@ test_that("can link remote objects", {
   expect_equal(href_expr_(MASS::blah), NA_character_)
 })
 
+test_that("can link to functions in registered packages", {
+  scoped_package_context("test")
+  register_attached_packages("MASS")
+
+  expect_equal(href_expr_(addterm()), href_topic_remote("addterm", "MASS"))
+  expect_equal(href_expr_(addterm.default()), href_topic_remote("addterm", "MASS"))
+})
+
+test_that("can link to functions in base packages", {
+  scoped_package_context("test")
+  scoped_file_context() # package registry maintained on per-file basis
+
+  expect_equal(href_expr_(library()), href_topic_remote("library", "base"))
+  expect_equal(href_expr_(median()), href_topic_remote("median", "stats"))
+})
+
 test_that("links to home of re-exported functions", {
   # can't easily access exports in 3.1
   skip_if_not(getRversion() >= "3.2.0")
@@ -104,7 +120,7 @@ test_that("can link to remote articles", {
 
   expect_equal(
     href_expr_(vignette("highlight", "pkgdown")),
-    "http://pkgdown.r-lib.org/articles/test/highlight.html"
+    "https://pkgdown.r-lib.org/articles/test/highlight.html"
   )
 })
 
@@ -124,6 +140,24 @@ test_that("github_source returns (possibly many) URLs", {
   )
 })
 
+test_that("trailing pieces of github URLs are stripped", {
+  expect_equal(
+    parse_github_link("https://github.com/simsem/semTools/wiki"),
+    "https://github.com/simsem/semTools"
+  )
+  expect_equal(
+    parse_github_link("https://github.com/r-lib/gh#readme"),
+    "https://github.com/r-lib/gh"
+  )
+})
+
+test_that("source links are valid github URLs", {
+  expect_equal(
+    github_source_links("https://github.com/tidyverse/reprex#readme", "NEWS.md"),
+    "Source: <a href='https://github.com/tidyverse/reprex/blob/master/NEWS.md'><code>NEWS.md</code></a>"
+  )
+})
+
 test_that("fail gracefully with non-working calls", {
   scoped_package_context("test")
 
@@ -131,4 +165,12 @@ test_that("fail gracefully with non-working calls", {
   expect_equal(href_expr_(vignette(package = package)), NA_character_)
   expect_equal(href_expr_(vignette(1, 2)), NA_character_)
   expect_equal(href_expr_(vignette(, )), NA_character_)
+})
+
+test_that("spurious functions are not linked (#889)", {
+  scoped_package_context("test")
+
+  expect_equal(href_expr_(Authors@R), NA_character_)
+  expect_equal(href_expr_(content-home.html), NA_character_)
+  expect_equal(href_expr_(toc: depth), NA_character_)
 })

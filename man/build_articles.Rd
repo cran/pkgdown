@@ -3,10 +3,10 @@
 \name{build_articles}
 \alias{build_articles}
 \alias{build_article}
-\title{Build articles}
+\title{Build articles section}
 \usage{
-build_articles(pkg = ".", quiet = TRUE, lazy = TRUE, override = list(),
-  preview = NA)
+build_articles(pkg = ".", quiet = TRUE, lazy = TRUE,
+  override = list(), preview = NA)
 
 build_article(name, pkg = ".", data = list(), lazy = FALSE,
   quiet = TRUE)
@@ -32,30 +32,34 @@ relative to \code{vignettes/} without extension, or \code{index} or \code{README
 \item{data}{Additional data to pass on to template.}
 }
 \description{
-Each R Markdown vignette in \code{vignettes/} and its subdirectories is
-rendered and saved to \code{articles/}. Vignettes are rendered using a
-special document format that reconciles \code{\link[rmarkdown:html_document]{rmarkdown::html_document()}} with
-your pkgdown template.
+Each R Markdown vignette in \code{vignettes/} and its subdirectories is rendered
+and saved to \code{articles/}. Vignettes are rendered using a special document
+format that reconciles \code{\link[rmarkdown:html_document]{rmarkdown::html_document()}} with your pkgdown
+template.
+}
+\details{
+A vignette with the same name as the package (e.g., \code{vignettes/pkgdown.Rmd})
+gets special treatment. It is rendered and linked to in the navbar under
+"Get started".
 }
 \section{External files}{
 
-pkgdown differs from base R in its handling of external files. When
-building vignettes, R assumes that vignettes are self-contained
-(a reasonable assumption when most vignettes were PDFs) and only copies
-files explicitly listed in \code{.install_extras}. pkgdown takes a different
-approach based on \link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources}, and it will also
-copy any images that you link to. If for some reason the automatic
-detection doesn't work, you will need to add a \code{resource_files} field to
-the yaml metadata, .e.g\preformatted{---
+pkgdown differs from base R in its handling of external files. When building
+vignettes, R assumes that vignettes are self-contained (a reasonable
+assumption when most vignettes were PDFs) and only copies files explicitly
+listed in \code{.install_extras}. pkgdown takes a different approach based on
+\code{\link[rmarkdown:find_external_resources]{rmarkdown::find_external_resources()}}, and it will also copy any images that
+you link to. If for some reason the automatic detection doesn't work, you
+will need to add a \code{resource_files} field to the yaml metadata, e.g.:\preformatted{---
 title: My Document
 resource_files:
- - data/mydata.csv
- - images/figure.png
+  - data/mydata.csv
+  - images/figure.png
 ---
 }
 
-Note that you can not use the \code{fig.path} to change the output directory
-of generated figures as the default is a strong assumption of rmarkdown.
+Note that you can not use the \code{fig.path} to change the output directory of
+generated figures as its default value is a strong assumption of rmarkdown.
 }
 
 \section{YAML config}{
@@ -80,7 +84,7 @@ Note that \code{contents} can contain either a list of vignette names
 common prefix or suffix, you can use \code{starts_with("prefix")} and
 \code{ends_with("suffix")} to select them all. If you don't care about
 position within the string, use \code{contains("word")}. For more complex
-naming schemes you can use an aribrary regular expression with
+naming schemes you can use an arbitrary regular expression with
 \code{matches("regexp")}.
 
 pkgdown will check that all vignettes are included in the index
@@ -90,15 +94,18 @@ this page, and will generate a warning if you have missed any.
 \section{YAML header}{
 
 By default, pkgdown builds all articles with \code{\link[rmarkdown:html_document]{rmarkdown::html_document()}}
-using setting the \code{template} parameter to a custom built template that
-matches the site template. You can override this with a \code{pkgdown} field
-in your yaml metadata:\preformatted{pkgdown:
+using setting the \code{template} parameter. This overrides any custom settings
+you have in your YAML metadata, ensuring that all articles are rendered
+in the same way (and receive the default site template).
+
+If you need to override the output format, or set any options, you'll need
+to add a \code{pkgdown} field to your yaml metadata:\preformatted{pkgdown:
   as_is: true
 }
 
-This will tell pkgdown to use the \code{output_format} that you have specified.
-This format must accept \code{template}, \code{theme}, and \code{self_contained} in
-order to work with pkgdown.
+This will tell pkgdown to use the \code{output_format} (and options) that you
+have specified. This format must accept \code{template}, \code{theme}, and
+\code{self_contained} in order to work with pkgdown.
 
 If the output format produces a PDF, you'll also need to specify the
 \code{extension} field:\preformatted{pkgdown:
@@ -107,20 +114,30 @@ If the output format produces a PDF, you'll also need to specify the
 }
 }
 
-\section{Supressing vignettes}{
-
+\section{Suppressing vignettes}{
 
 If you want articles that are not vignettes, either put them in
-subdirectories or list in \code{.Rbuildignore}. An articles link
-will be automatically added to the default navbar if the vignettes
-directory is present: if you do not want this, you will need to
-customise the navbar. See \code{\link[=build_site]{build_site()}} details.
+subdirectories or list in \code{.Rbuildignore}. An articles link will be
+automatically added to the default navbar if the vignettes directory is
+present: if you do not want this, you will need to customise the navbar. See
+\code{\link[=build_site]{build_site()}} details.
+
+Vignette files prefixed with an underscore (e.g., \code{_index.Rmd}) are ignored
+to enable rendering of \href{https://bookdown.org/yihui/bookdown/}{bookdown}
+sites.
+}
+
+\section{Tables of contents}{
+
+You can control the TOC depth via the YAML configuration file:\preformatted{toc:
+  depth: 2
+}
 }
 
 \section{Figures}{
 
 
-You can control the default rendering of figues by specifying the \code{figures}
+You can control the default rendering of figures by specifying the \code{figures}
 field in \code{_pkgdown.yml}. The default settings are equivalent to:\preformatted{figures:
   dev: grDevices::png
   dpi: 96

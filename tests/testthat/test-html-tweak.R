@@ -12,6 +12,41 @@ test_that("tables get class='table'", {
     expect_equal("table")
 })
 
+test_that("multiple tables with existing classes are prepended", {
+  html <- xml2::read_html(
+    "<body>
+    <table class='a'></table>
+    <table class='b'></table>
+    <table></table>
+    </body>"
+  )
+  expect_silent(tweak_tables(html))
+
+  html %>%
+    xml2::xml_find_all(".//table") %>%
+    xml2::xml_attr("class") %>%
+    expect_equal(c("table a", "table b", "table"))
+})
+
+test_that("tables get class='table' prepended to existing classes", {
+  html <- xml2::read_html("<body><table class = 'foo bar'>\n</table></body>")
+  tweak_tables(html)
+
+  html %>%
+    xml2::xml_find_all(".//table") %>%
+    xml2::xml_attr("class") %>%
+    expect_equal("table foo bar")
+})
+
+test_that("tweaking tables does not touch other html", {
+  html <- xml2::read_html("<body><em>foo</em></body>")
+  html_orig <- html
+
+  tweak_tables(html)
+
+  expect_equal(as.character(html), as.character(html_orig))
+})
+
 # anchors -------------------------------------------------------------
 
 test_that("anchors don't get additional newline", {
@@ -38,6 +73,55 @@ test_that("Stripping HTML tags", {
     "some text about data"
   )
 })
+
+
+# links -------------------------------------------------------------------
+
+test_that("only local md links are tweaked", {
+  html <- xml2::read_html('
+    <div class="contents">
+      <div id="x">
+        <a href="local.md"></a>
+        <a href="http://remote.com/remote.md"></a>
+      </div>
+    </div>')
+
+  tweak_md_links(html)
+
+  href <- html %>%
+    xml2::xml_find_all(".//a") %>%
+    xml2::xml_attr("href")
+
+  expect_equal(href[[1]], "local.html")
+  expect_equal(href[[2]], "http://remote.com/remote.md")
+})
+
+
+# homepage ----------------------------------------------------------------
+
+test_that("page header modification succeeds", {
+  html <- xml2::read_html('
+    <h1 class="hasAnchor">
+      <a href="#plot" class="anchor"> </a>
+      <img src="someimage" alt=""> some text
+    </h1>')
+
+  tweak_homepage_html(html)
+
+  expect_output_file(cat(as.character(html)), "assets/home-page-header.html")
+})
+
+test_that("links to vignettes & figures tweaked", {
+  html <- xml2::read_html('
+    <img src="vignettes/x.png" />
+    <img src="man/figures/x.png" />
+  ')
+
+  tweak_homepage_html(html)
+
+  expect_output_file(cat(as.character(html)), "assets/home-links.html")
+})
+
 
 # find badges -------------------------------------------------------------
 
