@@ -10,7 +10,7 @@
 #' Add the following to your `.travis.yml` file.
 #'
 #' ```
-#' before_deploy: Rscript -e 'install.packages("pkgdown")'
+#' before_deploy: Rscript -e 'remotes::install_cran("pkgdown")'
 #' deploy:
 #'   provider: script
 #'   script: Rscript -e 'pkgdown::deploy_site_github()'
@@ -28,12 +28,14 @@
 #' ```
 #' git checkout --orphan gh-pages
 #' git rm -rf .
-#' touch README.md
-#' git add README.md
-#' git commit -m 'initial gh-pages commit'
+#' git commit --allow-empty -m 'Initial gh-pages commit'
 #' git push origin gh-pages
 #' git checkout master
 #' ```
+#'
+#' We recommend doing this outside of RStudio (with the project closed) as
+#' from RStudio's perspective you end up deleting all the files and then
+#' re-creating them.
 #'
 #' If you're using a custom CNAME, make sure you have set the `url` in
 #' `_pkgdown.yaml`:
@@ -86,7 +88,7 @@ deploy_site_github <- function(
   cat_line("Setting private key permissions to 0600")
   fs::file_chmod(ssh_id_file, "0600")
 
-  deploy_local(pkg, repo_slug = repo_slug, commit_message = commit_message)
+  deploy_local(pkg, repo_slug = repo_slug, commit_message = commit_message, ...)
 
   rule("Deploy completed", line = 2)
 }
@@ -94,7 +96,8 @@ deploy_site_github <- function(
 deploy_local <- function(
                          pkg = ".",
                          repo_slug = NULL,
-                         commit_message = construct_commit_message(pkg)
+                         commit_message = construct_commit_message(pkg),
+                         ...
                          ) {
 
   dest_dir <- fs::dir_create(fs::file_temp())
@@ -110,7 +113,8 @@ deploy_local <- function(
   build_site(".",
     override = list(destination = dest_dir),
     document = FALSE,
-    preview = FALSE
+    preview = FALSE,
+    ...
   )
   github_push(dest_dir, commit_message)
 

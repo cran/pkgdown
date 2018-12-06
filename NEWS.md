@@ -1,3 +1,23 @@
+# pkgdown 1.3.0
+
+* Restore accidentally deleted `build_logo()` function so that logos
+  are once more copied to the website.
+
+* Fix to `pkgdown.css` so page header has correct amount of top margin.
+
+* `content-home.html` template is no longer used when the homepage
+  is an `.Rmd` (Reverts #834. Fixes #927, #929)
+
+* `deploy_site_github()` now passes parameters to `build_site()` 
+  (@noamross, #922), and the documentation gives slightly better advice.
+
+* Correct off-by-one error in navbar highlighting javascript; now no navbar
+  is highlighted if none match the current path (#911).
+
+* Tweaking of HTML table classes was fixed (@yonicd, #912)
+
+* Restore accidentally removed `docsearch.css` file.
+
 # pkgdown 1.2.0
 
 ## New features
@@ -51,7 +71,7 @@
 * Can now build sites for older packages that don't have a `Authors@R` field 
   (#727).
 
-* Remote urls ending in `.md` are no tweaked to end in `.html` (#763).
+* Remote urls ending in `.md` are no longer tweaked to end in `.html` (#763).
 
 * Bug report link is only shown if there's a "BugReports" field (#855).
 
