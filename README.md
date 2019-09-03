@@ -12,7 +12,7 @@ maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www
 [![CRAN
 Status](https://www.r-pkg.org/badges/version/pkgdown)](https://cran.r-project.org/package=pkgdown)
 [![Codecov test
-coverage](https://img.shields.io/codecov/c/github/r-lib/pkgdown/master.svg)](https://codecov.io/github/r-lib/pkgdown?branch=master)
+coverage](https://codecov.io/gh/r-lib/pkgdown/branch/master/graphs/badge.svg)](https://codecov.io/gh/r-lib/pkgdown?branch=master)
 
 pkgdown is designed to make it quick and easy to build a website for
 your package. You can see pkgdown in action at
@@ -61,7 +61,7 @@ command (close all tabs), and the `W` is a mnemonic for website.
 
 ## In the wild
 
-At last count, pkgdown is used [by over 2500
+At last count, pkgdown is used [by over 3500
 packages](https://github.com/search?o=desc&q=pkgdown.css+in%3Apath+path%3Adocs&s=indexed&type=Code).
 
 Here are a few examples created by contributors to pkgdown:
@@ -89,5 +89,5 @@ new pkgdown techniques.
 ## Code of conduct
 
 Please note that this project is released with a [Contributor Code of
-Conduct](.github/CODE_OF_CONDUCT.md). By participating in this project
-you agree to abide by its terms.
+Conduct](https://pkgdown.r-lib.org/CODE_OF_CONDUCT.html). By
+participating in this project you agree to abide by its terms.

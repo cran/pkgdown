@@ -17,9 +17,12 @@
 #' `<HEAD>` after the default pkgdown CSS and JS.
 #'
 #' @section Favicon:
-#' You should manually run [build_favicon()] once to generate the favicon set
-#' from your logo. The result is stored in `pkgdown/favicon` and will
-#' automatically be copied to the relevant location when you run [init_site()].
+#' Favicons are built automatically from a logo PNG or SVG by [init_site()] and
+#' copied to `pkgdown/favicon`.
+#'
+#' @section 404:
+#' pkgdown creates a default 404 page (`404.html`). You can customize 404
+#' page content using `.github/404.md`.
 #'
 #' @inheritParams build_articles
 #' @export
@@ -33,13 +36,18 @@ init_site <- function(pkg = ".") {
   rule("Initialising site")
   dir_create(pkg$dst_path)
   copy_assets(pkg)
-  copy_favicons(pkg)
+
+  if (has_logo(pkg) && !has_favicons(pkg)) {
+    build_favicons(pkg)
+    copy_favicons(pkg)
+  }
 
   build_site_meta(pkg)
   build_sitemap(pkg)
   build_docsearch_json(pkg)
   build_cname(pkg)
   build_logo(pkg)
+  build_404(pkg)
 
   invisible()
 }
@@ -73,7 +81,11 @@ copy_asset_dir <- function(pkg, from_dir, file_regexp = NULL) {
     return(character())
   }
 
-  files <- dir_ls(from_path)
+  files <- dir_ls(from_path, recurse = TRUE)
+
+  # Remove directories from files
+  files <- files[!fs::is_dir(files)]
+
   if (!is.null(file_regexp)) {
     files <- files[grepl(file_regexp, path_file(files))]
   }

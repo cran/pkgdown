@@ -7,44 +7,49 @@
 #' details on setting up your repository to use this.
 #'
 #' @section Setup:
-#' Add the following to your `.travis.yml` file.
+#' For a quick setup, you can use [usethis::use_pkgdown_travis()]. It  will help you
+#' with the following detailed steps.
 #'
-#' ```
-#' before_deploy: Rscript -e 'remotes::install_cran("pkgdown")'
-#' deploy:
-#'   provider: script
-#'   script: Rscript -e 'pkgdown::deploy_site_github()'
-#'   skip_cleanup: true
-#' ```
+#' * Add the following to your `.travis.yml` file.
 #'
-#' Then you will need to setup your deployment keys. The easiest way is to call
+#'     ```
+#'     before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
+#'     deploy:
+#'       provider: script
+#'       script: Rscript -e 'pkgdown::deploy_site_github()'
+#'       skip_cleanup: true
+#'     ```
+#'
+#' * Then you will need to setup your deployment keys. The easiest way is to call
 #' `travis::use_travis_deploy()`. This will generate and push the necessary
 #' keys to your GitHub and Travis accounts. See the [travis package
 #' website](https://ropenscilabs.github.io/travis/) for more details.
 #'
-#' Next, make sure that a gh-pages branch exists. The simplest way to do
+#' * Next, make sure that a gh-pages branch exists. The simplest way to do
 #' so is to run the following git commands locally:
 #'
-#' ```
-#' git checkout --orphan gh-pages
-#' git rm -rf .
-#' git commit --allow-empty -m 'Initial gh-pages commit'
-#' git push origin gh-pages
-#' git checkout master
-#' ```
+#'     ```
+#'     git checkout --orphan gh-pages
+#'     git rm -rf .
+#'     git commit --allow-empty -m 'Initial gh-pages commit'
+#'     git push origin gh-pages
+#'     git checkout master
+#'     ```
 #'
-#' We recommend doing this outside of RStudio (with the project closed) as
-#' from RStudio's perspective you end up deleting all the files and then
-#' re-creating them.
+#'     We recommend doing this outside of RStudio (with the project closed) as
+#'     from RStudio's perspective you end up deleting all the files and then
+#'     re-creating them.
 #'
-#' If you're using a custom CNAME, make sure you have set the `url` in
+#' *  If you're using a custom CNAME, make sure you have set the `url` in
 #' `_pkgdown.yaml`:
 #'
-#' ```yaml
-#' url: http://pkgdown.r-lib.org
-#' ```
+#'    ```yaml
+#'    url: http://pkgdown.r-lib.org
+#'    ```
 #'
 #' @inheritParams build_site
+#' @param install Optionally, opt-out of automatic installation. This is
+#'   necessary if the package you're document is a dependency of pkgdown
 #' @param tarball The location of the built package tarball. The default Travis
 #'   configuration for R packages sets `PKG_TARBALL` to this path.
 #' @param ssh_id The private id to use, a base64 encoded content of the private
@@ -58,6 +63,7 @@
 #' @export
 deploy_site_github <- function(
   pkg = ".",
+  install = TRUE,
   tarball = Sys.getenv("PKG_TARBALL", ""),
   ssh_id = Sys.getenv("id_rsa", ""),
   repo_slug = Sys.getenv("TRAVIS_REPO_SLUG", ""),
@@ -78,8 +84,10 @@ deploy_site_github <- function(
   }
 
   rule("Deploying site", line = 2)
-  rule("Installing package", line = 1)
-  callr::rcmd("INSTALL", tarball, show = verbose, fail_on_status = TRUE)
+  if (install) {
+    rule("Installing package", line = 1)
+    callr::rcmd("INSTALL", tarball, show = verbose, fail_on_status = TRUE)
+  }
 
   ssh_id_file <- "~/.ssh/id_rsa"
   rule("Setting up SSH id", line = 1)
@@ -112,8 +120,9 @@ deploy_local <- function(
   github_clone(dest_dir, repo_slug)
   build_site(".",
     override = list(destination = dest_dir),
-    document = FALSE,
+    devel = FALSE,
     preview = FALSE,
+    install = FALSE,
     ...
   )
   github_push(dest_dir, commit_message)

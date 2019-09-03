@@ -33,15 +33,26 @@ relative to \code{vignettes/} without extension, or \code{index} or \code{README
 }
 \description{
 Each R Markdown vignette in \code{vignettes/} and its subdirectories is rendered
-and saved to \code{articles/}. Vignettes are rendered using a special document
+and saved to \code{articles/}.
+
+The only exception are \code{.Rmd} vignettes that start with \code{_} (i.e., \code{_index.Rmd}), enabling the use of child documents in \href{https://bookdown.org/yihui/bookdown/}{bookdown}, and vignettes in a \code{tutorials} subdirectory, which is reserved for tutorials built with \code{build_tutorials()}
+
+Vignettes are rendered using a special document
 format that reconciles \code{\link[rmarkdown:html_document]{rmarkdown::html_document()}} with your pkgdown
 template.
+
+Note that when run by itself (i.e. not by \code{build_site()}), vignettes will
+use a previous installed version of the package, not the current source
+version.
 }
-\details{
+\section{Get started vignette}{
+
 A vignette with the same name as the package (e.g., \code{vignettes/pkgdown.Rmd})
 gets special treatment. It is rendered and linked to in the navbar under
-"Get started".
+"Get started". Rmarkdown files in \code{vignettes/tutorials/} are ignored,
+because these are assumed to contain tutorials, see \code{build_tutorials()}.
 }
+
 \section{External files}{
 
 pkgdown differs from base R in its handling of external files. When building
@@ -60,6 +71,17 @@ resource_files:
 
 Note that you can not use the \code{fig.path} to change the output directory of
 generated figures as its default value is a strong assumption of rmarkdown.
+}
+
+\section{Embedding Shiny apps}{
+
+If you would like to embed a Shiny app into an article, the app will have
+to be hosted independently, (e.g. \url{https://www.shinyapps.io}). Then, you
+can embed the app into your article using an \code{<iframe>}, e.g.
+\code{<iframe src = "https://gallery.shinyapps.io/083-front-page" class="shiny-app">}.
+
+See \url{https://github.com/r-lib/pkgdown/issues/838#issuecomment-430473856} for
+some hints on how to customise the appearance with CSS.
 }
 
 \section{YAML config}{
@@ -94,7 +116,7 @@ this page, and will generate a warning if you have missed any.
 \section{YAML header}{
 
 By default, pkgdown builds all articles with \code{\link[rmarkdown:html_document]{rmarkdown::html_document()}}
-using setting the \code{template} parameter. This overrides any custom settings
+by setting the \code{template} parameter. This overrides any custom settings
 you have in your YAML metadata, ensuring that all articles are rendered
 in the same way (and receive the default site template).
 

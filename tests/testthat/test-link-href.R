@@ -1,5 +1,16 @@
 context("test-link-href.R")
 
+test_that("can link infix", {
+  scoped_package_context("test")
+  scoped_file_context() # package registry maintained on per-file basis
+
+  expect_equal(href_topic("%in%"), "https://rdrr.io/r/base/match.html")
+
+  expect_equal(href_expr_("%in%"), href_topic("%in%"))
+  expect_equal(href_expr_(`%in%`), href_topic("%in%"))
+  expect_equal(href_expr_(?`%in%`), href_topic("%in%"))
+})
+
 test_that("can link function calls", {
   scoped_package_context("test", c(foo = "bar"))
   scoped_file_context("test")
@@ -119,8 +130,8 @@ test_that("can link to remote articles", {
   )
 
   expect_equal(
-    href_expr_(vignette("highlight", "pkgdown")),
-    "https://pkgdown.r-lib.org/articles/test/highlight.html"
+    href_expr_(vignette("pkgdown", "pkgdown")),
+    "https://pkgdown.r-lib.org/articles/pkgdown.html"
   )
 })
 

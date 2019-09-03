@@ -1,4 +1,11 @@
 href_string <- function(x, bare_symbol = FALSE) {
+
+  if (is_infix(x)) {
+    # backticks are needed for the parse call, otherwise get:
+    # Error: unexpected SPECIAL in "href_expr_(%in%"
+    x <- paste0("`", x, "`")
+  }
+
   expr <- tryCatch(parse(text = x)[[1]], error = function(e) NULL)
   if (is.null(expr)) {
     return(NA_character_)
@@ -36,7 +43,7 @@ href_expr <- function(expr, bare_symbol = FALSE) {
     n_args <- length(expr) - 1
 
     if (fun_name == "vignette") {
-      expr <- lang_standardise(expr)
+      expr <- call_standardise(expr)
       href_article(expr$topic, expr$package)
     } else if (fun_name == "?") {
       if (n_args == 1) {
@@ -59,6 +66,8 @@ href_expr <- function(expr, bare_symbol = FALSE) {
     } else {
       href_topic(fun_name, pkg)
     }
+  } else if (is_infix(expr)) {
+    href_topic(as.character(expr))
   } else {
     NA_character_
   }
@@ -128,9 +137,17 @@ href_topic_remote <- function(topic, package) {
   if (!is.null(reference_url)) {
     paste0(reference_url, paste0("/", rdname, ".html"))
   } else {
-    # Fall back to rdocumentation.org which almost certainly works
-    paste0("https://www.rdocumentation.org/packages/", package, "/topics/", rdname)
+    # Fall back to rdrr.io
+    if (is_base_package(package)) {
+      paste0("https://rdrr.io/r/", package, "/", rdname, ".html")
+    } else {
+      paste0("https://rdrr.io/pkg/", package, "/man/", rdname, ".html")
+    }
   }
+}
+
+is_base_package <- function(x) {
+  x %in% as.vector(utils::installed.packages(priority = "base")[, "Package"])
 }
 
 href_article <- function(article, package = NULL) {

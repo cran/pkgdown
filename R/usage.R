@@ -79,11 +79,15 @@ usage_type <- function(x) {
 
     out
   } else {
-    stop("Unknown type: ", typeof(x), call. = FALSE)
+    stop("Unknown type: ", typeof(x), " (in ", as.character(x), ")",  call. = FALSE)
   }
 }
 
 is_infix <- function(x) {
+  if (is.null(x)) {
+    return(FALSE)
+  }
+
   x <- as.character(x)
   ops <- c(
     "+", "-", "*", "^", "/",
@@ -110,7 +114,7 @@ fun_info <- function(fun) {
       list(
         type = "s4",
         name = as.character(x[[2]]),
-        signature = purrr::map_chr(as.list(x[[3]][-1]), as.character)
+        signature = as.character(x[[3]][-1])
       )
     } else if (is_call(x, c("::", ":::"))) {
       # TRUE if fun has a namespace, pkg::fun()
@@ -150,13 +154,15 @@ usage_code.NULL <- function(x) character()
 #' @export
 usage_code.tag <- function(x) {
   if (!identical(class(x), "tag")) {
-    stop("Undefined tag ", class(x)[[1]], call. = FALSE)
+    stop("Undefined tag in usage ", class(x)[[1]], call. = FALSE)
   }
   paste0(purrr::flatten_chr(purrr::map(x, usage_code)), collapse = "")
 }
 
 #' @export
 usage_code.tag_dots <- function(x) "..."
+#' @export
+usage_code.tag_ldots <- function(x) "..."
 
 #' @export
 usage_code.TEXT <-    function(x) as.character(x)

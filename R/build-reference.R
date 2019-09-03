@@ -33,7 +33,7 @@
 #' topics with the Rd keyword "internal". To include these, use
 #' `starts_with("build_", internal = TRUE)`.
 #'
-#' You can alo select topics that contain specified Rd concepts with
+#' You can also select topics that contain specified Rd concepts with
 #' `has_concept("blah")`.
 #'
 #' You can provide long descriptions for groups of functions using the YAML `>`
@@ -83,29 +83,36 @@
 #' @param lazy If `TRUE`, only rebuild pages where the `.Rd`
 #'   is more recent than the `.html`. This makes it much easier to
 #'   rapidly prototype. It is set to `FALSE` by [build_site()].
-#' @param document If `TRUE`, will run [devtools::document()] before
-#'   updating the site.
 #' @param run_dont_run Run examples that are surrounded in \\dontrun?
 #' @param examples Run examples?
 #' @param seed Seed used to initialize so that random examples are
 #'   reproducible.
+#' @param devel Determines how code is loaded in order to run examples.
+#'   If `TRUE` (the default), assumes you are in a live development
+#'   environment, and loads source package with [pkgload::load_all()].
+#'   If `FALSE`, uses the installed version of the package.
+#' @param document **Deprecated** Use `devel` instead.
+#' @param topics Build only specified topics. If supplied, sets `lazy``
+#'   and `preview` to `FALSE`.
 #' @export
 build_reference <- function(pkg = ".",
                             lazy = TRUE,
-                            document = FALSE,
                             examples = TRUE,
                             run_dont_run = FALSE,
                             seed = 1014,
                             override = list(),
-                            preview = NA
-                            ) {
+                            preview = NA,
+                            devel = TRUE,
+                            document = "DEPRECATED",
+                            topics = NULL) {
   pkg <- section_init(pkg, depth = 1L, override = override)
 
-  rule("Building function reference")
-  if (document && (pkg$package != "pkgdown") && is_installed("devtools")) {
-    devtools::document(pkg$src_path)
+  if (!missing(document)) {
+    warning("`document` is deprecated. Please use `devel` instead.", call. = FALSE)
+    devel <- document
   }
 
+  rule("Building function reference")
   build_reference_index(pkg)
 
   # copy everything from man/figures to docs/reference/figures
@@ -118,7 +125,10 @@ build_reference <- function(pkg = ".",
   if (examples) {
     # Re-loading pkgdown while it's running causes weird behaviour with
     # the context cache
-    if (!(pkg$package %in% c("pkgdown", "rprojroot"))) {
+    if (isTRUE(devel) && !(pkg$package %in% c("pkgdown", "rprojroot"))) {
+      if (!is_installed("pkgload")) {
+        abort("Please install pkgload to use `build_reference(devel = TRUE)`")
+      }
       pkgload::load_all(pkg$src_path, export_all = FALSE, helpers = FALSE)
     } else {
       library(pkg$package, character.only = TRUE)
@@ -133,7 +143,14 @@ build_reference <- function(pkg = ".",
     set.seed(seed)
   }
 
-  topics <- purrr::transpose(pkg$topics)
+  if (!is.null(topics)) {
+    topics <- purrr::transpose(pkg$topics[pkg$topics$name %in% topics, ])
+    lazy <- FALSE
+    preview <- FALSE
+  } else {
+    topics <- purrr::transpose(pkg$topics)
+  }
+
   purrr::map(topics,
     build_reference_topic,
     pkg = pkg,
@@ -233,13 +250,15 @@ data_reference_topic <- function(topic,
     out$has_args <- TRUE # Work around mustache deficiency
   }
 
-  out$examples <- as_data(
-    tags$tag_examples[[1]],
-    env = new.env(parent = globalenv()),
-    topic = tools::file_path_sans_ext(topic$file_in),
-    examples = examples,
-    run_dont_run = run_dont_run
-  )
+  if (!is.null(tags$tag_examples)) {
+    out$examples <- run_examples(
+      tags$tag_examples[[1]],
+      env = new.env(parent = globalenv()),
+      topic = tools::file_path_sans_ext(topic$file_in),
+      run_examples = examples,
+      run_dont_run = run_dont_run
+    )
+  }
 
   # Everything else stays in original order, and becomes a list of sections.
   section_tags <- c(

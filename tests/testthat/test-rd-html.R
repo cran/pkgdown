@@ -15,11 +15,19 @@ test_that("simple wrappers work as expected", {
 })
 
 test_that("simple replacements work as expected", {
-  expect_equal(rd2html("\\ldots"), "&#8230;")
+  expect_equal(rd2html("\\ldots"), "...")
+  expect_equal(rd2html("\\dots"), "...")
 })
 
 test_that("subsection generates h3", {
-  expect_equal(rd2html("\\subsection{A}{B}"), c("<h3>A</h3>", "B"))
+  expect_equal(rd2html("\\subsection{A}{B}"), c("<h3>A</h3>", "<p>B</p>"))
+})
+test_that("subsection generates h3", {
+  expect_equal(rd2html("\\subsection{A}{
+    p1
+
+    p2
+  }"), c("<h3>A</h3>", "<p>p1</p>", "<p>p2</p>"))
 })
 
 test_that("if generates html", {
@@ -86,6 +94,25 @@ test_that("can skip trailing \\cr", {
   )
 })
 
+test_that("code blocks in tables render (#978)", {
+  expect_equal(
+    rd2html('\\tabular{ll}{a \\tab \\code{b} \\cr foo \\tab bar}')[[2]],
+    "<tr><td>a</td><td><code>b</code></td></tr>"
+  )
+})
+
+test_that("tables with tailing \n (#978)", {
+  expect_equal(
+    rd2html('
+      \\tabular{ll}{
+        a   \\tab     \\cr
+        foo \\tab bar
+      }
+    ')[[2]],
+    "<tr><td>a</td><td></td></tr>"
+  )
+})
+
 # sexpr  ------------------------------------------------------------------
 
 test_that("code inside Sexpr is evaluated", {
@@ -147,9 +174,11 @@ test_that("DOIs are linked", {
   scoped_package_context("pkgdown", src_path = "../..")
   scoped_file_context()
 
-  expect_equal(
-    rd2html("\\doi{10.1177/0163278703255230}"),
-    "doi: <a href='http://doi.org/10.1177/0163278703255230'>10.1177/0163278703255230</a>"
+  expect_true(
+    rd2html("\\doi{test}") %in%
+      c("doi: <a href='http://doi.org/test'>test</a>",
+        "doi: <a href='https://doi.org/test'>test</a>"
+      )
   )
 })
 
@@ -167,7 +196,7 @@ test_that("can convert cross links to online documentation url", {
 
   expect_equal(
     rd2html("\\link[base]{library}"),
-    a("library", href = "https://www.rdocumentation.org/packages/base/topics/library")
+    a("library", href = "https://rdrr.io/r/base/library.html")
   )
 })
 
@@ -195,7 +224,7 @@ test_that("can parse local links with topic!=label", {
   )
 })
 
-test_that("functions in other packages generates link to rdocumentation.org", {
+test_that("functions in other packages generates link to rdrr.io", {
   scoped_package_context("mypkg", c(x = "x", y = "y"))
   scoped_file_context("x")
 
@@ -278,6 +307,32 @@ test_that("nl after tag doesn't trigger paragraphs", {
 test_that("cr generates line break", {
   out <- flatten_para(rd_text("a \\cr b"))
   expect_equal(out, "<p>a <br /> b</p>")
+})
+
+test_that("nested item with whitespace parsed correctly", {
+  out <- rd2html("
+    \\describe{
+    \\item{Label}{
+
+      This text is indented in a way pkgdown doesn't like.
+  }}")
+  expect_equal(out, c(
+    "<dl class='dl-horizontal'>",
+    "<dt>Label</dt><dd><p>This text is indented in a way pkgdown doesn't like.</p></dd>",
+    "</dl>"
+  ))
+})
+
+# Verbatim ----------------------------------------------------------------
+
+test_that("newlines are preserved in preformatted blocks", {
+  out <- flatten_para(rd_text("\\preformatted{a\n\nb\n\nc}"))
+  expect_equal(out, "<pre>a\n\nb\n\nc</pre>\n")
+})
+
+test_that("spaces are preserved in preformatted blocks", {
+  out <- flatten_para(rd_text("\\preformatted{a\n\n  b\n\n  c}"))
+  expect_equal(out, "<pre>a\n\n  b\n\n  c</pre>\n")
 })
 
 # Usage -------------------------------------------------------------------
