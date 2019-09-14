@@ -1,3 +1,7 @@
+# pkgdown 1.4.1
+
+* Don't install test package in user library (fixes CRAN failure).
+
 # pkgdown 1.4.0
 
 ## New features

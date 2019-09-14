@@ -1,7 +1,7 @@
-912db410d5225bc494428e36aeb0fbc3 *DESCRIPTION
+8361068453583863689986c446c265c5 *DESCRIPTION
 827cfbec651c41c54715430fcaf78159 *LICENSE
 15a4d6380a9fc4ff8a0ce0f63759b7dc *NAMESPACE
-973dfca14f49d02b125eaa4063fbea2d *NEWS.md
+9966489e2641568d478f14200c3c493a *NEWS.md
 90afc8a34c95064a5de9b85eece8007f *R/autolink_html.R
 667cee819b90eb1eb6dd6addb7b4865b *R/build-404.R
 d3c27d4a266af6d952a3971a68323c7d *R/build-articles.R
@@ -55,7 +55,7 @@ c7c8c529d99958a033b48bc0d008d633 *R/template.R
 06b63cc8791e9bff7a53cd19f42806dd *R/utils-fs.R
 8cbae25b12f5c0efb6fbc83184ffbce0 *R/utils-io.R
 82d0a740a4e932533f119d281a56ee76 *R/utils.r
-92e104eb159329ed7ffa960c59add647 *README.md
+160fb9e1b1bca83baebc53a8f57b5d64 *README.md
 b587ce2f86cefd10fc02105cb46b96de *build/vignette.rds
 828dbea96017a994efccb7c30c041577 *inst/assets/docsearch.css
 2f3c1f7995c9f4f966323f008e3984ad *inst/assets/docsearch.js
@@ -229,7 +229,7 @@ ecad1328d59e3115d4c6d15d2404a946 *tests/testthat/test-build.r
 7a8990e17fdf0c23d8584ddb7495ad66 *tests/testthat/test-build_home.R
 e50d17492dd0bd2b2798093e8135bf5f *tests/testthat/test-build_site.R
 484ccc300cb613c45ea5344090b37e46 *tests/testthat/test-development.R
-989995c9e24f91595a23ea69c2ec2a83 *tests/testthat/test-figure.R
+690d595872186f65277fd17bac993097 *tests/testthat/test-figure.R
 e34630415deef07e1b4f989835a23ace *tests/testthat/test-github.R
 6a6da5da253267154938dddb2b148174 *tests/testthat/test-highlight.R
 add74ac0ce04f9db57c6171ad1d068bd *tests/testthat/test-html-build.R
