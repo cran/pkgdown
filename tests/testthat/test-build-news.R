@@ -39,6 +39,10 @@ test_that("pkg_timeline fails cleanly for unknown package", {
   expect_null(pkg_timeline("__XYZ___"))
 })
 
+test_that("pkg_timeline returns NULL if CRAN dates suppressed", {
+  expect_null(pkg_timeline(list(meta = list(news = list(cran_dates = FALSE)))))
+})
+
 test_that("correct timeline for first ggplot2 releases", {
   skip_on_cran()
 
@@ -50,6 +54,12 @@ test_that("correct timeline for first ggplot2 releases", {
   )
 
   expect_equal(timeline, expected)
+})
+
+test_that("determines page style from meta", {
+  expect_equal(news_style(meta = list()), "single")
+  expect_equal(news_style(meta = list(news = list(one_page = FALSE))), "multi")
+  expect_equal(news_style(meta = list(news = list(list(one_page = FALSE)))), "multi")
 })
 
 test_that("multi-page news are rendered", {
@@ -66,7 +76,7 @@ test_that("multi-page news are rendered", {
 
   # test single page structure
   lines <- read_lines(path(path, "docs", "news", "news-1.0.html"))
-  expect_true(any(grepl("<h1>Changelog <small>1.0</small></h1>", lines)))
+  expect_true(any(grepl("<h1 data-toc-skip>Changelog <small>1.0</small></h1>", lines)))
 })
 
 

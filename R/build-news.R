@@ -49,8 +49,16 @@
 #'
 #' ```
 #' news:
-#' - one_page: false
+#'   one_page: false
 #' ```
+#'
+#' Suppress the default addition of CRAN release dates with:
+#'
+#' ```
+#' news:
+#'   cran_dates: false
+#' ```
+#'
 #' @seealso [Tidyverse style for News](http://style.tidyverse.org/news.html)
 #'
 #' @inheritParams build_articles
@@ -59,20 +67,16 @@ build_news <- function(pkg = ".",
                        override = list(),
                        preview = NA) {
   pkg <- section_init(pkg, depth = 1L, override = override)
-
-  one_page <- purrr::pluck(pkg, "meta", "news", 1, "one_page", .default = TRUE)
-
   if (!has_news(pkg$src_path))
     return()
 
   rule("Building news")
   dir_create(path(pkg$dst_path, "news"))
 
-  if (one_page) {
-    build_news_single(pkg)
-  } else {
-    build_news_multi(pkg)
-  }
+  switch(news_style(pkg$meta),
+    single = build_news_single(pkg),
+    multi = build_news_multi(pkg)
+  )
 
   preview_site(pkg, "news", preview = preview)
 }
@@ -86,7 +90,7 @@ build_news_single <- function(pkg) {
     list(
       contents = purrr::transpose(news),
       pagetitle = "Changelog",
-      source = github_source_links(pkg$github_url, "NEWS.md")
+      source = repo_source(pkg, "NEWS.md")
     ),
     path("news", "index.html")
   )
@@ -154,7 +158,7 @@ data_news <- function(pkg = ".") {
     purrr::walk(tweak_code) %>%
     purrr::walk2(versions, tweak_news_heading, timeline = timeline) %>%
     purrr::map_chr(as.character) %>%
-    purrr::map_chr(add_github_links, pkg = pkg)
+    purrr::map_chr(repo_auto_link, pkg = pkg)
 
   news <- tibble::tibble(
     version = versions,
@@ -221,6 +225,11 @@ pkg_timeline <- function(package) {
     return(NULL)
   }
 
+  show_dates <- purrr::pluck(package, "meta", "news", "cran_dates", .default = TRUE)
+  if (!show_dates) {
+    return(NULL)
+  }
+
   url <- paste0("https://crandb.r-pkg.org/", package, "/all")
 
   resp <- httr::GET(url)
@@ -243,6 +252,10 @@ tweak_news_heading <- function(x, versions, timeline) {
     xml2::xml_find_all(".//h1") %>%
     xml2::xml_set_attr("class", "page-header")
 
+  x %>%
+    xml2::xml_find_all(".//h1") %>%
+    xml2::xml_set_attr("data-toc-text", versions)
+
   if (is.null(timeline))
     return(x)
 
@@ -258,4 +271,12 @@ tweak_news_heading <- function(x, versions, timeline) {
     xml2::xml_add_child(date_nodes, .where = 1)
 
   invisible()
+}
+
+news_style <- function(meta) {
+  one_page <- purrr::pluck(meta, "news", "one_page") %||%
+    purrr::pluck(meta, "news", 1, "one_page") %||%
+    TRUE
+
+  if (one_page) "single" else "multi"
 }

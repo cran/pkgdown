@@ -4,8 +4,12 @@ build_home_index <- function(pkg = ".", quiet = TRUE) {
   scoped_package_context(pkg$package, pkg$topic_index, pkg$article_index)
   scoped_file_context(depth = 0L)
 
-  src_path <- path_first_existing(pkg$src_path,
-    c("index.md", "README.md", "index.Rmd", "README.Rmd")
+  src_path <- path_first_existing(
+    pkg$src_path,
+    c("pkgdown/index.md",
+      "index.md",
+      "README.md"
+    )
   )
   dst_path <- path(pkg$dst_path, "index.html")
   data <- data_home(pkg)
@@ -15,30 +19,12 @@ build_home_index <- function(pkg = ".", quiet = TRUE) {
   } else {
     data$index <- markdown(src_path)
   }
-  render_page(pkg, "home", data, "index.html")
+  render_page(pkg, "home", data, "index.html", quiet = quiet)
 
   strip_header <- isTRUE(pkg$meta$home$strip_header)
   update_html(dst_path, tweak_homepage_html, strip_header = strip_header)
 
   invisible()
-}
-
-# Stripped down version of build_article
-render_index <- function(pkg = ".", path, data = list(), quiet = TRUE) {
-  pkg <- as_pkgdown(pkg)
-
-  format <- build_rmarkdown_format(pkg, "article",
-                                   depth = 0L,
-                                   data = data, toc = FALSE
-  )
-  render_rmarkdown(
-    pkg = pkg,
-    input = path,
-    output = "index.html",
-    output_format = format,
-    quiet = quiet,
-    copy_images = FALSE
-  )
 }
 
 data_home <- function(pkg = ".") {
@@ -71,12 +57,12 @@ data_home_sidebar <- function(pkg = ".") {
 data_home_sidebar_links <- function(pkg = ".") {
   pkg <- as_pkgdown(pkg)
 
-  repo <- repo_link(pkg$package)
+  repo <- cran_link(pkg$package)
   meta <- purrr::pluck(pkg, "meta", "home", "links")
 
   links <- c(
     link_url(paste0("Download from ", repo$repo), repo$url),
-    link_url("Browse source code", pkg$github_url),
+    link_url("Browse source code", repo_home(pkg)),
     if (pkg$desc$has_fields("BugReports"))
       link_url("Report a bug", pkg$desc$get("BugReports")[[1]]),
     purrr::map_chr(meta, ~ link_url(.$text, .$href))
@@ -99,7 +85,7 @@ sidebar_section <- function(heading, bullets, class = make_slug(heading)) {
   )
 }
 
-repo_link <- memoise(function(pkg) {
+cran_link <- memoise(function(pkg) {
   if (!has_internet()) {
     return(NULL)
   }

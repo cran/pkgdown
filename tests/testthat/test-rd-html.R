@@ -317,7 +317,7 @@ test_that("nested item with whitespace parsed correctly", {
       This text is indented in a way pkgdown doesn't like.
   }}")
   expect_equal(out, c(
-    "<dl class='dl-horizontal'>",
+    "<dl'>",
     "<dt>Label</dt><dd><p>This text is indented in a way pkgdown doesn't like.</p></dd>",
     "</dl>"
   ))
@@ -325,14 +325,21 @@ test_that("nested item with whitespace parsed correctly", {
 
 # Verbatim ----------------------------------------------------------------
 
+test_that("parseable preformatted blocks are highlighted", {
+  scoped_package_context("test")
+  out <- flatten_para(rd_text("\\preformatted{1}"))
+  expect_equal(out, "<pre><span class='fl'>1</span></pre>\n")
+})
+
+
 test_that("newlines are preserved in preformatted blocks", {
-  out <- flatten_para(rd_text("\\preformatted{a\n\nb\n\nc}"))
-  expect_equal(out, "<pre>a\n\nb\n\nc</pre>\n")
+  out <- flatten_para(rd_text("\\preformatted{^\n\nb\n\nc}"))
+  expect_equal(out, "<pre>^\n\nb\n\nc</pre>\n")
 })
 
 test_that("spaces are preserved in preformatted blocks", {
-  out <- flatten_para(rd_text("\\preformatted{a\n\n  b\n\n  c}"))
-  expect_equal(out, "<pre>a\n\n  b\n\n  c</pre>\n")
+  out <- flatten_para(rd_text("\\preformatted{^\n\n  b\n\n  c}"))
+  expect_equal(out, "<pre>^\n\n  b\n\n  c</pre>\n")
 })
 
 # Usage -------------------------------------------------------------------

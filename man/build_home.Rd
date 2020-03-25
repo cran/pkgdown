@@ -4,14 +4,13 @@
 \alias{build_home}
 \title{Build home section}
 \usage{
-build_home(pkg = ".", override = list(), preview = NA,
-  quiet = TRUE)
+build_home(pkg = ".", override = list(), preview = NA, quiet = TRUE)
 }
 \arguments{
 \item{pkg}{Path to package.}
 
 \item{override}{An optional named list used to temporarily override
-values in \code{_pkgdown.yml}}
+values in \verb{_pkgdown.yml}}
 
 \item{preview}{If \code{TRUE}, or \code{is.na(preview) && interactive()}, will preview
 freshly generated section in browser.}
@@ -20,24 +19,36 @@ freshly generated section in browser.}
 pandoc. This is useful when debugging.}
 }
 \description{
-This function generates the home page, and converts other \code{.md} files
-typically found in the package root and in \code{.github/}. It generates the home
-page from  \code{index.md} or \code{README.md}, falling back to the description field
-in \code{DESCRIPTION} if neither is found. It also builds an authors page
-from the \code{DESCRIPTION} and \code{inst/CITATION} (if present) and
-a license page, and converts any \code{.md} files found in
+This function generates the home page, converts \code{.md} files found in the
+package root (and in \verb{.github/}), and builds an authors page from
+\code{DESCRIPTION} and \code{inst/CITATION} (if present).
 }
+\section{Home page}{
+
+The home page (\code{index.html}) is generated from \verb{_pkgdown/index.md},
+\code{index.md}, or \code{README.md}, in that order. Most packages will use \code{README.md}
+because that's also displayed by GitHub and CRAN. Use \code{index.md} if you want
+your package website to look different to your README, and use
+\verb{_pkgdown/index.md} if you don't want that file to live in your package
+root directory.
+
+If you use \code{index.Rmd} or \code{README.Rmd} it's your responsibility to knit
+the document to create the corresponding \code{.md}. pkgdown does not do this
+for you because it only touches files in the \verb{doc/} directory.
+}
+
 \section{Sidebar}{
 
 The sidebar is automatically populated with:
 \itemize{
 \item Development status badges found in \code{README.md}/\code{index.md}. pkgdown
-identifies badge paragraphs in two ways:
+identifies badges in three ways:
 \itemize{
-\item A paragraph starting with \code{<!-- badges: start -->} and ending with
-\code{<!-- badges: end -->} as created by \code{usethis::use_readme_md()}. or
-\code{usethis::use_readme_rmd()}.
-\item The first paragraph, if it only contains images.
+\item Any image-containing links between \verb{<!-- badges: start -->} and
+\verb{<!-- badges: end -->}, as e.g. created by \code{usethis::use_readme_md()}
+or \code{usethis::use_readme_rmd()}.
+\item Any image-containing links within \verb{<div id="badges"></div>}.
+\item Within the first paragraph, if it only contains image-containing links.
 }
 \item A link for bug reports is added if the \code{BugReports} field in
 \code{DESCRIPTION} contains a link. You can use \code{usethis::use_github_links()}
@@ -47,8 +58,8 @@ files are present.
 \item Community information is linked in the side bar using the
 \code{.github/CONTRIBUTING.md} and \code{.github/CODE_OF_CONDUCT.md} files,
 if present.
-\item Extra markdown files in the base directory or in \code{.github/} are copied
-to \code{docs/} and converted to HTML.
+\item Extra markdown files in the base directory or in \verb{.github/} are copied
+to \verb{docs/} and converted to HTML.
 \item Citation information from a \code{inst/CITATION} file is linked in the side bar
 to the \href{https://testthat.r-lib.org/authors.html}{authors page}.
 \item Author ORCID identification numbers in the \code{DESCRIPTION} are linked under
@@ -119,7 +130,7 @@ elements:\preformatted{home:
     href: http://website.com
 }
 
-READMEs usually start with an \code{<h1>} containing the package name. If
+READMEs usually start with an \verb{<h1>} containing the package name. If
 that feels duplicative with the package name in the navbar you can
 remove it with \code{strip_header: true}:\preformatted{home:
   strip_header: true

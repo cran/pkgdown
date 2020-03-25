@@ -1,5 +1,7 @@
 ---
 title: "Introduction to pkgdown"
+description: >
+  Learn how to get started with the basics of pkgdown.
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to pkgdown}
@@ -30,13 +32,14 @@ You can override pkgdown's defaults with a YAML file called `_pkgdown.yml`[^othe
 
 *   A [`bootswatch`](https://bootswatch.com) theme that affects the overall
     appearance of the whole site. 
+    
     ```yaml
     template:
       params:
         bootswatch: cerulean
     ```
 
-*   A google analytics user ID if you want to track the people who are using your
+*   A Google analytics user ID if you want to track the people who are using your
     site
 
     ```yaml
@@ -44,10 +47,11 @@ You can override pkgdown's defaults with a YAML file called `_pkgdown.yml`[^othe
       params:
         ganalytics: UA-000000-01
     ```
+    
+*   Customize metadata used for social media cards, as described in 
+    `vignette("metadata")`.
 
 *   Package search, as described in `vignette("search")`.
-
-This also allows you to control the default navbar.
 
 [^other-locations]: You can also put it in `pkgdown/_pkgdown.yml` if you want to keep the package root clutter free, or in `inst/_pkgdown.yml` if you want to make it available when your package is installed.
 
@@ -59,41 +63,45 @@ The contents of home page is automatically generated from `index.md` or `README.
 
 pkgdown creates a function reference in `reference/` that includes one page for each `.Rd` help topic in `man/`. The translation of individual help topics from Rd to HTML is generally straightforward, but there are a couple of things you should bear in mind:
 
-* pkgdown does it's best to autolink all references to help topics and 
+* pkgdown does its best to autolink all references to help topics and 
   articles described in `vignette("linking")`.
   
 * pkgdown executes all examples, inserting the rendered results in the 
   generated HTML files.
 
-By default, pkgdown generates a reference index is just an alphabetically-ordered list of functions. The index is more useful with human curation because functions can be grouped and described in categories. To override the default, provide a `reference` field in `_pkgdown.yml`. The `reference` should be an array of objects containing `title`, `desc` (description), and list of `contents`. Since common prefix and suffixes are often used for functional grouping, you can use the functions `starts_with()` and `ends_with()` to automatically include all functions with a common prefix or suffix. To match more complex patterns, use `matches()` with a regular expression.
+By default, pkgdown generates a reference index that is just an alphabetically-ordered list of functions. The index is much more useful with human curation because functions can be grouped and described in categories. To override the default, provide a `reference` field in `_pkgdown.yml`. The `reference` should be an array of three types objects:
+
+* A title, defined by `title` and optional `desc` (description) fields. 
+* A subtitle, defined by `subtitle` and optional `desc` (description) fields.
+* A list of topics defined by a `contents` field.
 
 ```yaml
 reference:
-  - title: "Connecting to Spark"
-    desc: >
-      Functions for installing Spark components and managing
-      connections to Spark
-    contents: 
-      - spark_config
-      - spark_connect
-      - spark_disconnect
-      - spark_install
-      - spark_log
-  - title: "Reading and Writing Data"
-    desc: "Functions for reading and writing Spark DataFrames."
-    contents:
-      - starts_with("spark_read")
-      - starts_with("spark_write")
-      - matches("saveload")
+- title: "Connecting to Spark"
+  desc: >
+    Functions for installing Spark components and managing
+    connections to Spark
+- contents: 
+  - spark_config
+  - spark_connect
+  - spark_disconnect
+  - spark_install
+  - spark_log
+- title: "Reading and Writing Data"
+  desc: "Functions for reading and writing Spark DataFrames."
+- contents:
+  - starts_with("spark_read")
+  - starts_with("spark_write")
+  - matches("saveload")
 ```
 
-The objects in `reference` can also contain a list of targets to `exclude`, which allow you to exclude unwanted topics included via `contents`. See complete details in `?build_reference`.
+Note the use of `starts_with()` to select all functions with a common prefix. You can also use `ends_with()` and `matches()`. See complete details in `?build_reference`.
 
 While working on the reference index you might want to run `build_reference_index()` instead of `build_site()`; that will considerably reduce your iteration time.
 
 ## Articles
 
-pkgdown will automatically build all vignettes found in `vignettes`, translating them to HTML files in `ariticles/`. Due to the way that pkgdown has to integrate RMarkdown generated HTML with its own HTML, relatively little control is available over the output format.
+pkgdown will automatically build all vignettes found in `vignettes`, translating them to HTML files in `articles/`. Due to the way that pkgdown has to integrate RMarkdown generated HTML with its own HTML, relatively little control is available over the output format.
 
 If you want to include an article on the website but not in the package (e.g., because it's large), you can either place it in a subdirectory of `vignettes/` or add it to `.Rbuildignore` (and make sure that there's  no `vignettes:` section in the yaml header). In the extreme case where you want to produce only articles but not vignettes, you should add the complete `vignettes/` directory to `.Rbuildignore` and ensure that DESCRIPTION does not have a `VignetteBuilder` field.
 
@@ -103,7 +111,7 @@ More details can be found in `?build_articles`.
 
 If `NEWS.md` is present, it will be rendered into a single-page Changelog based on markdown level headings. pkgdown assumes your `NEWS.md` is formatted using level one headings (`#`) to specify package name and version number, and level two headings (`##`) to provide topical organization for each release.
 
-```yaml
+```markdown
 # pkgdown 1.1.0
 
 ## Bug Fixes
@@ -117,34 +125,14 @@ If `NEWS.md` is present, it will be rendered into a single-page Changelog based 
 
 See more suggestions for writing news bullets in the [tidyverse style guide](https://style.tidyverse.org/news.html). 
 
-If you have a large `NEWS.md` and want to create one page per release, you can create a multi-page change log by configuring the `_pkgdown.yml`:
+See `?build_news` for more customisation options including how to:
 
-```yaml
-news:
-- one_page: false
-```
-
-In this case the `NEWS.md` is broken up by the version specified in the level one headings. Each version will be rendered to `news/`, with one page per minor release, so that `2.2.0`, `2.2.1`, and `2.2.2` are all described on a single page.
-
-If you want to provide detailed release notes aimed at teaching people about the new features, you can put these in e.g., `vignettes/news` and customise the navbar. See an example of this strategy in action for [readxl](https://github.com/tidyverse/readxl/blob/master/_pkgdown.yml).
-
-```yaml
-navbar:
-  - text: News
-    menu:
-    - text: "Blog posts"
-    - text: "Version 1.1.0"
-      href: https://www.tidyverse.org/articles/2018/04/readxl-1-1-0/
-    - text: "------------------"
-    - text: "Change log"
-      href: news/index.html
-```
-
-See complete details in `?build_news`.
+* Create one page for each major version and related minor versions.
+* Add release announcements to the news navbar drop-down.
 
 ## Publishing
 
-The easiest way to publish your website is to use GitHub [`docs/` directory][docs] support. If you want to build and publish your packge automatically with travis, see the instructions in `?usethis::use_pkgdown_travis()`.
+The easiest way to publish your website is to use GitHub [`docs/` directory][docs] support. If you want to build and publish your package automatically with GitHub actions, try `usethis::use_github_action("pkgdown")`.
 
 ## Promoting
 

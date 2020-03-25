@@ -4,57 +4,94 @@
 #' alphabetical order. To override this, provide a `reference` section in your
 #' `_pkgdown.yml` as described below.
 #'
-#' @section YAML config:
-#' To tweak the index page, add a section called `reference` to `_pkgdown.yml`
-#' which provides a list of sections containing, a `title`, list of `contents`,
-#' and an optional `description`.
+#' @section Reference index:
+#' To tweak the index page, add a section called `reference` to `_pkgdown.yml`.
+#' It can contain three different types of element:
 #'
-#' For example, the following code breaks up the functions in pkgdown
-#' into two groups:
+#' * A **title** (`title` + `desc`), which generates an row containing an `<h2>`
+#'   with optional paragraph description.
+#' * A **subtitle** (`subtitle` + `desc`), which generates an row containing an
+#'   `<h3>` with optional paragraph description.
+#' * A **list of topics** (`contents`), which generates one row for each topic,
+#'   with a list of aliases for the topic on the left, and the topic title
+#'   on the right.
+#'
+#' (For historical reasons you can include `contents` with a title or
+#' subtitle, but this is no longer recommended).
+#'
+#' Most packages will only need to use `title` and `contents` components.
+#' For example, here's a snippet from the YAML that pkgdown uses to generate
+#' its own reference index:
 #'
 #' ```
 #' reference:
-#' - title: Render components
-#'   desc:  Build each component of the site.
-#'   contents:
+#' - title: Build
+#'   desc:  Build a complete site or its individual section components.
+#' - contents:
 #'   - starts_with("build_")
-#'   - init_site
 #' - title: Templates
-#'   contents:
+#' - contents:
+#'   - template_navbar
 #'   - render_page
 #' ```
 #'
-#' Note that `contents` can contain either a list of function names, or if the
-#' functions in a section share a common prefix or suffix, you can use
-#' `starts_with("prefix")` and `ends_with("suffix")` to select them all. For
-#' more complex naming schemes you can use an arbitrary regular expression with
-#' `matches("regexp")`. You can also use a leading `-` to exclude matches from a
-#' section. By default, these functions that match multiple topics will exclude
-#' topics with the Rd keyword "internal". To include these, use
-#' `starts_with("build_", internal = TRUE)`.
+#' Bigger packages, e.g. ggplot2, may need an additional layer of
+#' structure in order to clearly organise large number of functions:
 #'
-#' You can also select topics that contain specified Rd concepts with
-#' `has_concept("blah")`.
+#' ```
+#' reference:
+#' - title: Layers
+#' - subtitle: Geoms
+#'   desc: Geom is short for geometric element
+#' - contents:
+#'   - starts_with("geom")
+#' - subtitle: Stats
+#'   desc: Statistical transformations transform data before display.
+#'   contents:
+#'   - starts_with("stat")
+#' ```
 #'
-#' You can provide long descriptions for groups of functions using the YAML `>`
-#' notation:
+#' `desc` can use markdown, and if you have a long description it's a good
+#' idea to take advantage of the YAML `>` notation:
 #'
 #' ```
 #' desc: >
-#'   This is a very long and overly flowery description of a
-#'   single simple function.
+#'   This is a very _long_ and **overly** flowery description of a
+#'   single simple function. By using `>`, it's easy to write a description
+#'   that runs over multiple lines.
 #' ```
 #'
-#' If you have functions with odd names (e.g. that start with a plus symbol
-#' `+`), you can include them by double-escaping. This YAML entry adds the
-#' `+.gg` function to the ggplot2 documentation:
+#' ## Topic matching
+#' `contents` can contain:
 #'
-#' ```
-#' - "`+.gg`"
-#' ```
+#' * Individual function/topic names.
+#' * Weirdly named functions with doubled quoting, once for YAML and once for
+#'   R, e.g. `` "`+.gg`" ``.
+#' * `starts_with("prefix")` to select all functions with common prefix.
+#' * `ends_with("suffix")` to select all functions with common suffix.
+#' * `matches("regexp")` for more complex regular expressions.
+#' * `has_keyword("x")` to select all topics with keyword "x";
+#'   `has_keyword("datasets")` selects all data documentation.
+#' * `has_concept("blah")` to select all topics with concept "blah".
+#' * `lacks_concepts(c("concept1", "concept2"))` to select all topics
+#'    without those concepts. This is useful to capture topics not otherwise
+#'    captured by `has_concepts()`.
+#'
+#' All functions (except for `has_keywords()`) automatically exclude internal
+#' topics (i.e. those with `\keyword{internal}`). You can choose to include
+#' with (e.g.) `starts_with("build_", internal = TRUE)`.
+#'
+#' Use a leading `-` to remove topics from a section, e.g. `-topic_name`,
+#' `-starts_with("foo")`.
 #'
 #' pkgdown will check that all non-internal topics are included on
-#' this page, and will generate a warning if you have missed any.
+#' the reference index page, and will generate a warning if you have missed any.
+#'
+#' ## Icons
+#' You can optionally supply an icon for each help topic. To do so, you'll need
+#' a top-level `icons` directory. This should contain {.png} files that are
+#' either 30x30 (for regular display) or 60x60 (if you want retina display).
+#' Icons are matched to topics by aliases.
 #'
 #' @section Figures:
 #'
@@ -72,12 +109,6 @@
 #'   fig.retina: 2
 #'   fig.asp: 1.618
 #' ```
-#'
-#' @section Icons:
-#' You can optionally supply an icon for each help topic. To do so, you'll need
-#' a top-level `icons` directory. This should contain {.png} files that are
-#' either 30x30 (for regular display) or 60x60 (if you want retina display).
-#' Icons are matched to topics by aliases.
 #'
 #' @inheritParams build_articles
 #' @param lazy If `TRUE`, only rebuild pages where the `.Rd`
@@ -233,7 +264,7 @@ data_reference_topic <- function(topic,
   out$pagetitle <- paste0(out$title, " \u2014 ", out$name)
 
   # File source
-  out$source <- github_source_links(pkg$github_url, topic$source)
+  out$source <- repo_source(pkg, topic$source)
   out$filename <- topic$file_in
 
   # Multiple top-level converted to string

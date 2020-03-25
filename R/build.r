@@ -163,7 +163,9 @@
 #'     - text: -------
 #'     - text: "Category B"
 #'     - text: Title B1
-#'       href: articles/b1.html
+#'       menu:
+#'       - text "Sub-category B11"
+#'         href: articles/b11.html
 #'    twitter:
 #'      icon: "fab fa-twitter fa-lg"
 #'      href: http://twitter.com/hadleywickham
@@ -258,6 +260,38 @@
 #' is little documentation, and you'll need to read the existing source
 #' for pkgdown templates to ensure that you use the correct components.
 #'
+#' @section YAML config - repo:
+#' pkgdown automatically generates links to the source repository in a few
+#' places
+#'
+#' * Articles and documentation topics are linked back to the
+#'   underlying source file.
+#'
+#' * The NEWS automatically links issue numbers and user names.
+#'
+#' * The homepage provides a link to  "Browse source code"
+#'
+#' pkgdown automatically figures out the necessary URLs if you link to a GitHub
+#' or GitLab repo in your `BugReports` or `URL` field. Otherwise, you can
+#' supply your own in the `repo` component:
+#'
+#' ```yaml
+#' repo:
+#'   url:
+#'     home: https://github.com/r-lib/pkgdown/
+#'     source: https://github.com/r-lib/pkgdown/blob/master/
+#'     issue: https://github.com/r-lib/pkgdown/issues/
+#'     user: https://github.com/
+#' ```
+#'
+#' * `home`: path to package home on source code repository.
+#' * `source:`: path to source of individual file in master branch.
+#' * `issue`: path to individual issue.
+#' * `user`: path to user.
+#'
+#' The varying components (e.g. path, issue number, user name) are pasted on
+#' the end of these URLs so they should have trailing `/`s.
+#'
 #' @section Options:
 #' Users with limited internet connectivity can disable CRAN checks by setting
 #' `options(pkgdown.internet = FALSE)`. This will also disable some features
@@ -277,7 +311,7 @@
 #'
 #'   If `TRUE`, uses lighter-weight process suitable for rapid
 #'   iteration; it will run examples and vignettes in the current process,
-#'   and will load code with `pkgload::load_call()`.
+#'   and will load code with `pkgload::load_all()`.
 #'
 #'   If `FALSE`, will first install the package to a temporary library,
 #'   and will run all examples and vignettes in a new process.
@@ -319,7 +353,7 @@ build_site <- function(pkg = ".",
   if (install) {
     withr::local_temp_libpaths()
     rule("Installing package into temporary library")
-    utils::install.packages(pkg$src_path, repo = NULL, type = "source", quiet = TRUE)
+    utils::install.packages(pkg$src_path, repos = NULL, type = "source", quiet = TRUE)
   }
 
   if (new_process) {

@@ -17,6 +17,9 @@ test_that("can link function calls", {
 
   expect_equal(href_expr_(foo()), "bar.html")
   expect_equal(href_expr_(foo(1, 2, 3)), "bar.html")
+  # even if namespaced
+  expect_equal(href_expr_(test::foo()), "bar.html")
+  expect_equal(href_expr_(test::foo(1, 2, 3)), "bar.html")
 })
 
 test_that("respects href_topic_local args", {
@@ -51,7 +54,7 @@ test_that("can link to functions in base packages", {
   scoped_package_context("test")
   scoped_file_context() # package registry maintained on per-file basis
 
-  expect_equal(href_expr_(library()), href_topic_remote("library", "base"))
+  expect_equal(href_expr_(abbreviate()), href_topic_remote("abbreviate", "base"))
   expect_equal(href_expr_(median()), href_topic_remote("median", "stats"))
 })
 
@@ -99,10 +102,30 @@ test_that("can link ? calls", {
 
   expect_equal(href_expr_(?foo), "foo.html")
   expect_equal(href_expr_(?"foo"), "foo.html")
-  expect_equal(href_expr_(test::foo), "foo.html")
+  expect_equal(href_expr_(?test::foo), "foo.html")
   expect_equal(href_expr_(package?foo), "foo-package.html")
 })
 
+test_that("can link help calls", {
+  scoped_package_context("test", c(foo = "foo", "foo-package" = "foo-package"))
+  scoped_file_context("bar")
+
+  expect_equal(href_expr_(help("foo")), "foo.html")
+  expect_equal(href_expr_(help("foo", "test")), "foo.html")
+  expect_equal(href_expr_(help(package = "MASS")), "https://rdrr.io/pkg/MASS/man")
+  expect_equal(href_expr_(help()), NA_character_)
+})
+
+
+# library and friends -----------------------------------------------------
+
+test_that("library() linked to package reference", {
+  scoped_package_context("test", c(foo = "bar"))
+
+  expect_equal(href_expr_(library()), NA_character_)
+  expect_equal(href_expr_(library(pkgdown)), "https://pkgdown.r-lib.org/reference")
+  expect_equal(href_expr_(library(MASS)), "https://rdrr.io/pkg/MASS/man")
+})
 
 # vignette ----------------------------------------------------------------
 
@@ -138,35 +161,6 @@ test_that("can link to remote articles", {
 test_that("or local sites, if registered", {
   scoped_package_context("pkgdown", local_packages = c("digest" = "digest"))
   expect_equal(href_expr_(vignette("sha1", "digest")), "digest/articles/sha1.html")
-})
-
-test_that("github_source returns (possibly many) URLs", {
-  base <- "https://github.com/r-lib/pkgdown"
-  expect_equal(
-    github_source(base, c("http://example.com", "R/example.R")),
-    c(
-      "http://example.com", # Already is a URL, so not modified
-      "https://github.com/r-lib/pkgdown/blob/master/R/example.R"
-    )
-  )
-})
-
-test_that("trailing pieces of github URLs are stripped", {
-  expect_equal(
-    parse_github_link("https://github.com/simsem/semTools/wiki"),
-    "https://github.com/simsem/semTools"
-  )
-  expect_equal(
-    parse_github_link("https://github.com/r-lib/gh#readme"),
-    "https://github.com/r-lib/gh"
-  )
-})
-
-test_that("source links are valid github URLs", {
-  expect_equal(
-    github_source_links("https://github.com/tidyverse/reprex#readme", "NEWS.md"),
-    "Source: <a href='https://github.com/tidyverse/reprex/blob/master/NEWS.md'><code>NEWS.md</code></a>"
-  )
 })
 
 test_that("fail gracefully with non-working calls", {

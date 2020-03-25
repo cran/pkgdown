@@ -5,10 +5,18 @@
 \alias{build_reference_index}
 \title{Build reference section}
 \usage{
-build_reference(pkg = ".", lazy = TRUE, examples = TRUE,
-  run_dont_run = FALSE, seed = 1014, override = list(),
-  preview = NA, devel = TRUE, document = "DEPRECATED",
-  topics = NULL)
+build_reference(
+  pkg = ".",
+  lazy = TRUE,
+  examples = TRUE,
+  run_dont_run = FALSE,
+  seed = 1014,
+  override = list(),
+  preview = NA,
+  devel = TRUE,
+  document = "DEPRECATED",
+  topics = NULL
+)
 
 build_reference_index(pkg = ".")
 }
@@ -27,7 +35,7 @@ rapidly prototype. It is set to \code{FALSE} by \code{\link[=build_site]{build_s
 reproducible.}
 
 \item{override}{An optional named list used to temporarily override
-values in \code{_pkgdown.yml}}
+values in \verb{_pkgdown.yml}}
 
 \item{preview}{If \code{TRUE}, or \code{is.na(preview) && interactive()}, will preview
 freshly generated section in browser.}
@@ -39,63 +47,105 @@ If \code{FALSE}, uses the installed version of the package.}
 
 \item{document}{\strong{Deprecated} Use \code{devel} instead.}
 
-\item{topics}{Build only specified topics. If supplied, sets \code{lazy`` and }preview\code{to}FALSE`.}
+\item{topics}{Build only specified topics. If supplied, sets \verb{lazy`` and }preview\code{to}FALSE`.}
 }
 \description{
 By default, pkgdown will generate an index that lists all functions in
 alphabetical order. To override this, provide a \code{reference} section in your
-\code{_pkgdown.yml} as described below.
+\verb{_pkgdown.yml} as described below.
 }
-\section{YAML config}{
+\section{Reference index}{
 
-To tweak the index page, add a section called \code{reference} to \code{_pkgdown.yml}
-which provides a list of sections containing, a \code{title}, list of \code{contents},
-and an optional \code{description}.
+To tweak the index page, add a section called \code{reference} to \verb{_pkgdown.yml}.
+It can contain three different types of element:
+\itemize{
+\item A \strong{title} (\code{title} + \code{desc}), which generates an row containing an \verb{<h2>}
+with optional paragraph description.
+\item A \strong{subtitle} (\code{subtitle} + \code{desc}), which generates an row containing an
+\verb{<h3>} with optional paragraph description.
+\item A \strong{list of topics} (\code{contents}), which generates one row for each topic,
+with a list of aliases for the topic on the left, and the topic title
+on the right.
+}
 
-For example, the following code breaks up the functions in pkgdown
-into two groups:\preformatted{reference:
-- title: Render components
-  desc:  Build each component of the site.
-  contents:
+(For historical reasons you can include \code{contents} with a title or
+subtitle, but this is no longer recommended).
+
+Most packages will only need to use \code{title} and \code{contents} components.
+For example, here's a snippet from the YAML that pkgdown uses to generate
+its own reference index:\preformatted{reference:
+- title: Build
+  desc:  Build a complete site or its individual section components.
+- contents:
   - starts_with("build_")
-  - init_site
 - title: Templates
-  contents:
+- contents:
+  - template_navbar
   - render_page
 }
 
-Note that \code{contents} can contain either a list of function names, or if the
-functions in a section share a common prefix or suffix, you can use
-\code{starts_with("prefix")} and \code{ends_with("suffix")} to select them all. For
-more complex naming schemes you can use an arbitrary regular expression with
-\code{matches("regexp")}. You can also use a leading \code{-} to exclude matches from a
-section. By default, these functions that match multiple topics will exclude
-topics with the Rd keyword "internal". To include these, use
-\code{starts_with("build_", internal = TRUE)}.
-
-You can also select topics that contain specified Rd concepts with
-\code{has_concept("blah")}.
-
-You can provide long descriptions for groups of functions using the YAML \code{>}
-notation:\preformatted{desc: >
-  This is a very long and overly flowery description of a
-  single simple function.
+Bigger packages, e.g. ggplot2, may need an additional layer of
+structure in order to clearly organise large number of functions:\preformatted{reference:
+- title: Layers
+- subtitle: Geoms
+  desc: Geom is short for geometric element
+- contents:
+  - starts_with("geom")
+- subtitle: Stats
+  desc: Statistical transformations transform data before display.
+  contents:
+  - starts_with("stat")
 }
 
-If you have functions with odd names (e.g. that start with a plus symbol
-\code{+}), you can include them by double-escaping. This YAML entry adds the
-\code{+.gg} function to the ggplot2 documentation:\preformatted{- "`+.gg`"
+\code{desc} can use markdown, and if you have a long description it's a good
+idea to take advantage of the YAML \code{>} notation:\preformatted{desc: >
+  This is a very _long_ and **overly** flowery description of a
+  single simple function. By using `>`, it's easy to write a description
+  that runs over multiple lines.
 }
+\subsection{Topic matching}{
+
+\code{contents} can contain:
+\itemize{
+\item Individual function/topic names.
+\item Weirdly named functions with doubled quoting, once for YAML and once for
+R, e.g. \code{"`+.gg`"}.
+\item \code{starts_with("prefix")} to select all functions with common prefix.
+\item \code{ends_with("suffix")} to select all functions with common suffix.
+\item \code{matches("regexp")} for more complex regular expressions.
+\item \code{has_keyword("x")} to select all topics with keyword "x";
+\code{has_keyword("datasets")} selects all data documentation.
+\item \code{has_concept("blah")} to select all topics with concept "blah".
+\item \code{lacks_concepts(c("concept1", "concept2"))} to select all topics
+without those concepts. This is useful to capture topics not otherwise
+captured by \code{has_concepts()}.
+}
+
+All functions (except for \code{has_keywords()}) automatically exclude internal
+topics (i.e. those with \verb{\\keyword\{internal\}}). You can choose to include
+with (e.g.) \code{starts_with("build_", internal = TRUE)}.
+
+Use a leading \code{-} to remove topics from a section, e.g. \code{-topic_name},
+\code{-starts_with("foo")}.
 
 pkgdown will check that all non-internal topics are included on
-this page, and will generate a warning if you have missed any.
+the reference index page, and will generate a warning if you have missed any.
+}
+
+\subsection{Icons}{
+
+You can optionally supply an icon for each help topic. To do so, you'll need
+a top-level \code{icons} directory. This should contain {.png} files that are
+either 30x30 (for regular display) or 60x60 (if you want retina display).
+Icons are matched to topics by aliases.
+}
 }
 
 \section{Figures}{
 
 
 You can control the default rendering of figures by specifying the \code{figures}
-field in \code{_pkgdown.yml}. The default settings are equivalent to:\preformatted{figures:
+field in \verb{_pkgdown.yml}. The default settings are equivalent to:\preformatted{figures:
   dev: grDevices::png
   dpi: 96
   dev.args: []
@@ -105,13 +155,5 @@ field in \code{_pkgdown.yml}. The default settings are equivalent to:\preformatt
   fig.retina: 2
   fig.asp: 1.618
 }
-}
-
-\section{Icons}{
-
-You can optionally supply an icon for each help topic. To do so, you'll need
-a top-level \code{icons} directory. This should contain {.png} files that are
-either 30x30 (for regular display) or 60x60 (if you want retina display).
-Icons are matched to topics by aliases.
 }
 

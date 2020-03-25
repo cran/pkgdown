@@ -12,30 +12,33 @@
       <col class="title" />
     </colgroup>
 
-    {{#sections}}<tbody>
-      <tr>
+    {{#rows}}<tbody>
+      {{#title}}<tr>
         <th colspan="{{#has_icons}}3{{/has_icons}}{{^has_icons}}2{{/has_icons}}">
           <h2 id="{{slug}}" class="hasAnchor"><a href="#{{slug}}" class="anchor"></a>{{title}}</h2>
           <p class="section-desc">{{{desc}}}</p>
         </th>
-      </tr>
-      {{#contents}}<tr>
+      </tr>{{/title}}
+      {{#subtitle}}<tr>
+        <th colspan="{{#has_icons}}3{{/has_icons}}{{^has_icons}}2{{/has_icons}}">
+          <h3 id="{{slug}}" class="hasAnchor"><a href="#{{slug}}" class="anchor"></a>{{subtitle}}</h3>
+          <p class="section-desc">{{{desc}}}</p>
+        </th>
+      </tr>{{/subtitle}}
+      {{#topics}}<tr>
         {{#has_icons}}<td>{{#icon}}<a href="{{path}}"><img src="icons/{{{.}}}" width="30" height="30" alt="" /></a>{{/icon}}</td>{{/has_icons}}
         <td>
           <p>{{#aliases}}<code><a href="{{path}}">{{{.}}}</a></code> {{/aliases}}</p>
         </td>
         <td><p>{{{title}}}</p></td>
-      </tr>{{/contents}}
-    </tbody>{{/sections}}
+      </tr>{{/topics}}
+    </tbody>{{/rows}}
     </table>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-    {{#sections}}
-      <li><a href="#{{slug}}">{{title}}</a></li>
-    {{/sections}}
-    </ul>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>

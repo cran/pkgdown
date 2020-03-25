@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
 
@@ -96,7 +96,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -117,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -288,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -326,13 +324,13 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">template</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="at">  </span><span class="fu">params</span><span class="kw">:</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a><span class="at">    </span><span class="fu">bootswatch</span><span class="kw">:</span><span class="at"> cerulean</span></span></code></pre></div></li>
-<li><p>A google analytics user ID if you want to track the people who are using your site</p>
+<li><p>A Google analytics user ID if you want to track the people who are using your site</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">template</span><span class="kw">:</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="at">  </span><span class="fu">params</span><span class="kw">:</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="at">    </span><span class="fu">ganalytics</span><span class="kw">:</span><span class="at"> UA-000000-01</span></span></code></pre></div></li>
+<li><p>Customize metadata used for social media cards, as described in <code>vignette(&quot;metadata&quot;)</code>.</p></li>
 <li><p>Package search, as described in <code>vignette(&quot;search&quot;)</code>.</p></li>
 </ul>
-<p>This also allows you to control the default navbar.</p>
 </div>
 <div id="home-page" class="section level2">
 <h2>Home page</h2>
@@ -342,68 +340,63 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h2>Reference</h2>
 <p>pkgdown creates a function reference in <code>reference/</code> that includes one page for each <code>.Rd</code> help topic in <code>man/</code>. The translation of individual help topics from Rd to HTML is generally straightforward, but there are a couple of things you should bear in mind:</p>
 <ul>
-<li><p>pkgdown does it’s best to autolink all references to help topics and articles described in <code>vignette(&quot;linking&quot;)</code>.</p></li>
+<li><p>pkgdown does its best to autolink all references to help topics and articles described in <code>vignette(&quot;linking&quot;)</code>.</p></li>
 <li><p>pkgdown executes all examples, inserting the rendered results in the generated HTML files.</p></li>
 </ul>
-<p>By default, pkgdown generates a reference index is just an alphabetically-ordered list of functions. The index is more useful with human curation because functions can be grouped and described in categories. To override the default, provide a <code>reference</code> field in <code>_pkgdown.yml</code>. The <code>reference</code> should be an array of objects containing <code>title</code>, <code>desc</code> (description), and list of <code>contents</code>. Since common prefix and suffixes are often used for functional grouping, you can use the functions <code>starts_with()</code> and <code>ends_with()</code> to automatically include all functions with a common prefix or suffix. To match more complex patterns, use <code>matches()</code> with a regular expression.</p>
+<p>By default, pkgdown generates a reference index that is just an alphabetically-ordered list of functions. The index is much more useful with human curation because functions can be grouped and described in categories. To override the default, provide a <code>reference</code> field in <code>_pkgdown.yml</code>. The <code>reference</code> should be an array of three types objects:</p>
+<ul>
+<li>A title, defined by <code>title</code> and optional <code>desc</code> (description) fields.</li>
+<li>A subtitle, defined by <code>subtitle</code> and optional <code>desc</code> (description) fields.</li>
+<li>A list of topics defined by a <code>contents</code> field.</li>
+</ul>
 <div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">reference</span><span class="kw">:</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Connecting to Spark&quot;</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="fu">    desc</span><span class="kw">: </span><span class="ch">&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>      Functions for installing Spark components and managing</span>
-<span id="cb4-5"><a href="#cb4-5"></a>      connections to Spark</span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="at">    </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="at">      </span><span class="kw">-</span><span class="at"> spark_config</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="at">      </span><span class="kw">-</span><span class="at"> spark_connect</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="at">      </span><span class="kw">-</span><span class="at"> spark_disconnect</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="at">      </span><span class="kw">-</span><span class="at"> spark_install</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="at">      </span><span class="kw">-</span><span class="at"> spark_log</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Reading and Writing Data&quot;</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a><span class="at">    </span><span class="fu">desc</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Functions for reading and writing Spark DataFrames.&quot;</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a><span class="at">    </span><span class="fu">contents</span><span class="kw">:</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="at">      </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_read&quot;)</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a><span class="at">      </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_write&quot;)</span></span>
-<span id="cb4-17"><a href="#cb4-17"></a><span class="at">      </span><span class="kw">-</span><span class="at"> matches(&quot;saveload&quot;)</span></span></code></pre></div>
-<p>The objects in <code>reference</code> can also contain a list of targets to <code>exclude</code>, which allow you to exclude unwanted topics included via <code>contents</code>. See complete details in <code>?build_reference</code>.</p>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Connecting to Spark&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="fu">  desc</span><span class="kw">: </span><span class="ch">&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    Functions for installing Spark components and managing</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    connections to Spark</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="kw">-</span><span class="at"> </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_config</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_connect</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_disconnect</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_install</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_log</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Reading and Writing Data&quot;</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="at">  </span><span class="fu">desc</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Functions for reading and writing Spark DataFrames.&quot;</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="kw">-</span><span class="at"> </span><span class="fu">contents</span><span class="kw">:</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_read&quot;)</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_write&quot;)</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="at">  </span><span class="kw">-</span><span class="at"> matches(&quot;saveload&quot;)</span></span></code></pre></div>
+<p>Note the use of <code>starts_with()</code> to select all functions with a common prefix. You can also use <code>ends_with()</code> and <code>matches()</code>. See complete details in <code>?build_reference</code>.</p>
 <p>While working on the reference index you might want to run <code>build_reference_index()</code> instead of <code>build_site()</code>; that will considerably reduce your iteration time.</p>
 </div>
 <div id="articles" class="section level2">
 <h2>Articles</h2>
-<p>pkgdown will automatically build all vignettes found in <code>vignettes</code>, translating them to HTML files in <code>ariticles/</code>. Due to the way that pkgdown has to integrate RMarkdown generated HTML with its own HTML, relatively little control is available over the output format.</p>
+<p>pkgdown will automatically build all vignettes found in <code>vignettes</code>, translating them to HTML files in <code>articles/</code>. Due to the way that pkgdown has to integrate RMarkdown generated HTML with its own HTML, relatively little control is available over the output format.</p>
 <p>If you want to include an article on the website but not in the package (e.g., because it’s large), you can either place it in a subdirectory of <code>vignettes/</code> or add it to <code>.Rbuildignore</code> (and make sure that there’s no <code>vignettes:</code> section in the yaml header). In the extreme case where you want to produce only articles but not vignettes, you should add the complete <code>vignettes/</code> directory to <code>.Rbuildignore</code> and ensure that DESCRIPTION does not have a <code>VignetteBuilder</code> field.</p>
 <p>More details can be found in <code>?build_articles</code>.</p>
 </div>
 <div id="news" class="section level2">
 <h2>News</h2>
 <p>If <code>NEWS.md</code> is present, it will be rendered into a single-page Changelog based on markdown level headings. pkgdown assumes your <code>NEWS.md</code> is formatted using level one headings (<code>#</code>) to specify package name and version number, and level two headings (<code>##</code>) to provide topical organization for each release.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># pkgdown 1.1.0</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu"># pkgdown 1.1.0</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a></span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="co">## Bug Fixes</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="fu">## Bug Fixes</span></span>
 <span id="cb5-4"><a href="#cb5-4"></a></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="at">* Lots of them</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>* <span class="st">Lots of them</span></span>
 <span id="cb5-6"><a href="#cb5-6"></a></span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="co"># pkgdown 1.0.0</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="fu"># pkgdown 1.0.0</span></span>
 <span id="cb5-8"><a href="#cb5-8"></a></span>
-<span id="cb5-9"><a href="#cb5-9"></a><span class="at">* This is the first release of pkgdown.</span></span></code></pre></div>
+<span id="cb5-9"><a href="#cb5-9"></a>* <span class="st">This is the first release of pkgdown.</span></span></code></pre></div>
 <p>See more suggestions for writing news bullets in the <a href="https://style.tidyverse.org/news.html">tidyverse style guide</a>.</p>
-<p>If you have a large <code>NEWS.md</code> and want to create one page per release, you can create a multi-page change log by configuring the <code>_pkgdown.yml</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">news</span><span class="kw">:</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">-</span><span class="at"> </span><span class="fu">one_page</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
-<p>In this case the <code>NEWS.md</code> is broken up by the version specified in the level one headings. Each version will be rendered to <code>news/</code>, with one page per minor release, so that <code>2.2.0</code>, <code>2.2.1</code>, and <code>2.2.2</code> are all described on a single page.</p>
-<p>If you want to provide detailed release notes aimed at teaching people about the new features, you can put these in e.g., <code>vignettes/news</code> and customise the navbar. See an example of this strategy in action for <a href="https://github.com/tidyverse/readxl/blob/master/_pkgdown.yml">readxl</a>.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">navbar</span><span class="kw">:</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">text</span><span class="kw">:</span><span class="at"> News</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="at">    </span><span class="fu">menu</span><span class="kw">:</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Blog posts&quot;</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Version 1.1.0&quot;</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a><span class="at">      </span><span class="fu">href</span><span class="kw">:</span><span class="at"> https://www.tidyverse.org/articles/2018/04/readxl-1-1-0/</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;------------------&quot;</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Change log&quot;</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a><span class="at">      </span><span class="fu">href</span><span class="kw">:</span><span class="at"> news/index.html</span></span></code></pre></div>
-<p>See complete details in <code>?build_news</code>.</p>
+<p>See <code>?build_news</code> for more customisation options including how to:</p>
+<ul>
+<li>Create one page for each major version and related minor versions.</li>
+<li>Add release announcements to the news navbar drop-down.</li>
+</ul>
 </div>
 <div id="publishing" class="section level2">
 <h2>Publishing</h2>
-<p>The easiest way to publish your website is to use GitHub <a href="https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/#publishing-your-github-pages-site-from-a-docs-folder-on-your-master-branch"><code>docs/</code> directory</a> support. If you want to build and publish your packge automatically with travis, see the instructions in <code>?usethis::use_pkgdown_travis()</code>.</p>
+<p>The easiest way to publish your website is to use GitHub <a href="https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/#publishing-your-github-pages-site-from-a-docs-folder-on-your-master-branch"><code>docs/</code> directory</a> support. If you want to build and publish your package automatically with GitHub actions, try <code>usethis::use_github_action(&quot;pkgdown&quot;)</code>.</p>
 </div>
 <div id="promoting" class="section level2">
 <h2>Promoting</h2>
@@ -422,6 +415,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </ol>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

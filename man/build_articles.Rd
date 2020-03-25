@@ -5,11 +5,15 @@
 \alias{build_article}
 \title{Build articles section}
 \usage{
-build_articles(pkg = ".", quiet = TRUE, lazy = TRUE,
-  override = list(), preview = NA)
+build_articles(
+  pkg = ".",
+  quiet = TRUE,
+  lazy = TRUE,
+  override = list(),
+  preview = NA
+)
 
-build_article(name, pkg = ".", data = list(), lazy = FALSE,
-  quiet = TRUE)
+build_article(name, pkg = ".", data = list(), lazy = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{pkg}{Path to package.}
@@ -21,36 +25,94 @@ pandoc. This is useful when debugging.}
 modified more recently than the output file.}
 
 \item{override}{An optional named list used to temporarily override
-values in \code{_pkgdown.yml}}
+values in \verb{_pkgdown.yml}}
 
 \item{preview}{If \code{TRUE}, or \code{is.na(preview) && interactive()}, will preview
 freshly generated section in browser.}
 
 \item{name}{Name of article to render. This should be either a path
-relative to \code{vignettes/} without extension, or \code{index} or \code{README}.}
+relative to \verb{vignettes/} without extension, or \code{index} or \code{README}.}
 
 \item{data}{Additional data to pass on to template.}
 }
 \description{
-Each R Markdown vignette in \code{vignettes/} and its subdirectories is rendered
-and saved to \code{articles/}.
-
-The only exception are \code{.Rmd} vignettes that start with \code{_} (i.e., \code{_index.Rmd}), enabling the use of child documents in \href{https://bookdown.org/yihui/bookdown/}{bookdown}, and vignettes in a \code{tutorials} subdirectory, which is reserved for tutorials built with \code{build_tutorials()}
-
-Vignettes are rendered using a special document
-format that reconciles \code{\link[rmarkdown:html_document]{rmarkdown::html_document()}} with your pkgdown
-template.
-
-Note that when run by itself (i.e. not by \code{build_site()}), vignettes will
-use a previous installed version of the package, not the current source
-version.
+\code{build_articles()} renders each R Markdown file underneath \verb{vignettes/} and
+saves it to \verb{articles/}. There are two exceptions:
+\itemize{
+\item Files that start with \verb{_} (e.g., \verb{_index.Rmd}) are ignored,
+enabling the use of child documents in
+\href{https://bookdown.org/yihui/bookdown/}{bookdown}
+\item Files in \code{vignettes/tutorials} are handled by \code{\link[=build_tutorials]{build_tutorials()}}
 }
-\section{Get started vignette}{
 
-A vignette with the same name as the package (e.g., \code{vignettes/pkgdown.Rmd})
-gets special treatment. It is rendered and linked to in the navbar under
-"Get started". Rmarkdown files in \code{vignettes/tutorials/} are ignored,
-because these are assumed to contain tutorials, see \code{build_tutorials()}.
+Vignettes are rendered using a special document format that reconciles
+\code{\link[rmarkdown:html_document]{rmarkdown::html_document()}} with the pkgdown template. This means articles
+behave slightly differently to vignettes, particularly with respect to
+external files, and custom output formats. See below for more details.
+
+Note that when you run \code{build_articles()} directly (outside of
+\code{\link[=build_site]{build_site()}}) vignettes will use the currently installed version of the
+package, not the current source version. This makes iteration quicker when
+you are primarily working on the text of an article.
+}
+\section{Index and navbar}{
+
+You can control the articles index and navbar with a \code{articles} section in
+your \verb{_pkgdown.yaml}. It defines a list of sections, eaach of which
+can contain four fields:
+\itemize{
+\item \code{title} (required): title of section, which appears as a heading on the
+articles index.
+\item \code{desc} (optional): An optional markdown description displayed underneath
+the section title.
+\item \code{navbar} (optional): A couple of words used to label this section in
+the navbar. If omitted, this section of vignettes will not appear in the
+navbar.
+\item \code{contents} (required): a list of article names to include in the
+section. This can either be names of individual vignettes or a
+call to \code{starts_with()}. The name of a vignette includes its
+path under \code{vignettes} without extension so that the name of the vignette
+found at \code{vignettes/pizza/slice.Rmd} is \code{pizza/slice}.
+}
+
+The title and description of individual vignettes displayed on the index
+comes from \code{title} and \code{description} fields of the YAML header in the Rmds.
+
+For example, this yaml might be used for some version of dplyr:\preformatted{articles:
+- title: Main verbs
+  navbar: ~
+  contents:
+  - one-table
+  - two-table
+  - rowwise
+  - colwise
+
+- title: Developer
+  desc: Vignettes aimed at package developers
+  contents:
+  - programming
+  - packages
+}
+
+Note the use of the \code{navbar} fields. \verb{navbar: ~} means that the "Main verbs"
+will appear in the navbar without a heading; the absence of the \code{navbar}
+field in the for the developer vignettes means that they will only be
+accessible via the articles index.
+\subsection{Special links}{
+\itemize{
+\item A vignette with the same name as the package (e.g.,
+\code{vignettes/pkgdown.Rmd} or \code{vignettes/articles/pkgdown.Rmd})
+automatically becomes a top-level "Get started" link, and will not appear
+in the articles drop-down. (If your package name include a \code{.}, e.g.
+\code{pack.down}, use a \code{-} in the vignette name, e.g. \code{pack.down.Rmd}.)
+\item The navbar will include a link to the articles index if one or more
+vignettes are not available through the navbar. If some vignettes appear
+in the navbar drop-down list and others do not, the list will automatically
+include a "More ..." link at the bottom; if no vignettes appear in the
+the navbar, it will link directly to the articles index instead of
+providing a drop-down.
+}
+}
 }
 
 \section{External files}{
@@ -77,40 +139,11 @@ generated figures as its default value is a strong assumption of rmarkdown.
 
 If you would like to embed a Shiny app into an article, the app will have
 to be hosted independently, (e.g. \url{https://www.shinyapps.io}). Then, you
-can embed the app into your article using an \code{<iframe>}, e.g.
-\code{<iframe src = "https://gallery.shinyapps.io/083-front-page" class="shiny-app">}.
+can embed the app into your article using an \verb{<iframe>}, e.g.
+\verb{<iframe src = "https://gallery.shinyapps.io/083-front-page" class="shiny-app">}.
 
 See \url{https://github.com/r-lib/pkgdown/issues/838#issuecomment-430473856} for
 some hints on how to customise the appearance with CSS.
-}
-
-\section{YAML config}{
-
-To tweak the index page, you need a section called \code{articles},
-which provides a list of sections containing, a \code{title}, list of
-\code{contents}, and optional \code{description}.
-
-For example, this imaginary file describes some of the structure of
-the \href{http://rmarkdown.rstudio.com/articles.html}{R markdown articles}:\preformatted{articles:
-- title: R Markdown
-  contents:
-  - starts_with("authoring")
-- title: Websites
-  contents:
-  - rmarkdown_websites
-  - rmarkdown_site_generators
-}
-
-Note that \code{contents} can contain either a list of vignette names
-(including subdirectories), or if the functions in a section share a
-common prefix or suffix, you can use \code{starts_with("prefix")} and
-\code{ends_with("suffix")} to select them all. If you don't care about
-position within the string, use \code{contains("word")}. For more complex
-naming schemes you can use an arbitrary regular expression with
-\code{matches("regexp")}.
-
-pkgdown will check that all vignettes are included in the index
-this page, and will generate a warning if you have missed any.
 }
 
 \section{YAML header}{
@@ -143,10 +176,6 @@ subdirectories or list in \code{.Rbuildignore}. An articles link will be
 automatically added to the default navbar if the vignettes directory is
 present: if you do not want this, you will need to customise the navbar. See
 \code{\link[=build_site]{build_site()}} details.
-
-Vignette files prefixed with an underscore (e.g., \code{_index.Rmd}) are ignored
-to enable rendering of \href{https://bookdown.org/yihui/bookdown/}{bookdown}
-sites.
 }
 
 \section{Tables of contents}{
@@ -160,7 +189,7 @@ You can control the TOC depth via the YAML configuration file:\preformatted{toc:
 
 
 You can control the default rendering of figures by specifying the \code{figures}
-field in \code{_pkgdown.yml}. The default settings are equivalent to:\preformatted{figures:
+field in \verb{_pkgdown.yml}. The default settings are equivalent to:\preformatted{figures:
   dev: grDevices::png
   dpi: 96
   dev.args: []

@@ -21,7 +21,7 @@ as_pkgdown <- function(pkg = ".", override = list()) {
   meta <- utils::modifyList(meta, override)
 
   package <- desc$get("Package")[[1]]
-  version <- desc$get_version()
+  version <- desc$get_field("Version")
 
   development <- meta_development(meta, version)
 
@@ -42,11 +42,11 @@ as_pkgdown <- function(pkg = ".", override = list()) {
 
       src_path = path_abs(pkg),
       dst_path = path_abs(dst_path),
-      github_url = pkg_github_url(desc),
 
       desc = desc,
       meta = meta,
       figures = meta_figures(meta),
+      repo = package_repo(desc, meta),
 
       development = development,
       topics = package_topics(pkg, package),
@@ -114,12 +114,15 @@ package_topics <- function(path = ".", package = "pkgdown") {
   aliases <- purrr::map(rd, extract_tag, "tag_alias")
   names <- purrr::map_chr(rd, extract_tag, "tag_name")
   titles <- purrr::map_chr(rd, extract_title)
-  concepts <- purrr::map(rd, extract_tag, "tag_concept")
-  internal <- purrr::map_lgl(rd, is_internal)
+  concepts <- unname(purrr::map(rd, extract_tag, "tag_concept"))
+  keywords <- unname(purrr::map(rd, extract_tag, "tag_keyword"))
+  internal <- purrr::map_lgl(keywords, ~ "internal" %in% .)
   source <- purrr::map(rd, extract_source)
 
   file_in <- names(rd)
+
   file_out <- gsub("\\.Rd$", ".html", file_in)
+  file_out[file_out == "index.html"] <- "index-topic.html"
 
   funs <- purrr::map(rd, topic_funs)
 
@@ -132,6 +135,7 @@ package_topics <- function(path = ".", package = "pkgdown") {
     title = titles,
     rd = rd,
     source = source,
+    keywords = keywords,
     concepts = concepts,
     internal = internal
   )
@@ -178,11 +182,6 @@ extract_source <- function(x) {
   regmatches(text, m)[[1]]
 }
 
-is_internal <- function(x) {
-  any(extract_tag(x, "tag_keyword") %in% "internal")
-}
-
-
 # Vignettes ---------------------------------------------------------------
 
 package_vignettes <- function(path = ".") {
@@ -199,13 +198,15 @@ package_vignettes <- function(path = ".") {
 
   yaml <- purrr::map(path(base, vig_path), rmarkdown::yaml_front_matter)
   title <- purrr::map_chr(yaml, list("title", 1), .default = "UNKNOWN TITLE")
+  desc <- purrr::map_chr(yaml, list("description", 1), .default = NA_character_)
   ext <- purrr::map_chr(yaml, c("pkgdown", "extension"), .default = "html")
   title[ext == "pdf"] <- paste0(title[ext == "pdf"], " (PDF)")
 
   tibble::tibble(
     name = path_ext_remove(vig_path),
     file_in = path("vignettes", vig_path),
-    file_out = path("articles", path_ext_set(vig_path, ext)),
-    title = title
+    file_out = path("articles", paste0(path_ext_remove(vig_path), ".", ext)),
+    title = title,
+    description = desc
   )
 }
