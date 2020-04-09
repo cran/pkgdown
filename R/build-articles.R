@@ -22,7 +22,7 @@
 #'
 #' @section Index and navbar:
 #' You can control the articles index and navbar with a `articles` section in
-#' your `_pkgdown.yaml`. It defines a list of sections, eaach of which
+#' your `_pkgdown.yaml`. It defines a list of sections, each of which
 #' can contain four fields:
 #'
 #' * `title` (required): title of section, which appears as a heading on the
@@ -317,6 +317,8 @@ rmarkdown_template <- function(pkg, name, data, depth) {
 
 # Articles index ----------------------------------------------------------
 
+#' @export
+#' @rdname build_articles
 build_articles_index <- function(pkg = ".") {
   pkg <- as_pkgdown(pkg)
 

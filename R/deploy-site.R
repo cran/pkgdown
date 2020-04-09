@@ -60,7 +60,8 @@
 #' @param commit_message The commit message to be used for the commit.
 #' @param verbose Print verbose output
 #' @param ... Additional arguments passed to [build_site()].
-#' @param repo_slug **Deprecated** No longer used.
+#' @param host The GitHub host url.
+#' @param repo_slug The `user/repo` slug for the repository.
 #' @export
 deploy_site_github <- function(
   pkg = ".",
@@ -69,8 +70,9 @@ deploy_site_github <- function(
   ssh_id = Sys.getenv("id_rsa", ""),
   commit_message = construct_commit_message(pkg),
   verbose = FALSE,
+  host = "github.com",
   ...,
-  repo_slug = "DEPRECATED") {
+  repo_slug = Sys.getenv("TRAVIS_REPO_SLUG", "")) {
 
   if (!nzchar(tarball)) {
     stop("No built tarball detected, please provide the location of one with `tarball`", call. = FALSE)
@@ -80,8 +82,8 @@ deploy_site_github <- function(
     stop("No deploy key found, please setup with `travis::use_travis_deploy()`", call. = FALSE)
   }
 
-  if (!missing(repo_slug)) {
-    warning("`repo_slug` is deprecated. It is no longer used.", call. = FALSE)
+  if (!nzchar(repo_slug)) {
+    stop("No repo detected, please supply one with `repo_slug`", call. = FALSE)
   }
 
   rule("Deploying site", line = 2)
@@ -97,7 +99,16 @@ deploy_site_github <- function(
   cat_line("Setting private key permissions to 0600")
   fs::file_chmod(ssh_id_file, "0600")
 
-  deploy_to_branch(pkg, commit_message = commit_message, branch = "gh-pages", ...)
+  cat_line("Setting remote to use the ssh url")
+
+  git("remote", "set-url", "origin", sprintf("git@%s:%s.git", host, repo_slug))
+
+  deploy_to_branch(
+    pkg,
+    commit_message = commit_message,
+    branch = "gh-pages",
+    ...
+  )
 
   rule("Deploy completed", line = 2)
 }

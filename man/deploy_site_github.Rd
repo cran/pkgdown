@@ -11,8 +11,9 @@ deploy_site_github(
   ssh_id = Sys.getenv("id_rsa", ""),
   commit_message = construct_commit_message(pkg),
   verbose = FALSE,
+  host = "github.com",
   ...,
-  repo_slug = "DEPRECATED"
+  repo_slug = Sys.getenv("TRAVIS_REPO_SLUG", "")
 )
 }
 \arguments{
@@ -33,9 +34,11 @@ new keypair specifically for deploying the site. The easiest way is to use
 
 \item{verbose}{Print verbose output}
 
+\item{host}{The GitHub host url.}
+
 \item{...}{Additional arguments passed to \code{\link[=build_site]{build_site()}}.}
 
-\item{repo_slug}{\strong{Deprecated} No longer used.}
+\item{repo_slug}{The \code{user/repo} slug for the repository.}
 }
 \description{
 \code{deploy_site_github()} sets up your SSH keys for deployment, builds the
