@@ -10,6 +10,7 @@ deploy_site_github(
   tarball = Sys.getenv("PKG_TARBALL", ""),
   ssh_id = Sys.getenv("id_rsa", ""),
   commit_message = construct_commit_message(pkg),
+  clean = FALSE,
   verbose = FALSE,
   host = "github.com",
   ...,
@@ -32,6 +33,8 @@ new keypair specifically for deploying the site. The easiest way is to use
 
 \item{commit_message}{The commit message to be used for the commit.}
 
+\item{clean}{Clean all files from old site.}
+
 \item{verbose}{Print verbose output}
 
 \item{host}{The GitHub host url.}
@@ -50,7 +53,7 @@ locally. See 'Setup' for details on setting up your repository to use this.
 }
 \section{Setup}{
 
-For a quick setup, you can use \code{\link[usethis:use_pkgdown_travis]{usethis::use_pkgdown_travis()}}. It  will help you
+For a quick setup, you can use \code{\link[usethis:use_pkgdown]{usethis::use_pkgdown_travis()}}. It  will help you
 with the following detailed steps.
 \itemize{
 \item Add the following to your \code{.travis.yml} file.\preformatted{before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
@@ -74,7 +77,7 @@ We recommend doing this outside of RStudio (with the project closed) as
 from RStudio's perspective you end up deleting all the files and then
 re-creating them.
 \item If you're using a custom CNAME, make sure you have set the \code{url} in
-\verb{_pkgdown.yaml}:\if{html}{\out{<div class="yaml">}}\preformatted{url: http://pkgdown.r-lib.org
+\verb{_pkgdown.yaml}:\if{html}{\out{<div class="yaml">}}\preformatted{url: https://pkgdown.r-lib.org
 }\if{html}{\out{</div>}}
 }
 }

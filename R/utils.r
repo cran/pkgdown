@@ -1,3 +1,12 @@
+highlight_text <- function(text) {
+  out <- downlit::highlight(text, classes = downlit::classes_pandoc())
+  if (is.na(out)) {
+    escape_html(text)
+  } else {
+    out
+  }
+}
+
 set_contains <- function(haystack, needles) {
   all(needles %in% haystack)
 }
@@ -31,7 +40,7 @@ invert_index <- function(x) {
 }
 
 rstudio_save_all <- function() {
-  if (rstudioapi::hasFun("documentSaveAll")) {
+  if (is_installed("rstudioapi") && rstudioapi::hasFun("documentSaveAll")) {
     rstudioapi::documentSaveAll()
   }
 }
@@ -39,31 +48,6 @@ rstudio_save_all <- function() {
 is_syntactic <- function(x) x == make.names(x)
 
 str_trim <- function(x) gsub("^\\s+|\\s+$", "", x)
-
-## For functions, we can just take their environment.
-
-find_reexport_source <- function(obj, ns, topic) {
-  if (is.function(obj)) {
-    ns_env_name(get_env(obj))
-  } else {
-    find_reexport_source_from_imports(ns, topic)
-  }
-}
-
-## For other objects, we need to check the import env of the package,
-## to see where 'topic' is coming from. The import env has redundant
-## information. It seems that we just need to find a named list
-## entry that contains `topic`. We take the last match, in case imports
-## have name clashes.
-
-find_reexport_source_from_imports  <- function(ns, topic)  {
-  imp <- getNamespaceImports(ns)
-  imp <- imp[names(imp) != ""]
-  wpkgs <- purrr::map_lgl(imp, `%in%`, x = topic)
-  if (!any(wpkgs)) stop("Cannot find reexport source for `", topic, "`")
-  pkgs <- names(wpkgs)[wpkgs]
-  pkgs[[length(pkgs)]]
-}
 
 # devtools metadata -------------------------------------------------------
 
@@ -94,8 +78,20 @@ cat_line <- function(...) {
   cat(paste0(..., "\n"), sep = "")
 }
 
-rule <- function(left, ...) {
-  cli::cat_rule(left = crayon::bold(left), ...)
+rule <- function(x = NULL, line = "-") {
+  width <- getOption("width")
+
+  if (!is.null(x)) {
+    prefix <- paste0(line, line, " ")
+    suffix <- " "
+  } else {
+    prefix <- ""
+    suffix <- ""
+    x <- ""
+  }
+
+  line_length <- width - nchar(x) - nchar(prefix) - nchar(suffix)
+  cat_line(prefix, crayon::bold(x), suffix, strrep(line, line_length))
 }
 
 yaml_list <- function(...) print_yaml(list(...))

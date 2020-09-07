@@ -59,7 +59,7 @@
 #'   cran_dates: false
 #' ```
 #'
-#' @seealso [Tidyverse style for News](http://style.tidyverse.org/news.html)
+#' @seealso [Tidyverse style for News](https://style.tidyverse.org/news.html)
 #'
 #' @inheritParams build_articles
 #' @export
@@ -132,12 +132,12 @@ globalVariables(".")
 
 data_news <- function(pkg = ".") {
   pkg <- as_pkgdown(pkg)
-  scoped_file_context(depth = 1L)
 
   html <- markdown(path(pkg$src_path, "NEWS.md"))
+  xml <- xml2::read_html(html)
+  downlit::downlit_html_node(xml)
 
-  sections <- xml2::read_html(html) %>%
-    xml2::xml_find_all("./body/div")
+  sections <- xml2::xml_find_all(xml, "./body/div")
 
   titles <- sections %>%
     xml2::xml_find_first(".//h1|h2") %>%
@@ -153,9 +153,14 @@ data_news <- function(pkg = ".") {
   anchors <- anchors[!is.na(versions)]
   versions <- versions[!is.na(versions)]
 
-  timeline <- pkg_timeline(pkg$package)
+  show_dates <- purrr::pluck(pkg, "meta", "news", "cran_dates", .default = TRUE)
+  if (show_dates) {
+    timeline <- pkg_timeline(pkg$package)
+  } else {
+    timeline <- NULL
+  }
+
   html <- sections %>%
-    purrr::walk(tweak_code) %>%
     purrr::walk2(versions, tweak_news_heading, timeline = timeline) %>%
     purrr::map_chr(as.character) %>%
     purrr::map_chr(repo_auto_link, pkg = pkg)
@@ -225,14 +230,9 @@ pkg_timeline <- function(package) {
     return(NULL)
   }
 
-  show_dates <- purrr::pluck(package, "meta", "news", "cran_dates", .default = TRUE)
-  if (!show_dates) {
-    return(NULL)
-  }
-
   url <- paste0("https://crandb.r-pkg.org/", package, "/all")
 
-  resp <- httr::GET(url)
+  resp <- httr::RETRY("GET", url, quiet = TRUE)
   if (httr::http_error(resp)) {
     return(NULL)
   }

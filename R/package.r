@@ -35,6 +35,10 @@ as_pkgdown <- function(pkg = ".", override = list()) {
     dst_path <- path(dst_path, development$destination)
   }
 
+
+
+  install_metadata <- meta$deploy$install_metadata %||% FALSE
+
   structure(
     list(
       package = package,
@@ -42,6 +46,7 @@ as_pkgdown <- function(pkg = ".", override = list()) {
 
       src_path = path_abs(pkg),
       dst_path = path_abs(dst_path),
+      install_metadata = install_metadata,
 
       desc = desc,
       meta = meta,
@@ -51,27 +56,13 @@ as_pkgdown <- function(pkg = ".", override = list()) {
       development = development,
       topics = package_topics(pkg, package),
       tutorials = package_tutorials(pkg, meta),
-      vignettes = package_vignettes(pkg),
-      topic_index = topic_index_local(package, pkg),
-      article_index = article_index_local(package, pkg)
+      vignettes = package_vignettes(pkg)
     ),
     class = "pkgdown"
   )
 }
 
 is_pkgdown <- function(x) inherits(x, "pkgdown")
-
-str_person <- function(pers) {
-  s <- paste0(c(pers$given, pers$family), collapse = ' ')
-
-  if (length(pers$email)) {
-    s <- paste0("<a href='mailto:", pers$email, "'>", s, "</a>")
-  }
-  if (length(pers$role)) {
-    s <- paste0(s, " [", paste0(pers$role, collapse = ", "), "]")
-  }
-  s
-}
 
 read_desc <- function(path = ".") {
   path <- path(path, "DESCRIPTION")
@@ -105,11 +96,10 @@ read_meta <- function(path) {
 # Topics ------------------------------------------------------------------
 
 package_topics <- function(path = ".", package = "pkgdown") {
-  rd <- package_rd(path)
+  # Needed if title contains sexpr
+  local_context_eval()
 
-  # In case there are links in titles
-  scoped_package_context(package, topic_index = character(), src_path = path)
-  scoped_file_context()
+  rd <- package_rd(path)
 
   aliases <- purrr::map(rd, extract_tag, "tag_alias")
   names <- purrr::map_chr(rd, extract_tag, "tag_name")

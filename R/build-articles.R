@@ -68,20 +68,21 @@
 #' field in the for the developer vignettes means that they will only be
 #' accessible via the articles index.
 #'
-#' ## Special links
+#' The navbar will include a link to the articles index if one or more
+#' vignettes are not available through the navbar. If some vignettes appear
+#' in the navbar drop-down list and others do not, the list will automatically
+#' include a "More ..." link at the bottom; if no vignettes appear in the
+#' the navbar, it will link directly to the articles index instead of
+#' providing a drop-down.
 #'
-#' * A vignette with the same name as the package (e.g.,
-#'   `vignettes/pkgdown.Rmd` or `vignettes/articles/pkgdown.Rmd`)
-#'   automatically becomes a top-level "Get started" link, and will not appear
-#'   in the articles drop-down. (If your package name include a `.`, e.g.
-#'   `pack.down`, use a `-` in the vignette name, e.g. `pack.down.Rmd`.)
+#' @section Get started:
+#' Note that a vignette with the same name as the package (e.g.,
+#' `vignettes/pkgdown.Rmd` or `vignettes/articles/pkgdown.Rmd`) automatically
+#' becomes a top-level "Get started" link, and will not appear in the articles
+#' drop-down.
 #'
-#' * The navbar will include a link to the articles index if one or more
-#'   vignettes are not available through the navbar. If some vignettes appear
-#'   in the navbar drop-down list and others do not, the list will automatically
-#'   include a "More ..." link at the bottom; if no vignettes appear in the
-#'   the navbar, it will link directly to the articles index instead of
-#'   providing a drop-down.
+#' (If your package name includes a `.`, e.g. `pack.down`, use a `-` in the
+#' vignette name, e.g. `pack-down.Rmd`.)
 #'
 #' @section External files:
 #' pkgdown differs from base R in its handling of external files. When building
@@ -138,6 +139,20 @@
 #' pkgdown:
 #'   as_is: true
 #'   extension: pdf
+#' ```
+#'
+#' If you want to set an output format for all your articles, you can do that
+#' by adding a `vignettes/_site.yml`, much like you would for an
+#' [rmarkdown website](https://rmarkdown.rstudio.com/docs/reference/render_site.html).
+#' For example, you can backport some bookdown features such as cross-references
+#'  to all your articles by using the
+#' [bookdown::html_document2](https://bookdown.org/yihui/bookdown/a-single-document.html)
+#' format.
+#'
+#' ```
+#' output:
+#'   bookdown::html_document2:
+#'   number_sections: false
 #' ```
 #'
 #' @inheritSection build_reference Figures
@@ -220,9 +235,8 @@ build_article <- function(name,
     return(invisible())
   }
 
-  scoped_in_pkgdown()
-  scoped_package_context(pkg$package, pkg$topic_index, pkg$article_index)
-  scoped_file_context(depth = depth)
+  local_envvar_pkgdown()
+  local_options_link(pkg, depth = depth)
 
   front <- rmarkdown::yaml_front_matter(input_path)
   # Take opengraph from article's yaml front matter
@@ -251,8 +265,7 @@ build_article <- function(name,
 
       options <- list(
         template = template$path,
-        self_contained = FALSE,
-        theme = NULL
+        self_contained = FALSE
       )
     } else {
       options <- list()

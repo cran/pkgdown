@@ -101,21 +101,24 @@ Note the use of the \code{navbar} fields. \verb{navbar: ~} means that the "Main 
 will appear in the navbar without a heading; the absence of the \code{navbar}
 field in the for the developer vignettes means that they will only be
 accessible via the articles index.
-\subsection{Special links}{
-\itemize{
-\item A vignette with the same name as the package (e.g.,
-\code{vignettes/pkgdown.Rmd} or \code{vignettes/articles/pkgdown.Rmd})
-automatically becomes a top-level "Get started" link, and will not appear
-in the articles drop-down. (If your package name include a \code{.}, e.g.
-\code{pack.down}, use a \code{-} in the vignette name, e.g. \code{pack.down.Rmd}.)
-\item The navbar will include a link to the articles index if one or more
+
+The navbar will include a link to the articles index if one or more
 vignettes are not available through the navbar. If some vignettes appear
 in the navbar drop-down list and others do not, the list will automatically
 include a "More ..." link at the bottom; if no vignettes appear in the
 the navbar, it will link directly to the articles index instead of
 providing a drop-down.
 }
-}
+
+\section{Get started}{
+
+Note that a vignette with the same name as the package (e.g.,
+\code{vignettes/pkgdown.Rmd} or \code{vignettes/articles/pkgdown.Rmd}) automatically
+becomes a top-level "Get started" link, and will not appear in the articles
+drop-down.
+
+(If your package name includes a \code{.}, e.g. \code{pack.down}, use a \code{-} in the
+vignette name, e.g. \code{pack-down.Rmd}.)
 }
 
 \section{External files}{
@@ -170,6 +173,17 @@ If the output format produces a PDF, you'll also need to specify the
   as_is: true
   extension: pdf
 }
+
+If you want to set an output format for all your articles, you can do that
+by adding a \verb{vignettes/_site.yml}, much like you would for an
+\href{https://rmarkdown.rstudio.com/docs/reference/render_site.html}{rmarkdown website}.
+For example, you can backport some bookdown features such as cross-references
+to all your articles by using the
+\href{https://bookdown.org/yihui/bookdown/a-single-document.html}{bookdown::html_document2}
+format.\preformatted{output:
+  bookdown::html_document2:
+  number_sections: false
+}
 }
 
 \section{Suppressing vignettes}{
@@ -193,7 +207,7 @@ You can control the TOC depth via the YAML configuration file:\preformatted{toc:
 
 You can control the default rendering of figures by specifying the \code{figures}
 field in \verb{_pkgdown.yml}. The default settings are equivalent to:\preformatted{figures:
-  dev: grDevices::png
+  dev: ragg::agg_png
   dpi: 96
   dev.args: []
   fig.ext: png
@@ -201,6 +215,7 @@ field in \verb{_pkgdown.yml}. The default settings are equivalent to:\preformatt
   fig.height: ~
   fig.retina: 2
   fig.asp: 1.618
+  bg: NA
 }
 }
 

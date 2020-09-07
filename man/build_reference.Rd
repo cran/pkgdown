@@ -116,6 +116,8 @@ R, e.g. \code{"`+.gg`"}.
 \item \code{has_keyword("x")} to select all topics with keyword "x";
 \code{has_keyword("datasets")} selects all data documentation.
 \item \code{has_concept("blah")} to select all topics with concept "blah".
+If you are using roxygen2, \code{has_concept()} also matches family tags, because
+roxygen2 converts them to concept tags.
 \item \code{lacks_concepts(c("concept1", "concept2"))} to select all topics
 without those concepts. This is useful to capture topics not otherwise
 captured by \code{has_concepts()}.
@@ -146,7 +148,7 @@ Icons are matched to topics by aliases.
 
 You can control the default rendering of figures by specifying the \code{figures}
 field in \verb{_pkgdown.yml}. The default settings are equivalent to:\preformatted{figures:
-  dev: grDevices::png
+  dev: ragg::agg_png
   dpi: 96
   dev.args: []
   fig.ext: png
@@ -154,6 +156,7 @@ field in \verb{_pkgdown.yml}. The default settings are equivalent to:\preformatt
   fig.height: ~
   fig.retina: 2
   fig.asp: 1.618
+  bg: NA
 }
 }
 

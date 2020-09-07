@@ -45,7 +45,7 @@
 #' `_pkgdown.yaml`:
 #'
 #'    ```yaml
-#'    url: http://pkgdown.r-lib.org
+#'    url: https://pkgdown.r-lib.org
 #'    ```
 #'
 #' @inheritParams build_site
@@ -58,6 +58,7 @@
 #'   new keypair specifically for deploying the site. The easiest way is to use
 #'   `travis::use_travis_deploy()`.
 #' @param commit_message The commit message to be used for the commit.
+#' @param clean Clean all files from old site.
 #' @param verbose Print verbose output
 #' @param ... Additional arguments passed to [build_site()].
 #' @param host The GitHub host url.
@@ -69,6 +70,7 @@ deploy_site_github <- function(
   tarball = Sys.getenv("PKG_TARBALL", ""),
   ssh_id = Sys.getenv("id_rsa", ""),
   commit_message = construct_commit_message(pkg),
+  clean = FALSE,
   verbose = FALSE,
   host = "github.com",
   ...,
@@ -106,6 +108,7 @@ deploy_site_github <- function(
   deploy_to_branch(
     pkg,
     commit_message = commit_message,
+    clean = clean,
     branch = "gh-pages",
     ...
   )
@@ -129,6 +132,7 @@ deploy_site_github <- function(
 #' @export
 deploy_to_branch <- function(pkg = ".",
                          commit_message = construct_commit_message(pkg),
+                         clean = FALSE,
                          branch = "gh-pages",
                          remote = "origin",
                          github_pages = (branch == "gh-pages"),
@@ -159,6 +163,12 @@ deploy_to_branch <- function(pkg = ".",
   on.exit(github_worktree_remove(dest_dir), add = TRUE)
 
   pkg <- as_pkgdown(pkg, override = list(destination = dest_dir))
+
+  if (clean) {
+    rule("Cleaning files from old site", line = 1)
+    clean_site(pkg)
+  }
+
   build_site(pkg, devel = FALSE, preview = FALSE, install = FALSE, ...)
   if (github_pages) {
     build_github_pages(pkg)
@@ -210,7 +220,7 @@ github_push <- function(dir, commit_message, remote, branch) {
 }
 
 git <- function(..., echo_cmd = TRUE, echo = TRUE, error_on_status = TRUE) {
-  processx::run("git", c(...), echo_cmd = echo_cmd, echo = echo, error_on_status = error_on_status)
+  callr::run("git", c(...), echo_cmd = echo_cmd, echo = echo, error_on_status = error_on_status)
 }
 
 construct_commit_message <- function(pkg, commit = ci_commit_sha()) {

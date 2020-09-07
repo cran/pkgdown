@@ -14,23 +14,51 @@
 
 <title>Auto-linking</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -50,7 +78,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -321,10 +349,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><code>?purrr::map</code>, <code>?MASS::addterm</code>.</li>
 <li><code>vignette(&quot;other-langs&quot;, package = &quot;purrr&quot;)</code>, <code>vignette(&quot;longintro&quot;, package = &quot;rpart&quot;)</code></li>
 </ul>
-<p>If pkgdown can find a pkgdown site for the remote package, it will link to it; otherwise it will link to <a href="http://rdrr.io/" class="uri">http://rdrr.io/</a> for documentation, and CRAN for vignettes. In order for a pkgdown site to be findable, it needs to be listed in two places:</p>
+<p>If pkgdown can find a pkgdown site for the remote package, it will link to it; otherwise it will link to <a href="https://rdrr.io/" class="uri">https://rdrr.io/</a> for documentation, and CRAN for vignettes. In order for a pkgdown site to be findable, it needs to be listed in two places:</p>
 <ul>
 <li><p>In the <code>URL</code> field in the <code>DESCRIPTION</code>, as in <a href="https://github.com/tidyverse/dplyr/blob/85faf79c1fd74f4b4f95319e5be6a124a8075502/DESCRIPTION#L15">dplyr</a>:</p>
-<pre><code>URL: http://dplyr.tidyverse.org, https://github.com/tidyverse/dplyr</code></pre></li>
+<pre><code>URL: https://dplyr.tidyverse.org, https://github.com/tidyverse/dplyr</code></pre></li>
 <li><p>In the <code>url</code> field in <code>_pkgdown.yml</code>, as in <a href="https://github.com/tidyverse/dplyr/blob/master/_pkgdown.yml#L1">dplyr</a></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">url</span><span class="kw">:</span><span class="at"> https://dplyr.tidyverse.org</span></span></code></pre></div>
 <p>When this field is defined, pkgdown generate a public facing <a href="https://dplyr.tidyverse.org/pkgdown.yml"><code>pkgdown.yml</code> file</a> that provides metadata about the site:</p>

@@ -95,10 +95,16 @@ as_html.COMMENT <- function(x, ...) {
 as_html.USERMACRO <-  function(x, ...) ""
 
 #' @export
-as_html.tag_subsection <- function(x, ...) {
+as_html.tag_subsection <- function(x, ..., subsection_level = 3L) {
+
+  h <- paste0("h", subsection_level)
+
   paste0(
-    "<h3>", flatten_text(x[[1]], ...), "</h3>\n",
-    flatten_para(x[[2]], ...)
+    "<", h, " class='hasAnchor' id='arguments'>",
+    "<a class='anchor' href='#arguments'></a>",
+    flatten_text(x[[1]], ...),
+    "</", h, ">\n",
+    flatten_para(x[[2]], ..., subsection_level = subsection_level + 1L)
   )
 }
 
@@ -106,19 +112,12 @@ as_html.tag_subsection <- function(x, ...) {
 
 #' @export
 as_html.tag_eqn <- function(x, ...) {
-  if (length(x) > 2) {
-    stop_bad_tag("eqn")
-  }
-
   latex_rep <- x[[1]]
   paste0("\\(", flatten_text(latex_rep, ...), "\\)")
 }
 
 #' @export
 as_html.tag_deqn <- function(x, ...) {
-  if (length(x) > 2) {
-    stop_bad_tag("deqn")
-  }
   latex_rep <- x[[1]]
   paste0("$$", flatten_text(latex_rep, ...), "$$")
 }
@@ -140,18 +139,11 @@ as_html.tag_url <- function(x, ...) {
 }
 #' @export
 as_html.tag_href <- function(x, ...) {
-  if (length(x) != 2) {
-    stop_bad_tag("href")
-  }
-
   a(flatten_text(x[[2]]), href = flatten_text(x[[1]]))
 }
 #' @export
 as_html.tag_email <- function(x, ...) {
-  if (!length(x) %in% c(1L, 2L)) {
-    stop_bad_tag("email")
-  }
-  paste0("<a href='mailto:", x[[1]], "'>", x[[length(x)]], "</a>")
+  paste0("<a href='mailto:", x[[1]], "'>", x[[1]], "</a>")
 }
 
 # If single, need to look up alias to find file name and package
@@ -163,32 +155,20 @@ as_html.tag_link <- function(x, ...) {
 
   if (is.null(opt)) {
     # \link{topic}
-    href <- href_topic_local(in_braces)
+    href <- downlit::href_topic(in_braces)
   } else if (substr(opt, 1, 1) == "=") {
     # \link[=dest]{name}
-    href <- href_topic_local(substr(opt, 2, nchar(opt)))
+    href <- downlit::href_topic(substr(opt, 2, nchar(opt)))
   } else {
     match <- regexec('^([^:]+)(?:|:(.*))$', opt)
     parts <- regmatches(opt, match)[[1]][-1]
 
-    package <- context_get("package")
-
     if (parts[[2]] == "") {
-      if (parts[[1]] == package) {
-        # \link[mypkg]{foo}
-        href <- href_topic_local(in_braces)
-      } else {
-        # \link[pkg]{foo}
-        href <- href_topic_remote(in_braces, opt)
-      }
+      # \link[pkg]{foo}
+      href <- downlit::href_topic(in_braces, opt)
     } else {
-      if (parts[[1]] == package) {
-        # \link[my_pkg:bar]{foo}
-        href <- href_topic_local(parts[[2]])
-      } else {
-        # \link[pkg:bar]{foo}
-        href <- href_topic_remote(parts[[2]], parts[[1]])
-      }
+      # \link[pkg:bar]{foo}
+      href <- downlit::href_topic(parts[[2]], parts[[1]])
     }
   }
 
@@ -202,7 +182,7 @@ as_html.tag_linkS4class <- function(x, ...) {
   }
 
   text <- flatten_text(x[[1]])
-  href <- href_topic_local(paste0(text, "-class"))
+  href <- downlit::href_topic(paste0(text, "-class"))
   a(text, href = href)
 }
 
@@ -251,7 +231,7 @@ as_html.tag_Sexpr <- function(x, ...) {
 #' @export
 as_html.tag_if <- function(x, ...) {
   if (x[[1]] == "html") {
-    as_html(x[[2]])
+    as_html(x[[2]], ...)
   } else {
     ""
   }
@@ -260,6 +240,44 @@ as_html.tag_if <- function(x, ...) {
 #' @export
 as_html.tag_ifelse <- function(x, ...) {
   if (x[[1]] == "html") as_html(x[[2]], ...) else as_html(x[[3]], ...)
+}
+
+# Used inside a \usage{} Rd tag to prevent the code from being treated as
+# regular R syntax, either because it is not valid R, or because its usage
+# intentionally deviates from regular R usage. An example of the former is the
+# command line documentation, e.g. `R CMD SHLIB`
+# (https://github.com/wch/r-source/blob/trunk/src/library/utils/man/SHLIB.Rd):
+#
+#    \special{R CMD SHLIB [options] [-o dllname] files}
+#
+# An example of the latter is the documentation shortcut `?`
+# (https://github.com/wch/r-source/blob/trunk/src/library/utils/man/Question.Rd):
+#
+#    \special{?topic}
+#
+#' @export
+as_html.tag_special <- function(x, ...) {
+  as_html(x[[1]], ...)
+}
+
+#' @export
+`as_html.#ifdef` <- function(x, ...) {
+  os <- trimws(flatten_text(x[[1]]))
+  if (os == "unix") {
+    flatten_text(x[[2]])
+  } else {
+    ""
+  }
+}
+
+#' @export
+`as_html.#ifndef` <- function(x, ...) {
+  os <- trimws(flatten_text(x[[1]]))
+  if (os == "windows") {
+    flatten_text(x[[2]])
+  } else {
+    ""
+  }
 }
 
 # Tables ---------------------------------------------------------------------
@@ -312,8 +330,6 @@ as_html.tag_figure <- function(x, ...) {
     } else {
       paste0("<img src='figures/", path, "' alt='", opt, "' />")
     }
-  } else {
-    stop("Invalid \\figure{} markup", call. = FALSE)
   }
 }
 
@@ -329,7 +345,7 @@ as_html.tag_enumerate <- function(x, ...) {
 }
 #' @export
 as_html.tag_describe <- function(x, ...) {
-  paste0("<dl'>\n", parse_descriptions(x[-1], ...), "\n</dl>")
+  paste0("<dl>\n", parse_descriptions(x[-1], ...), "\n</dl>")
 }
 
 # Effectively does nothing: only used by parse_items() to split up
@@ -409,23 +425,20 @@ as_html.tag_sQuote <-       tag_wrapper("&#8216;", "&#8217;")
 as_html.tag_code <-         function(x, ..., auto_link = TRUE) {
   text <- flatten_text(x, ...)
 
-  if (!auto_link) {
-    return(paste0("<code>", text, "</code>"))
+  if (auto_link) {
+    href <- downlit::autolink_url(text)
+    text <- a(text, href = href)
   }
-
-  expr <- tryCatch(
-    parse(text = text)[[1]],
-    error = function(e) NULL
-  )
-
-  href <- href_expr(expr)
-  paste0("<code>", a(text, href = href), "</code>")
+  paste0("<code>", text, "</code>")
 }
 
 #' @export
 as_html.tag_preformatted <- function(x, ...) {
   text <- flatten_text(x, ...)
-  # highlight_text() does nothing if not parseable
+
+  # Need to unescape so that highlight_text() can tell if it's R code
+  # or not. It'll re-escape if needed
+  text <- unescape_html(text)
   paste0("<pre>", highlight_text(text), "</pre>")
 }
 
@@ -463,35 +476,27 @@ as_html.tag_out <- function(x, ...) flatten_text(x, ..., escape = FALSE)
 
 # Insertions --------------------------------------------------------------
 
-tag_insert <- function(value) {
-  function(x, ...) {
-    value
-  }
-}
-
 #' @export
-as_html.tag_R <-        tag_insert('<span style="R">R</span>')
+as_html.tag_R <-     function(x, ...) '<span style="R">R</span>'
 #' @export
-as_html.tag_dots <-     tag_insert("...")
+as_html.tag_dots <-  function(x, ...) "..."
 #' @export
-as_html.tag_ldots <-    tag_insert("...")
-
+as_html.tag_ldots <- function(x, ...) "..."
 #' @export
-as_html.tag_cr <-       tag_insert("<br >")
+as_html.tag_cr <-    function(x, ...) "<br >"
 
 # First element of enc is the encoded version (second is the ascii version)
 #' @export
 as_html.tag_enc <- function(x, ...) {
-  as_html(x[[1]], ...)
+  if (length(x) == 2) {
+    as_html(x[[1]], ...)
+  } else {
+    stop_bad_tag("enc")
+  }
 }
-
 
 # Elements that don't return anything ----------------------------------------
 
-#' @export
-as_html.NULL <-         function(x, ...) ""
-#' @export
-as_html.tag_concept <-  function(x, ...) ""
 #' @export
 as_html.tag_tab <-      function(x, ...) ""
 #' @export
@@ -562,15 +567,10 @@ parse_opts <- function(string) {
 }
 
 stop_bad_tag <- function(tag, msg = NULL) {
-  fxn <- context_get("rdname")
-
-  msg <- paste0(
-    "Function `", fxn,
-    "` contains a bad Rd tag of type `", tag,
-    "`. ", msg
-  )
-
-  stop(msg, call. = FALSE)
+  abort(c(
+    paste0("Failed to parse \\", tag, "{}."),
+    i = msg
+  ))
 }
 
 is_newline <- function(x, trim = FALSE) {

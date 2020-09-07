@@ -1,9 +1,6 @@
 build_home_index <- function(pkg = ".", quiet = TRUE) {
   pkg <- as_pkgdown(pkg)
 
-  scoped_package_context(pkg$package, pkg$topic_index, pkg$article_index)
-  scoped_file_context(depth = 0L)
-
   src_path <- path_first_existing(
     pkg$src_path,
     c("pkgdown/index.md",
@@ -17,6 +14,7 @@ build_home_index <- function(pkg = ".", quiet = TRUE) {
   if (is.null(src_path)) {
     data$index <- linkify(pkg$desc$get("Description")[[1]])
   } else {
+    local_options_link(pkg, depth = 0L)
     data$index <- markdown(src_path)
   }
   render_page(pkg, "home", data, "index.html", quiet = quiet)
@@ -85,6 +83,9 @@ sidebar_section <- function(heading, bullets, class = make_slug(heading)) {
   )
 }
 
+#' @importFrom memoise memoise
+NULL
+
 cran_link <- memoise(function(pkg) {
   if (!has_internet()) {
     return(NULL)
@@ -98,7 +99,7 @@ cran_link <- memoise(function(pkg) {
 
   # bioconductor always returns a 200 status, redirecting to /removed-packages/
   bioc_url <- paste0("https://www.bioconductor.org/packages/", pkg)
-  req <- httr::HEAD(bioc_url)
+  req <- httr::RETRY("HEAD", bioc_url, quiet = TRUE)
   if (!httr::http_error(req) && !grepl("removed-packages", req$url)) {
     return(list(repo = "BIOC", url = bioc_url))
   }
