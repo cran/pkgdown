@@ -1,7 +1,7 @@
-e4866d47f70363bd065904a3afd9b596 *DESCRIPTION
+74e979195eeabadc9b90ae00e0b38a21 *DESCRIPTION
 827cfbec651c41c54715430fcaf78159 *LICENSE
 1a846a9f0ef49aef1aec665f123804d3 *NAMESPACE
-aa3fad7416f8910cdb25474ac989509d *NEWS.md
+2e42684549bb5442cb47a886e023835e *NEWS.md
 ce8b7d85a0ef70c96cfc30d671f7d6b9 *R/autolink_html.R
 667cee819b90eb1eb6dd6addb7b4865b *R/build-404.R
 3ddb11581092b3b6c92676a3f71336ab *R/build-articles.R
@@ -28,7 +28,7 @@ f75c566b6d4798723218e56d47522b4e *R/context.R
 de0ffa84f33f04d828cec22a67ad4ef4 *R/figure.R
 0dac7b0f3c13d6526ddd8fceb86f1b9e *R/html-build.R
 2dfb1e0fb468efcea31454d6f81c2aab *R/html-tweak.R
-47db5a7ae223bf139febabded2170dfa *R/init.R
+87ce112e8ac8e420743fd3048764c692 *R/init.R
 35ab14f2959049f540adba95be7e1886 *R/markdown.R
 ac821919cbf8ef00102e508caaf7f02e *R/navbar.R
 c9ea7b69eff20d331db33aef6c8e6838 *R/package.r
@@ -49,7 +49,7 @@ c7c8c529d99958a033b48bc0d008d633 *R/template.R
 8cbae25b12f5c0efb6fbc83184ffbce0 *R/utils-io.R
 a263fcdcc4ed772cc7f3d57aac238770 *R/utils.r
 b8adf51b9dce51b862a9b76449b3e92f *README.md
-919bf391a3b4ca5738d6c0429943d605 *build/pkgdown.pdf
+0476effd2f1c0bdf831b711c3e348703 *build/pkgdown.pdf
 cc7d83e8d7013761ee76b0aac181ce54 *build/vignette.rds
 5eec6702c35b15a8c2c123301987735d *inst/assets/bootstrap-toc.css
 aaa610b29d895e1128447e76b9bc0076 *inst/assets/bootstrap-toc.js
@@ -204,7 +204,7 @@ dd0077524588f0cc7d252fdf56881e15 *tests/testthat/assets/open-graph/vignettes/ope
 847e4eab3395d08167eb6e4c6fc17812 *tests/testthat/assets/reference-fail/DESCRIPTION
 b1e120dca82a29d5d40c7505dc7e7e44 *tests/testthat/assets/reference-fail/NAMESPACE
 b03772870d4840344465faa9052103f4 *tests/testthat/assets/reference-fail/R/f.R
-87a58336db36cff544d22fb195da1feb *tests/testthat/assets/reference-fail/docs/reference/index.html
+f8ef877ef2c4d989de8ca2f07ec7f59f *tests/testthat/assets/reference-fail/docs/reference/index.html
 a315840c7c60841e105270f40923ac7c *tests/testthat/assets/reference-fail/man/f.Rd
 cebc114690d8002e42690d8d58693d4e *tests/testthat/assets/reference/DESCRIPTION
 e61830d6a1d246c9887de8cb4c9bab7c *tests/testthat/assets/reference/NAMESPACE
@@ -235,16 +235,16 @@ d6e3b1e1c1c54caee968019b9df5b692 *tests/testthat/assets/tutorials-inst/inst/tuto
 f7750b4f90723db04b8963b137254ad9 *tests/testthat/assets/tutorials-vignettes/vignettes/tutorials/test-1/test-1.Rmd
 37b43b45aa8d5b9d9cb8ab4ba6d82f5d *tests/testthat/assets/tweak-anchor.html
 d752f237ed18a2eca23d9e775e44b40b *tests/testthat/assets/version-formatting/DESCRIPTION
-f5805bfbcc076279c6f947979ffc8650 *tests/testthat/assets/version-formatting/docs/404.html
+4074c3f4add15e20bcf854493f48163c *tests/testthat/assets/version-formatting/docs/404.html
 5eec6702c35b15a8c2c123301987735d *tests/testthat/assets/version-formatting/docs/bootstrap-toc.css
 aaa610b29d895e1128447e76b9bc0076 *tests/testthat/assets/version-formatting/docs/bootstrap-toc.js
 828dbea96017a994efccb7c30c041577 *tests/testthat/assets/version-formatting/docs/docsearch.css
 2f3c1f7995c9f4f966323f008e3984ad *tests/testthat/assets/version-formatting/docs/docsearch.js
-3cfe6e4553d5b4cb83899cf25c4cc522 *tests/testthat/assets/version-formatting/docs/index.html
+9c5cc7f9acd43f9861007bc3c2d392f2 *tests/testthat/assets/version-formatting/docs/index.html
 4759f31f8a585e9af173fc579d730265 *tests/testthat/assets/version-formatting/docs/link.svg
 a2059cfdf7b67c723a2de194fa52d94b *tests/testthat/assets/version-formatting/docs/pkgdown.css
 e0bdbf3c19a222385db6b4dae0682e5b *tests/testthat/assets/version-formatting/docs/pkgdown.js
-4d08bb9b4a69ca8d3998f72b76baa621 *tests/testthat/assets/version-formatting/docs/pkgdown.yml
+c3f94de7622b1c8ae70741b0c5e13841 *tests/testthat/assets/version-formatting/docs/pkgdown.yml
 e44b8a6c08a490b0fb7246e5604d543f *tests/testthat/assets/vignette-with-img.Rmd
 b6dfff4c26c2c3dd205306ebe0aae962 *tests/testthat/test-autolink_html.R
 d2f52b1b4b3ed0d2b2027cc4d1826de1 *tests/testthat/test-build-articles.R
@@ -269,7 +269,8 @@ d74f456c6ba687026239c4e315542dd0 *tests/testthat/test-deploy-site.R
 690d595872186f65277fd17bac993097 *tests/testthat/test-figure.R
 add74ac0ce04f9db57c6171ad1d068bd *tests/testthat/test-html-build.R
 95275073efedfb78ff069cbd90502d49 *tests/testthat/test-html-tweak.R
-e37669243ee1f95c90322ea0cb98f36f *tests/testthat/test-init.R
+981da18a997ba5d80ff3c674ad4ead01 *tests/testthat/test-init-meta.txt
+008da619062e50d77db8d452eaed255d *tests/testthat/test-init.R
 407d9a523eae77da63643b44d17fb65a *tests/testthat/test-markdown.R
 487a7beec46b306af6b1e49f5b0edd28 *tests/testthat/test-navbar.R
 23a8e861f478b901fb579c15e37e0d7d *tests/testthat/test-navbar/articles.txt

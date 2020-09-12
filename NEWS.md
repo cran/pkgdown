@@ -1,3 +1,8 @@
+# pkgdown 1.6.1
+
+* The article index (used for autolinking vignettes across packages) 
+  once again works (#1401).
+
 # pkgdown 1.6.0
 
 ## Major changes
