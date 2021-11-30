@@ -1,7 +1,15 @@
 #' Initialise site infrastructure
 #'
-#' This creates the output directory (`docs/`), a machine readable description
-#' of the site, and copies CSS/JS assets and extra files.
+#' @description
+#' `init_site()`:
+#'
+#' * creates the output directory (`docs/`),
+#' * generates a machine readable description of the site, used for autolinking,
+#' * copies CSS/JS assets and extra files, and
+#' * runs `build_favicons()`, if needed.
+#'
+#' See `vignette("customise")` for the various ways you can customise the
+#' display of your site.
 #'
 #' @section Build-ignored files:
 #' We recommend using [usethis::use_pkgdown()] to build-ignore `docs/` and
@@ -9,20 +17,6 @@
 #' you'll need to add them to `.Rbuildignore` yourself. A `NOTE` about
 #' an unexpected file during `R CMD CHECK` is an indication you have not
 #' correctly ignored these files.
-#'
-#' @section Custom CSS/JS:
-#' If you want to do minor customisation of your pkgdown site, the easiest
-#' way is to add `pkgdown/extra.css` and `pkgdown/extra.js`. These
-#' will be automatically copied to `docs/` and inserted into the
-#' `<HEAD>` after the default pkgdown CSS and JS.
-#'
-#' @section Favicon:
-#' Favicons are built automatically from a logo PNG or SVG by [init_site()] and
-#' copied to `pkgdown/favicon`.
-#'
-#' @section 404:
-#' pkgdown creates a default 404 page (`404.html`). You can customize 404
-#' page content using `.github/404.md`.
 #'
 #' @inheritParams build_articles
 #' @export
@@ -35,20 +29,20 @@ init_site <- function(pkg = ".") {
 
   rule("Initialising site")
   dir_create(pkg$dst_path)
-  copy_assets(pkg)
 
-  if (has_favicons(pkg)) {
-    copy_favicons(pkg)
-  } else if (has_logo(pkg)) {
-    build_favicons(pkg)
-    copy_favicons(pkg)
+  copy_assets(pkg)
+  if (pkg$bs_version > 3) {
+    build_bslib(pkg)
   }
 
+  if (has_logo(pkg) && !has_favicons(pkg)) {
+    # Building favicons is expensive, so we hopefully only do it once.
+    build_favicons(pkg)
+  }
+  copy_favicons(pkg)
+  copy_logo(pkg)
+
   build_site_meta(pkg)
-  build_sitemap(pkg)
-  build_docsearch_json(pkg)
-  build_logo(pkg)
-  build_404(pkg)
 
   invisible()
 }
@@ -57,26 +51,39 @@ copy_assets <- function(pkg = ".") {
   pkg <- as_pkgdown(pkg)
   template <- purrr::pluck(pkg$meta, "template", .default = list())
 
-  # Copy default assets
+  # pkgdown assets
   if (!identical(template$default_assets, FALSE)) {
-    copy_asset_dir(pkg, path_pkgdown("assets"))
+    copy_asset_dir(pkg, path_pkgdown(paste0("BS", pkg$bs_version), "assets"))
   }
 
-  # Copy extras
-  copy_asset_dir(pkg, "pkgdown", file_regexp = "^extra")
-
-  # Copy assets from directory
+  # manually specified directory: I don't think this is documented
+  # and no longer seems important, so I suspect it could be removed
   if (!is.null(template$assets)) {
     copy_asset_dir(pkg, template$assets)
   }
 
-  # Copy assets from package
+  # package assets
   if (!is.null(template$package)) {
-    copy_asset_dir(pkg, path_package_pkgdown(template$package, "assets"))
+    assets <- path_package_pkgdown(
+      "assets",
+      package = template$package,
+      bs_version = pkg$bs_version
+    )
+    copy_asset_dir(pkg, assets)
   }
+
+  # extras
+  copy_asset_dir(pkg, "pkgdown", file_regexp = "^extra")
+  # site assets
+  copy_asset_dir(pkg, "pkgdown/assets")
+
+  invisible()
 }
 
 copy_asset_dir <- function(pkg, from_dir, file_regexp = NULL) {
+  if (length(from_dir) == 0) {
+    return(character())
+  }
   from_path <- path_abs(from_dir, pkg$src_path)
   if (!file_exists(from_path)) {
     return(character())
@@ -90,6 +97,8 @@ copy_asset_dir <- function(pkg, from_dir, file_regexp = NULL) {
   if (!is.null(file_regexp)) {
     files <- files[grepl(file_regexp, path_file(files))]
   }
+  # Handled in bs_theme()
+  files <- files[path_ext(files) != "scss"]
 
   file_copy_to(pkg, files, pkg$dst_path, from_dir = from_path)
 }
@@ -118,7 +127,7 @@ build_site_meta <- function(pkg = ".") {
 }
 
 site_meta <- function(pkg) {
-  article_index <- set_names(path_file(pkg$vignettes$file_out), pkg$vignettes$name)
+  article_index <- article_index(pkg)
 
   meta <- list(
     pandoc = as.character(rmarkdown::pandoc_version()),
@@ -144,7 +153,7 @@ is_non_pkgdown_site <- function(dst_path) {
   }
 
   top_level <- dir_ls(dst_path)
-  top_level <- top_level[!path_file(top_level) %in% c("CNAME", "dev")]
+  top_level <- top_level[!path_file(top_level) %in% c("CNAME", "dev", "deps")]
 
   length(top_level) >= 1 && !"pkgdown.yml" %in% path_file(top_level)
 }

@@ -159,6 +159,22 @@ NULL
 #' }
 NULL
 
+#' Test case: long-lines
+#'
+#' The example results should have the copy button correctly placed when
+#' scrollings
+#'
+#' @name test-long-lines
+#' @keywords internal
+#' @family tests
+#' @examples
+#' pkgdown:::ruler()
+#'
+#' cat(rep("x ", 100), sep = "")
+#' cat(rep("xy", 100), sep = "")
+#' cat(rep("x ", 100), sep = "")
+#' cat(rep("xy", 100), sep = "")
+NULL
 
 #' Test case: crayon
 #'
@@ -175,32 +191,49 @@ NULL
 #' warning(crayon::bold("This is bold"))
 NULL
 
-#' Test case: verbatim blocks
+#' Test case: preformatted blocks & syntax highlighting
 #'
-#' This description block is required so that verbatim blocks are recognized
-#' and rendered correctly.
+#' Manual test cases for various ways of embedding code in sections.
+#' All code blocks should have copy and paste button.
 #'
-#' ```
-#' foo
+#' # Should be highlighted
 #'
-#' bar
-#' ```
+#' Valid R code in `\preformatted{}`:
 #'
 #' ```
-#' yaml:
-#'   this
+#' mean(a + 1)
+#' ```
 #'
-#' OR:
+#' R code in `R` block:
 #'
-#' yaml:
-#'   that
+#' ```R
+#' mean(a + 1)
+#' ```
+#'
+#' R code in `r` block:
+#'
+#' ```R
+#' mean(a + 1)
+#' ```
+#'
+#' Yaml
+#'
+#' ```yaml
+#' yaml: [a, 1]
+#' ```
+#'
+#' # Shouldn't be highlighted
+#'
+#' Non-R code in `\preformatted{}`
+#'
+#' ```
+#' yaml: [a, b, c]
 #' ```
 #'
 #' @name test-verbatim
 #' @keywords internal
 #' @family tests
 NULL
-
 
 #' Index
 #'

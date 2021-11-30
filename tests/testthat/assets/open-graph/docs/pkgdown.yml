@@ -1,9 +1,0 @@
-pandoc: 2.7.3
-pkgdown: 1.4.1.9000
-pkgdown_sha: ~
-articles:
-  open-graph: open-graph.html
-urls:
-  reference: http://example.com/pkg/reference
-  article: http://example.com/pkg/articles
-

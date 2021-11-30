@@ -1,0 +1,290 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: pkgdown 1.9000.9000.9000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-26 15:57-0600\n"
+"PO-Revision-Date: 2021-11-14 18:09+0000\n"
+"Last-Translator: @dieghernan\n"
+"Language-Team: es\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Loco-Source-Locale: es_ES\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Parser: loco_parse_po\n"
+
+#: build-404.R:11
+msgid "Page not found (404)"
+msgstr "Página no encontrada (404)"
+
+#: build-404.R:12
+msgid "Content not found. Please use links in the navbar."
+msgstr ""
+"Contenido no encontrado. Por favor utilice los enlaces de la barra de "
+"navegación."
+
+#: build-articles.R:379 navbar.R:134 navbar.R:141 navbar.R:156
+msgid "Articles"
+msgstr "Artículos"
+
+#: build-articles.R:428
+msgid "All vignettes"
+msgstr "Todos los artículos"
+
+#: build-footer.R:29
+msgid "Developed by"
+msgstr "Desarrollado por"
+
+#: build-footer.R:34
+msgid "Site built with <a href=\"%s\">pkgdown</a> %s."
+msgstr "Sitio creado con <a href=\"%s\">pkgdown</a> %s."
+
+#: build-home-authors.R:92
+msgid "More about authors..."
+msgstr "Más sobre los autores..."
+
+#: build-home-authors.R:95
+msgid "Developers"
+msgstr "Desarrolladores"
+
+#: build-home-authors.R:100 render.R:121
+msgid "Authors"
+msgstr "Autores"
+
+#: build-home-authors.R:193
+msgid "author"
+msgstr "autor-a"
+
+#: build-home-authors.R:194
+msgid "compiler"
+msgstr "compilador-a"
+
+#: build-home-authors.R:195
+msgid "contractor"
+msgstr "contratista"
+
+#: build-home-authors.R:196
+msgid "contributor"
+msgstr "colaborador-a"
+
+#: build-home-authors.R:197
+msgid "copyright holder"
+msgstr "titular de los derechos de autor"
+
+#: build-home-authors.R:198
+msgid "maintainer"
+msgstr "mantenedor-a"
+
+#: build-home-authors.R:199
+msgid "data contributor"
+msgstr "colaborador-a de datos"
+
+#: build-home-authors.R:200
+msgid "funder"
+msgstr "patrocinador-a"
+
+#: build-home-authors.R:201
+msgid "reviewer"
+msgstr "revisor-a"
+
+#: build-home-authors.R:202
+msgid "thesis advisor"
+msgstr "director-a de tesis"
+
+#: build-home-authors.R:203
+msgid "translator"
+msgstr "traductor-a"
+
+#: build-home-citation.R:36
+msgid "Citing %s"
+msgstr "Cómo citar %s"
+
+#: build-home-citation.R:91
+msgid "Authors and Citation"
+msgstr "Autores y Citas"
+
+#: build-home-community.R:18
+msgid "Contributing guide"
+msgstr "Guía para colaboradores"
+
+#: build-home-community.R:22
+msgid "Code of conduct"
+msgstr "Código de conducta"
+
+#: build-home-community.R:29
+msgid "Community"
+msgstr "Comunidad"
+
+#: build-home-index.R:85
+msgid "Dev Status"
+msgstr "Estado de Desarrollo"
+
+#: build-home-index.R:153
+msgid "View on %s"
+msgstr "Ver en %s"
+
+#: build-home-index.R:154
+msgid "Browse source code"
+msgstr "Ir al código fuente"
+
+#: build-home-index.R:155
+msgid "Report a bug"
+msgstr "Informar de un problema"
+
+#: build-home-index.R:159
+msgid "Links"
+msgstr "Enlaces"
+
+#: build-home-index.R:164
+msgid "Table of contents"
+msgstr "Índice de contenidos"
+
+#: build-home-license.R:12 build-home-license.R:34
+msgid "License"
+msgstr "Licencia"
+
+#: build-home-license.R:29
+msgid "Full license"
+msgstr "Licencia completa"
+
+#: build-news.R:100 build-news.R:233 build-news.R:238
+msgid "Changelog"
+msgstr "Registro de cambios"
+
+#: build-news.R:124
+msgid "Version %s"
+msgstr "Versión %s"
+
+#: build-news.R:136 build-news.R:227
+msgid "News"
+msgstr "Noticias"
+
+#: build-news.R:229
+msgid "Releases"
+msgstr "Lanzamientos"
+
+#: build-news.R:285
+msgid "CRAN release: %s"
+msgstr "Versión CRAN: %s"
+
+#: build-reference-index.R:19
+msgid "Function reference"
+msgstr "Índice de funciones"
+
+#: build-reference.R:354
+msgid "Usage"
+msgstr "Uso"
+
+#: build-tutorials.R:46 navbar.R:100
+msgid "Tutorials"
+msgstr "Tutoriales"
+
+#: development.R:72
+msgid "Released version"
+msgstr "Versión publicada"
+
+#: development.R:73
+msgid "In-development version"
+msgstr "Versión en desarrollo"
+
+#: development.R:74
+msgid "Unreleased version"
+msgstr "Versión no publicada"
+
+#: navbar.R:97
+msgid "Reference"
+msgstr "Índice"
+
+#: navbar.R:128
+msgid "Get started"
+msgstr "Primeros pasos"
+
+#: navbar.R:154
+msgid "More articles..."
+msgstr "Más artículos..."
+
+#: rd-data.R:33
+msgid "Details"
+msgstr "Detalles"
+
+#: rd-data.R:37
+msgid "Description"
+msgstr "Descripción"
+
+#: rd-data.R:41
+msgid "References"
+msgstr "Referencias"
+
+#: rd-data.R:45 render.R:119
+msgid "Source"
+msgstr "Fuente"
+
+#: rd-data.R:49
+msgid "Format"
+msgstr "Formato"
+
+#: rd-data.R:53
+msgid "Note"
+msgstr "Nota"
+
+#: rd-data.R:57
+msgid "Author"
+msgstr "Autor-a"
+
+#: rd-data.R:61
+msgid "See also"
+msgstr "Ver también"
+
+#: rd-data.R:77
+msgid "Arguments"
+msgstr "Argumentos"
+
+#: rd-data.R:85
+msgid "Value"
+msgstr "Valor"
+
+#: rd-html.R:205
+msgid "# %s method for %s"
+msgstr "# %s método para %s"
+
+#: render.R:115
+msgid "Skip to contents"
+msgstr "Ir al contenido"
+
+#: render.R:116
+msgid "Toggle navigation"
+msgstr "Cambiar la navegación"
+
+#: render.R:117
+msgid "Search for"
+msgstr "Buscar"
+
+#: render.R:118
+msgid "On this page"
+msgstr "En esta página"
+
+#: render.R:120
+msgid "Abstract"
+msgstr "Resumen"
+
+#: render.R:122
+msgid "Version"
+msgstr "Versión"
+
+#: render.R:123
+msgid "Examples"
+msgstr "Ejemplos"
+
+#: render.R:124
+msgid "Citation"
+msgstr ""
+
+#: repo.R:33
+msgid "Source:"
+msgstr "Código:"
+
+#: tweak-sidebar.R:17
+msgid "Dev status"
+msgstr "Estado de desarrollo"

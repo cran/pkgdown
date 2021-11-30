@@ -17,24 +17,6 @@ as_data.tag_usage <- function(x, ...) {
   highlight_text(text)
 }
 
-# Arguments ------------------------------------------------------------------
-
-#' @export
-as_data.tag_arguments <- function(x, ...) {
-  x %>%
-    purrr::keep(inherits, "tag_item") %>%
-    purrr::map(as_data, ...)
-}
-
-#' @export
-as_data.tag_item <- function(x, ...) {
-
-  list(
-    name = as_html(x[[1]], ...),
-    description = flatten_para(x[[2]], ...)
-  )
-}
-
 # Sections ----------------------------------------------------------------
 
 parse_section <- function(x, title, ...) {
@@ -48,35 +30,35 @@ parse_section <- function(x, title, ...) {
 
 #' @export
 as_data.tag_details <- function(x, ...) {
-  parse_section(x, "Details", ...)
+  parse_section(x, tr_("Details"), ...)
 }
 #' @export
 as_data.tag_description <- function(x, ...) {
-  parse_section(x, "Description", ...)
+  parse_section(x, tr_("Description"), ...)
 }
 #' @export
 as_data.tag_references <- function(x, ...) {
-  parse_section(x, "References", ...)
+  parse_section(x, tr_("References"), ...)
 }
 #' @export
 as_data.tag_source <- function(x, ...) {
-  parse_section(x, "Source", ...)
+  parse_section(x, tr_("Source"), ...)
 }
 #' @export
 as_data.tag_format <- function(x, ...) {
-  parse_section(x, "Format", ...)
+  parse_section(x, tr_("Format"), ...)
 }
 #' @export
 as_data.tag_note <- function(x, ...) {
-  parse_section(x, "Note", ...)
+  parse_section(x, tr_("Note"), ...)
 }
 #' @export
 as_data.tag_author <- function(x, ...) {
-  parse_section(x, "Author", ...)
+  parse_section(x, tr_("Author"), ...)
 }
 #' @export
 as_data.tag_seealso <- function(x, ...) {
-  section <- parse_section(x, "See also", ...)
+  section <- parse_section(x, tr_("See also"), ...)
   section$contents <- dont_index(section$contents)
   section
 }
@@ -84,28 +66,58 @@ as_data.tag_seealso <- function(x, ...) {
 as_data.tag_section <- function(x, ...) {
   parse_section(x[[2]], as_html(x[[1]], ...), ...)
 }
+
+# \arguments{} & \details{} -----------------------------------------------
+# Both are like the contents of \description{} but can contain arbitrary
+# text outside of \item{}
+
+#' @export
+as_data.tag_arguments <- function(x, ...) {
+  list(
+    title = tr_("Arguments"),
+    contents = describe_contents(x, ...)
+  )
+}
+
 #' @export
 as_data.tag_value <- function(x, ...) {
-  # \value is implicitly a \describe environment, with
-  # optional text block before first \item
-
-  idx <- Position(function(x) inherits(x, "tag_item"), x, nomatch = 0)
-  if (idx == 0) {
-    text <- x
-    values <- list()
-  } else if (idx == 1) {
-    text <- list()
-    values <- x
-  } else {
-    text <- x[seq_len(idx - 1)]
-    values <- x[-seq_len(idx - 1)]
-  }
-
-  text <- flatten_para(text, ...)
-  values <- parse_descriptions(values)
-
   list(
-    title = "Value",
-    contents = paste(c(text, values), collapse = "\n")
+    title = tr_("Value"),
+    contents = describe_contents(x, ...)
   )
+}
+
+describe_contents <- function(x, ...) {
+  # Drop pure whitespace nodes between items
+  is_ws <- purrr::map_lgl(x, is_whitespace)
+  x <- x[!is_ws]
+
+  # Group continguous \items{} into a <dl>
+  is_item <- purrr::map_lgl(x, inherits, "tag_item")
+  changed <- is_item[-1] != is_item[-length(is_item)]
+  group <- cumsum(c(TRUE, changed))
+
+  parse_piece <- function(x) {
+    if (inherits(x[[1]], "tag_item")) {
+      paste0("<dl>\n", parse_descriptions(x, ...), "</dl>")
+    } else {
+      flatten_para(x, ...)
+    }
+  }
+  pieces <- split(x, group)
+  out <- purrr::map(pieces, parse_piece)
+
+  paste(unlist(out), collapse = "\n")
+}
+
+is_whitespace <- function(x) {
+  inherits(x, "TEXT") && all(grepl("^\\s*$", x))
+}
+
+
+# For testing
+value2html <- function(x) {
+  rd <- rd_text(paste0("\\value{", x, "}"), fragment = FALSE)[[1]]
+  html <- as_data(rd)$contents
+  str_trim(strsplit(str_trim(html), "\n")[[1]])
 }

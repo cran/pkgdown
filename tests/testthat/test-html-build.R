@@ -1,4 +1,9 @@
-context("test-html-build")
+test_that("Stripping HTML tags", {
+  expect_identical(
+    strip_html_tags("<p>some text about <code>data</code>"),
+    "some text about data"
+  )
+})
 
 # links and references in the package description -------------------------
 

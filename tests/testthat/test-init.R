@@ -1,53 +1,44 @@
-context("test-init.R")
-
 test_that("extra.css and extra.js copied and linked", {
-  pkg <- test_path("assets/init-extra-2")
+  pkg <- local_pkgdown_site(test_path("assets/init-extra-2"))
   expect_output(init_site(pkg))
-  on.exit(clean_site(pkg))
 
-  expect_true(file_exists(path(pkg, "docs", "extra.css")))
-  expect_true(file_exists(path(pkg, "docs", "extra.js")))
+  expect_true(file_exists(path(pkg$dst_path, "extra.css")))
+  expect_true(file_exists(path(pkg$dst_path, "extra.js")))
 
   skip_if_no_pandoc()
   # Now check they actually get used .
   expect_output(build_home(pkg))
 
-  html <- xml2::read_html(path(pkg, "docs", "index.html"))
-  links <- xml2::xml_find_all(html, ".//link")
-  paths <- xml2::xml_attr(links, "href")
+  html <- xml2::read_html(path(pkg$dst_path, "index.html"))
+  paths <- xpath_attr(html, ".//link", "href")
 
   expect_true("extra.css" %in% paths)
 })
 
 test_that("single extra.css correctly copied", {
-  pkg <- test_path("assets/init-extra-1")
+  pkg <- local_pkgdown_site(test_path("assets/init-extra-1"))
   expect_output(init_site(pkg))
-  on.exit(clean_site(pkg))
 
-  expect_true(file_exists(path(pkg, "docs", "extra.css")))
+  expect_true(file_exists(path(pkg$dst_path, "extra.css")))
 })
 
 test_that("asset subdirectories are copied", {
-  pkg <- test_path("assets/init-asset-subdirs")
+  pkg <- local_pkgdown_site(test_path("assets/init-asset-subdirs"))
   expect_output(init_site(pkg))
-  on.exit(clean_site(pkg))
 
-  expect_true(file_exists(path(pkg, "docs", "subdir1", "file1.txt")))
-  expect_true(file_exists(path(pkg, "docs", "subdir1", "subdir2", "file2.txt")))
+  expect_true(file_exists(path(pkg$dst_path, "subdir1", "file1.txt")))
+  expect_true(file_exists(path(pkg$dst_path, "subdir1", "subdir2", "file2.txt")))
 })
 
 test_that("site meta doesn't break unexpectedly", {
-  # Because paths are different during R CMD check
-  skip_if_not(file_exists("../../DESCRIPTION"))
-  pkgdown <- as_pkgdown(test_path("../.."))
+  pkgdown <- as_pkgdown(test_path("assets/reference"))
 
   # null out components that will vary
   yaml <- site_meta(pkgdown)
   yaml$pkgdown <- "{version}"
   yaml$pkgdown_sha <- "{sha}"
   yaml$pandoc <- "{version}"
-  yaml$last_built <- timestamp(as.POSIXct("2020-01-01"))
+  yaml$last_built <- timestamp(as.POSIXct("2020-01-01", tz = "UTC"))
 
-  # TODO: use snapshot test
-  verify_output(test_path("test-init-meta.txt"), yaml)
+  expect_snapshot_output(yaml)
 })

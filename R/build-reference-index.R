@@ -7,7 +7,7 @@ data_reference_index <- function(pkg = ".") {
   }
 
   rows <- meta %>%
-    purrr::map(data_reference_index_rows, pkg = pkg) %>%
+    purrr::imap(data_reference_index_rows, pkg = pkg) %>%
     purrr::compact() %>%
     unlist(recursive = FALSE)
 
@@ -16,49 +16,46 @@ data_reference_index <- function(pkg = ".") {
   check_missing_topics(rows, pkg)
 
   print_yaml(list(
-    pagetitle = "Function reference",
+    pagetitle = tr_("Function reference"),
     rows = rows,
     has_icons = has_icons
   ))
 }
 
-data_reference_index_rows <- function(section, pkg) {
+data_reference_index_rows <- function(section, index, pkg) {
+  if (identical(section$title, "internal")) {
+    return(list())
+  }
+
   rows <- list()
   if (has_name(section, "title")) {
     rows[[1]] <- list(
       title = section$title,
-      slug = paste0("section-", make_slug(section$title)),
-      desc = markdown_text(section$desc)
+      slug = make_slug(section$title),
+      desc = markdown_text_block(section$desc, pkg = pkg)
     )
   }
 
   if (has_name(section, "subtitle")) {
     rows[[2]] <- list(
       subtitle = section$subtitle,
-      slug = paste0("section-", make_slug(section$subtitle)),
-      desc = markdown_text(section$desc)
+      slug = make_slug(section$subtitle),
+      desc = markdown_text_block(section$desc, pkg = pkg)
     )
   }
 
 
   if (has_name(section, "contents")) {
-    in_section <- select_topics(section$contents, pkg$topics)
-    topics <- pkg$topics[in_section, ]
-
-    contents <- tibble::tibble(
-      path = topics$file_out,
-      aliases = purrr::map2(
-        topics$funs,
-        topics$name,
-        ~ if (length(.x) > 0) .x else .y
-      ),
-      title = topics$title,
-      icon = find_icons(topics$alias, path(pkg$src_path, "icons"))
-    )
-
+    check_all_characters(section$contents, index, pkg)
+    contents <- purrr::imap(section$contents, content_info, pkg = pkg, section = index)
+    names <- unlist(purrr::map(contents, "name"))
+    contents <- contents[!duplicated(names)]
+    names <- unique(names)
+    contents <- purrr::map(contents, function(x) x[names(x) != "name"])
+    contents <- do.call(rbind, contents)
     rows[[3]] <- list(
       topics = purrr::transpose(contents),
-      names = topics$name,
+      names = names,
       row_has_icons = !purrr::every(contents$icon, is.null)
     )
   }
@@ -66,6 +63,26 @@ data_reference_index_rows <- function(section, pkg) {
   purrr::compact(rows)
 }
 
+check_all_characters <- function(contents, index, pkg) {
+  any_not_char <- any(purrr::map_lgl(contents, function(x) {typeof(x) != "character"}))
+
+  if (!any_not_char) {
+    return(invisible())
+  }
+
+  abort(
+    c(
+      sprintf(
+        "Item %s in section %s in %s must be a character.",
+        toString(which(any_not_char)),
+        index,
+        pkgdown_field(pkg, "reference")
+      ),
+      i = "You might need to add '' around e.g. - 'N' or - 'off'."
+    )
+  )
+
+}
 
 find_icons <- function(x, path) {
   purrr::map(x, find_icon, path = path)
@@ -104,6 +121,15 @@ check_missing_topics <- function(rows, pkg) {
 
   missing <- !in_index & !pkg$topics$internal
   if (any(missing)) {
-    warn(c("Topics missing from index: ", unname(pkg$topics$name[missing])))
+    text <- sprintf("Topics missing from index: %s", unname(pkg$topics$name[missing]))
+    if (on_ci()) {
+      abort(text)
+    } else {
+      warn(text)
+    }
   }
+}
+
+on_ci <- function() {
+  isTRUE(as.logical(Sys.getenv("CI")))
 }

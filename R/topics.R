@@ -60,16 +60,19 @@ match_env <- function(topics) {
 
   topic_index <- seq_along(topics$name)
 
-  # Each name is mapped to the position of its topic
-  env_bind(out, !!!set_names(topic_index, topics$name))
-
-  # As is each alias
+  # Each \alias{} is matched to its position
   topics$alias <- lapply(topics$alias, unique)
   aliases <- set_names(
     rep(topic_index, lengths(topics$alias)),
     unlist(topics$alias)
   )
   env_bind(out, !!!aliases)
+
+  # As is each \name{} - we bind these second so that if \name{x} and \alias{x}
+  # are in different files, \name{x} wins. This doesn't usually matter, but
+  # \name{} needs to win so that the default_reference_index() matches the
+  # correct files
+  env_bind(out, !!!set_names(topic_index, topics$name))
 
   # dplyr-like matching functions
 
@@ -166,4 +169,74 @@ topic_must <- function(message, topic) {
     paste0("In '_pkgdown.yml', topic must ", message),
     x = paste0("Not ", encodeString(topic, quote = "'"))
   ))
+}
+
+content_info <- function(content_entry, index, pkg, section) {
+
+  if (!grepl("::", content_entry, fixed = TRUE)) {
+    topics <- pkg$topics[select_topics(content_entry, pkg$topics),]
+    tibble::tibble(
+      path = topics$file_out,
+      aliases = purrr::map2(topics$funs, topics$name, ~ if (length(.x) > 0) .x else .y),
+      name = list(topics$name),
+      title = topics$title,
+      icon = find_icons(topics$alias, path(pkg$src_path, "icons"))
+    )
+  } else { # topic from another package
+    names <- strsplit(content_entry, "::")[[1]]
+    pkg_name <- names[1]
+    topic <- names[2]
+    check_package_presence(pkg_name)
+
+    rd_href <- find_rd_href(sub("\\(\\)$", "", topic), pkg_name)
+    rd <- get_rd(rd_href, pkg_name)
+    rd_title <- extract_title(rd)
+    rd_aliases <- find_rd_aliases(rd)
+
+    tibble::tibble(
+      path = rd_href,
+      aliases = rd_aliases,
+      name = list(content_entry = NULL),
+      title = sprintf("%s (from %s)", rd_title, pkg_name),
+      icon = list(content_entry = NULL)
+    )
+  }
+}
+
+check_package_presence <- function(pkg_name) {
+  rlang::check_installed(
+    pkg = pkg_name,
+    reason = "as it is mentioned in the reference index."
+  )
+}
+
+get_rd <- function(rd_href, pkg_name) {
+  rd_name <- fs::path_ext_set(fs::path_file(rd_href), "Rd")
+  # adapted from printr
+  # https://github.com/yihui/printr/blob/0267c36f49e92bd99e5434f695f80b417d14e090/R/help.R#L32
+  db <- tools::Rd_db(pkg_name)
+  Rd <- db[[rd_name]]
+  set_classes(Rd)
+}
+
+find_rd_aliases <- function(rd) {
+  funs <- topic_funs(rd)
+  if (length(funs) > 0) {
+    list(funs)
+  } else {
+    extract_tag(rd, "tag_name")
+  }
+}
+
+find_rd_href <- function(topic, pkg_name) {
+  href <- downlit::href_topic(topic, pkg_name)
+  if (is.na(href)) {
+    abort(
+      sprintf(
+        "Could not find an href for topic %s of package %s",
+        topic, pkg_name
+      )
+    )
+  }
+  href
 }

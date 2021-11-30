@@ -1,0 +1,286 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: pkgdown 1.9000.9000.9000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-26 15:57-0600\n"
+"PO-Revision-Date: 2021-10-28 08:02-0500\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: build-404.R:11
+msgid "Page not found (404)"
+msgstr "Sayfa bulunamıyor (404)"
+
+#: build-404.R:12
+msgid "Content not found. Please use links in the navbar."
+msgstr ""
+"İçerik bulunamıyor. Lütfen yukarıdaki gezinme çubuğundaki bağları kullanın."
+
+#: build-articles.R:379 navbar.R:134 navbar.R:141 navbar.R:156
+msgid "Articles"
+msgstr "Makaleler"
+
+#: build-articles.R:428
+msgid "All vignettes"
+msgstr ""
+
+#: build-footer.R:29
+msgid "Developed by"
+msgstr "Geliştiren"
+
+#: build-footer.R:34
+msgid "Site built with <a href=\"%s\">pkgdown</a> %s."
+msgstr "Site <a href=\"%s\">pkgdown</a> %s ile geliştirilmiştir."
+
+#: build-home-authors.R:92
+msgid "More about authors..."
+msgstr "Yazarlar hakkında daha fazla bilgi..."
+
+#: build-home-authors.R:95
+msgid "Developers"
+msgstr "Geliştiriciler"
+
+#: build-home-authors.R:100 render.R:121
+msgid "Authors"
+msgstr "Yazarlar"
+
+#: build-home-authors.R:193
+msgid "author"
+msgstr "yazar"
+
+#: build-home-authors.R:194
+msgid "compiler"
+msgstr "derleyici"
+
+#: build-home-authors.R:195
+msgid "contractor"
+msgstr "anlaşmalı taraf"
+
+#: build-home-authors.R:196
+msgid "contributor"
+msgstr "katkıda bulunan"
+
+#: build-home-authors.R:197
+msgid "copyright holder"
+msgstr "telif hakkı sahibi"
+
+#: build-home-authors.R:198
+msgid "maintainer"
+msgstr "koruyucu"
+
+#: build-home-authors.R:199
+msgid "data contributor"
+msgstr "veri katkısında bulunan"
+
+#: build-home-authors.R:200
+msgid "funder"
+msgstr "fon sağlayıcı"
+
+#: build-home-authors.R:201
+msgid "reviewer"
+msgstr "eleştirmen"
+
+#: build-home-authors.R:202
+msgid "thesis advisor"
+msgstr "tez danışmanı"
+
+#: build-home-authors.R:203
+msgid "translator"
+msgstr "çevirmen"
+
+#: build-home-citation.R:36
+msgid "Citing %s"
+msgstr "%s'ı kaynak gösterme"
+
+#: build-home-citation.R:91
+msgid "Authors and Citation"
+msgstr ""
+
+#: build-home-community.R:18
+msgid "Contributing guide"
+msgstr "Katkıda bulunma rehberi"
+
+#: build-home-community.R:22
+msgid "Code of conduct"
+msgstr "Davranış kuralları"
+
+#: build-home-community.R:29
+msgid "Community"
+msgstr "Komünite"
+
+#: build-home-index.R:85
+msgid "Dev Status"
+msgstr "Geliştirme statüsü"
+
+#: build-home-index.R:153
+msgid "View on %s"
+msgstr "%s'da gör"
+
+#: build-home-index.R:154
+msgid "Browse source code"
+msgstr "Kaynak koduna göz at"
+
+#: build-home-index.R:155
+msgid "Report a bug"
+msgstr "Hata bildir"
+
+#: build-home-index.R:159
+msgid "Links"
+msgstr "Bağlantılar"
+
+#: build-home-index.R:164
+msgid "Table of contents"
+msgstr "İçindekiler"
+
+#: build-home-license.R:12 build-home-license.R:34
+msgid "License"
+msgstr "Lisans"
+
+#: build-home-license.R:29
+msgid "Full license"
+msgstr "Tam lisans"
+
+#: build-news.R:100 build-news.R:233 build-news.R:238
+msgid "Changelog"
+msgstr "Değişiklik günlüğü"
+
+#: build-news.R:124
+msgid "Version %s"
+msgstr "Sürüm %s"
+
+#: build-news.R:136 build-news.R:227
+msgid "News"
+msgstr "Haberler"
+
+#: build-news.R:229
+msgid "Releases"
+msgstr "Yayınlar"
+
+#: build-news.R:285
+msgid "CRAN release: %s"
+msgstr "CRAN yayını: %s"
+
+#: build-reference-index.R:19
+msgid "Function reference"
+msgstr "Fonksiyon referansı"
+
+#: build-reference.R:354
+msgid "Usage"
+msgstr ""
+
+#: build-tutorials.R:46 navbar.R:100
+msgid "Tutorials"
+msgstr "Öğreticiler"
+
+#: development.R:72
+msgid "Released version"
+msgstr "Yayımlanan sürüm"
+
+#: development.R:73
+msgid "In-development version"
+msgstr "Geliştirme aşamasındaki sürüm"
+
+#: development.R:74
+msgid "Unreleased version"
+msgstr "Yayınlanmamış sürüm"
+
+#: navbar.R:97
+msgid "Reference"
+msgstr "Referans"
+
+#: navbar.R:128
+msgid "Get started"
+msgstr "Başla"
+
+#: navbar.R:154
+msgid "More articles..."
+msgstr "Diğer makaleler..."
+
+#: rd-data.R:33
+msgid "Details"
+msgstr "Detaylar"
+
+#: rd-data.R:37
+msgid "Description"
+msgstr "Açıklama"
+
+#: rd-data.R:41
+msgid "References"
+msgstr "Referanslar"
+
+#: rd-data.R:45 render.R:119
+msgid "Source"
+msgstr "Kaynak"
+
+#: rd-data.R:49
+msgid "Format"
+msgstr "Format"
+
+#: rd-data.R:53
+msgid "Note"
+msgstr "Not"
+
+#: rd-data.R:57
+msgid "Author"
+msgstr "Yazar"
+
+#: rd-data.R:61
+msgid "See also"
+msgstr "Ayrıca bak"
+
+#: rd-data.R:77
+msgid "Arguments"
+msgstr "Argümanlar"
+
+#: rd-data.R:85
+msgid "Value"
+msgstr "Değer"
+
+#: rd-html.R:205
+msgid "# %s method for %s"
+msgstr "%s için # %s metodu"
+
+#: render.R:115
+msgid "Skip to contents"
+msgstr "İçeriğe atla"
+
+#: render.R:116
+msgid "Toggle navigation"
+msgstr "Gezinmeyi aç/kapat"
+
+#: render.R:117
+msgid "Search for"
+msgstr "Ara"
+
+#: render.R:118
+msgid "On this page"
+msgstr "Bu sayfada"
+
+#: render.R:120
+msgid "Abstract"
+msgstr "Özet"
+
+#: render.R:122
+msgid "Version"
+msgstr "Sürüm"
+
+#: render.R:123
+msgid "Examples"
+msgstr "Örnekler"
+
+#: render.R:124
+msgid "Citation"
+msgstr ""
+
+#: repo.R:33
+msgid "Source:"
+msgstr "Kaynak:"
+
+#: tweak-sidebar.R:17
+msgid "Dev status"
+msgstr "Geliştirme statüsü"

@@ -16,51 +16,61 @@ values in \verb{_pkgdown.yml}}
 freshly generated section in browser.}
 }
 \description{
-Your \code{NEWS.md} is parsed in to sections based on your use of headings.
+A \code{NEWS.md} will be broken up into versions using level one (\verb{#}) or
+level two headings (\verb{##}) that (partially) match one of the following forms
+(ignoring case):
+\itemize{
+\item \verb{\{package name\} 1.3.0}
+\item \verb{\{package name\} v1.3.0}
+\item \verb{Version 1.3.0}
+\item \verb{Changes in 1.3.0}
+\item \verb{Changes in v1.3.0}
+}
 }
 \details{
-The \code{NEWS.md} file should be formatted with level one headings (\verb{#})
-containing the package name and version number, level two headings (\verb{##})
-with topic headings and lists of news bullets. Commonly used level two
-headings include 'Major changes', 'Bug fixes', or 'Minor changes'.\preformatted{# pkgdown 0.1.0.9000
+A \href{https://style.tidyverse.org/news.html}{common structure} for news files
+is to use a top level heading for each release, and use a second level
+heading to break up individual bullets into sections.\if{html}{\out{<div class="sourceCode yaml">}}\preformatted{# foofy 1.0.0
 
 ## Major changes
 
-- Fresh approach based on the staticdocs package. Site configuration now based
-  on YAML files.
-}
+* Can now work with all grooveable grobbles!
 
-If the package is available on CRAN, release dates will be added to versions
-in level-one headings, and "Unreleased" will be added versions that are not on
-CRAN.
+## Minor improvements and bug fixes
 
-Issues and contributors mentioned in news items are automatically linked to
-github if a \code{URL} entry linking to github.com is provided in the package
-\code{DESCRIPTION}.\preformatted{## Major changes
+* Printing scrobbles no longer errors (@githubusername, #100)
 
-  - Lots of bug fixes (@hadley, #100)
-}
+* Wibbles are now 55\% less jibbly (#200)
+}\if{html}{\out{</div>}}
+
+Issues and contributors will be automatically linked to the corresponding
+pages on GitHub if the GitHub repo can be discovered from the \code{DESCRIPTION}
+(typically from a \code{URL} entry containing \code{github.com})
+
+If a version is available on CRAN, the release date will automatically
+be added to the heading (see below for how to suppress); if not
+available on CRAN, "Unreleased" will be added.
 }
 \section{YAML config}{
 
 
 To automatically link to release announcements, include a \code{releases}
-section.\preformatted{news:
+section.\if{html}{\out{<div class="sourceCode yaml">}}\preformatted{news:
  releases:
  - text: "usethis 1.3.0"
    href: https://www.tidyverse.org/articles/2018/02/usethis-1-3-0/
  - text: "usethis 1.0.0 (and 1.1.0)"
    href: https://www.tidyverse.org/articles/2017/11/usethis-1.0.0/
-}
+}\if{html}{\out{</div>}}
 
 Control whether news is present on one page or multiple pages with the
-\code{one_page} field. The default is \code{true}.\preformatted{news:
+\code{one_page} field. The default is \code{true}.\if{html}{\out{<div class="sourceCode yaml">}}\preformatted{news:
   one_page: false
-}
+}\if{html}{\out{</div>}}
 
-Suppress the default addition of CRAN release dates with:\preformatted{news:
+Suppress the default addition of CRAN release dates with:\if{html}{\out{<div class="sourceCode yaml">}}\preformatted{news:
   cran_dates: false
-}
+}\if{html}{\out{</div>}}
 }
 
 \seealso{

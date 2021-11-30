@@ -82,34 +82,21 @@ path_first_existing <- function(...) {
   NULL
 }
 
-path_package_pkgdown <- function(package, ...) {
-  if (!requireNamespace(package, quietly = TRUE)) {
-    stop(package, " is not installed", call. = FALSE)
+path_package_pkgdown <- function(..., package, bs_version = NULL) {
+  check_installed(package)
+  base <- system_file("pkgdown", package = package)
+
+  # If bs_version supplied, first try for versioned template
+  if (!is.null(bs_version)) {
+    path <- path(base, paste0("BS", bs_version), ...)
+    if (file_exists(path)) {
+      return(path)
+    }
   }
 
-  if (is.null(devtools_meta(package))) {
-    pkg_path <- system.file("pkgdown", ..., package = package, mustWork = FALSE)
-  } else {
-    # Needed for testing packages that provide templates
-    pkg_path <- path(getNamespaceInfo(package, "path"), "inst", "pkgdown", ...)
-  }
-
-  if (!file.exists(pkg_path)) {
-    stop(
-      package, " does not contain ", src_path("inst/pkgdown/", ...),
-      call. = FALSE
-    )
-  }
-
-  pkg_path
+  path(base, ...)
 }
 
 path_pkgdown <- function(...) {
-  if (is.null(devtools_meta("pkgdown"))) {
-    # pkgdown is probably installed
-    system.file(..., package = "pkgdown")
-  } else {
-    # pkgdown was probably loaded with devtools
-    path(getNamespaceInfo("pkgdown", "path"), "inst", ...)
-  }
+  system_file(..., package = "pkgdown")
 }

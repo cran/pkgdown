@@ -2,24 +2,30 @@
 % Please edit documentation in R/test.R
 \name{test-verbatim}
 \alias{test-verbatim}
-\title{Test case: verbatim blocks}
+\title{Test case: preformatted blocks & syntax highlighting}
 \description{
-This description block is required so that verbatim blocks are recognized
-and rendered correctly.
+Manual test cases for various ways of embedding code in sections.
+All code blocks should have copy and paste button.
 }
-\details{
-\preformatted{foo
+\section{Should be highlighted}{
+Valid R code in \verb{\preformatted{}}:\preformatted{mean(a + 1)
+}
 
-bar
-}\preformatted{yaml:
-  this
+R code in \code{R} block:\if{html}{\out{<div class="sourceCode R">}}\preformatted{mean(a + 1)
+}\if{html}{\out{</div>}}
 
-OR:
+R code in \code{r} block:\if{html}{\out{<div class="sourceCode R">}}\preformatted{mean(a + 1)
+}\if{html}{\out{</div>}}
 
-yaml:
-  that
+Yaml\if{html}{\out{<div class="sourceCode yaml">}}\preformatted{yaml: [a, 1]
+}\if{html}{\out{</div>}}
+}
+
+\section{Shouldn't be highlighted}{
+Non-R code in \verb{\preformatted{}}\preformatted{yaml: [a, b, c]
 }
 }
+
 \seealso{
 Other tests: 
 \code{\link{index}},
@@ -28,6 +34,7 @@ Other tests:
 \code{\link{test-figures}},
 \code{\link{test-links}},
 \code{\link{test-lists}},
+\code{\link{test-long-lines}},
 \code{\link{test-output-styles}},
 \code{\link{test-params}},
 \code{\link{test-sexpr-title}}

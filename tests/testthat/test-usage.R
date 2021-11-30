@@ -1,5 +1,3 @@
-context("test-usage.R")
-
 test_that("can parse data", {
   usage <- parse_usage("f")[[1]]
   expect_equal(usage, list(type = "data", name = "f"))
@@ -32,6 +30,11 @@ test_that("can parse function/methods", {
   expect_equal(usage$type, "s4")
   expect_equal(usage$name, "f")
   expect_equal(usage$signature, c("NULL"))
+
+  usage <- parse_usage("\\S4method{f}{function,function}(x, y)")[[1]]
+  expect_equal(usage$type, "s4")
+  expect_equal(usage$name, "f")
+  expect_equal(usage$signature, c("function", "function"))
 
   usage <- parse_usage("pkg::func()")[[1]]
   expect_equal(usage$type, "fun")

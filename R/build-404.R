@@ -8,11 +8,12 @@ build_404 <- function(pkg = ".") {
     render_page(
       pkg, "title-body",
       data = list(
-        pagetitle = "Page not found (404)",
-        body = c("Content not found. Please use links in the navbar.")
+        pagetitle = tr_("Page not found (404)"),
+        body = tr_("Content not found. Please use links in the navbar.")
       ),
       path = "404.html"
     )
+    update_html(path_abs("404.html", start = pkg$dst_path), tweak_link_absolute, pkg = pkg)
   }
 
   invisible()

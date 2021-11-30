@@ -1,5 +1,8 @@
 ---
 title: "Output Rendering"
+subtitle: "Subtitle is skipped from the TOC"
+author: "Author is skipped from the TOC"
+date: "Date is skipped from the TOC"
 ---
 
 ```{r include = FALSE}
@@ -8,65 +11,19 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 This vignette tests pkgdown output rendering for several use cases.
 
-# Highlighting
+## Footnotes
 
-This document uses a variety of linking styles for testing purposes
+Yay[^footnote]
 
-## Inline code
+[^footnote]: Including **footnotes**! 😁
 
-Local:
-
-* `vignette("pkgdown")`
-* `build_site()`
-* `?template_navbar`
-
-Remote:
-
-* `MASS::enlist`
-* `MASS::enlist()`
-* `?MASS::enlist`
-* `%in%`
-* `` ?`%in%` ``
-
-## Spurious links
-
-These shouldn't be linked.
-
-* `Authors@R`
-* `content-home.html`
-* `toc: depth`
-* `x = y`
-
-## Code blocks
-
-```{r, eval = FALSE}
-# Shouldn't get linked
-enlist(5)
-# Should get linked
-MASS::enlist(5)
-```
-
-```{r}
-library(MASS)
-enlist(5)
-```
-
-```{r}
-# Should get linked because MASS was loaded previously
-enlist(5)
-```
-
----
-
-# Figures
+## Figures
 
 ```{r}
 plot(1:10)
 ```
 
----
-
-# External files
+## External files
 
 ```{r}
 x <- readLines("test.txt")
@@ -75,12 +32,17 @@ x
 
 ![](bacon.jpg)
 
----
-
-# Details tag
+## Details tag
 
 <details>
-  This should only be shown when required
+This should only be shown when required
+</details>
+
+<details>
+<summary>Multiple paragraphs</summary>
+First paragraph
+
+Second paragraph
 </details>
 
 <details>
@@ -91,50 +53,60 @@ x
 ```
 </details>
 
----
-
-# Tables
+## Tables
 
 | col 1 | col 2 | col 3 | col 4 |
 |:---------------|:-----------|:-------:|:---------:|
 | Brightness     | Total brightness, total reflectance, spectral intensity | $$y = x^2$$ | test |
 
----
-
-# Mathjax
+## Mathjax
 
 $$f(x) = \dfrac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu^2)}{2\sigma^2}}$$
 
 Inline equations: $y=x^2$
 
----
+## Code
 
-# Widgets
-
-Test spacing above widget.
-
-```{r, echo=FALSE}
-# set seed for reproducible widget id
-if (requireNamespace("htmltools", quietly = TRUE)) {
-  htmlwidgets::setWidgetIdSeed(42)
-}
-
-library(leaflet)
-
-leaflet() %>%
-  addTiles() %>%
-  addMarkers(
-    lng=174.768,
-    lat=-36.852,
-    popup="The birthplace of R"
-  )
+```{r}
+pkgdown:::ruler()
 ```
 
-Test spacing below widget.
 
----
+### Should be highlighted
 
-# Crayon
+Valid R code in `\preformatted{}`:
+
+```
+mean(a + 1)
+```
+
+R code in `R` block:
+
+```R
+mean(a + 1)
+```
+
+R code in `r` block:
+
+```R
+mean(a + 1)
+```
+
+Yaml
+
+```yaml
+yaml: [a, 1]
+```
+
+### Shouldn't be highlighted
+
+Non-R code in `\preformatted{}`
+
+```
+yaml: [a, b, c]
+```
+
+### Crayon
 
 ```{r}
 cat(crayon::red("This is red"), "\n")
@@ -151,3 +123,74 @@ stop(crayon::italic("This is italic"))
 ```
 
 Some more text
+
+## Quoted text
+
+> Single-line quote about something miscellaneous.
+
+| Flush
+|  1 space indent
+|   2 space indent
+|    3 space indent
+
+## This section is unnumbered {-}
+
+There should however be no bug here!
+
+## Tabsets
+
+### Tabset with pills {.tabset .tabset-pills}
+
+#### Tab 1
+
+blablablabla
+
+```r
+1 + 1
+```
+
+Should be "cool" heading below
+
+##### cool
+
+Stuff
+
+#### Tab 2
+
+blop
+
+### Tabset without pils {.tabset}
+
+#### Tab 1
+
+something nice
+
+```{r}
+plot(1:42)
+```
+
+#### Tab 2 {.active}
+
+This tab should be active
+
+### Fading tabset {.tabset .tabset-fade}
+
+#### English
+
+Hello!
+
+#### French
+
+Bonjour!
+
+#### German
+
+Guten tag.
+
+## Deep headings
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5

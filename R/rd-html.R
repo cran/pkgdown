@@ -99,12 +99,15 @@ as_html.tag_subsection <- function(x, ..., subsection_level = 3L) {
 
   h <- paste0("h", subsection_level)
 
+  title <- flatten_text(x[[1]], ...)
+  id <- make_slug(title)
+  text <- flatten_para(x[[2]], ..., subsection_level = subsection_level + 1L)
+
   paste0(
-    "<", h, " class='hasAnchor' id='arguments'>",
-    "<a class='anchor' href='#arguments'></a>",
-    flatten_text(x[[1]], ...),
-    "</", h, ">\n",
-    flatten_para(x[[2]], ..., subsection_level = subsection_level + 1L)
+    "<div class='section' id='", id, "'>\n",
+    "<", h, ">", title, "</", h, ">\n",
+    text, "\n",
+    "</div>"
   )
 }
 
@@ -198,10 +201,9 @@ as_html.tag_S4method <- function(x, ...) method_usage(x, "S4")
 method_usage <- function(x, type) {
   fun <- as_html(x[[1]])
   class <- as_html(x[[2]])
-
   paste0(
-    "# ", type, " method for ", class, "\n",
-    fun
+    sprintf(tr_("# %s method for %s"), type, class),
+    "\n", fun
   )
 }
 
@@ -257,7 +259,7 @@ as_html.tag_ifelse <- function(x, ...) {
 #
 #' @export
 as_html.tag_special <- function(x, ...) {
-  as_html(x[[1]], ...)
+  flatten_text(x, ...)
 }
 
 #' @export
@@ -381,13 +383,11 @@ parse_descriptions <- function(rd, ...) {
     return(character())
   }
 
-  is_item <- purrr::map_lgl(rd, inherits, "tag_item")
-
   parse_item <- function(x) {
     if (inherits(x, "tag_item")) {
       paste0(
-        "<dt>", flatten_text(x[[1]], ...), "</dt>",
-        "<dd>", flatten_para(x[-1], ...), "</dd>"
+        "<dt>", flatten_text(x[[1]], ...), "</dt>\n",
+        "<dd>", flatten_para(x[[2]], ...), "</dd>\n"
       )
     } else {
       flatten_text(x, ...)
@@ -434,14 +434,10 @@ as_html.tag_code <-         function(x, ..., auto_link = TRUE) {
 
 #' @export
 as_html.tag_preformatted <- function(x, ...) {
-  text <- flatten_text(x, ...)
-
-  # Need to unescape so that highlight_text() can tell if it's R code
-  # or not. It'll re-escape if needed
-  text <- unescape_html(text)
-  paste0("<pre>", highlight_text(text), "</pre>")
+  # the language is stored in a prior \if{}{\out{}} block, so we delay
+  # highlighting until we have the complete html page
+  pre(flatten_text(x, ...))
 }
-
 
 #' @export
 as_html.tag_kbd <-          tag_wrapper("<kbd>", "</kbd>")

@@ -1,12 +1,11 @@
-context("test-topics.R")
-
 test_that("bad inputs give informative warnings", {
+  skip_if_not_installed("rlang", "0.99")
   topics <- tibble::tribble(
     ~name, ~alias,        ~internal,  ~concepts,
     "x",   c("x", "x1"), FALSE,      character(),
   )
 
-  verify_output(test_path("test-topics-warnings.txt"), {
+  expect_snapshot({
     t <- select_topics("x + ", topics)
     t <- select_topics("y", topics)
     t <- select_topics("paste(1)", topics)

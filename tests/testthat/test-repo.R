@@ -14,7 +14,25 @@ test_that("authors are automatically linked", {
 
 test_that("issues are automatically linked", {
   pkg <- list(repo = repo_meta(issue = "TEST/"))
-  expect_equal(repo_auto_link(pkg, "#123"), "<a href='TEST/123'>#123</a>")
+  expect_equal(repo_auto_link(pkg, "(#123"), "(<a href='TEST/123'>#123</a>")
+  expect_equal(repo_auto_link(pkg, "in #123"), "in <a href='TEST/123'>#123</a>")
+})
+
+test_that("URLs with hash (#) are preserved", {
+  pkg <- list(repo = repo_meta(issue = "TEST/"))
+  expect_equal(
+    repo_auto_link(pkg, "[example 5.4](https:/my.site#5-4-ad)"),
+    "[example 5.4](https:/my.site#5-4-ad)"
+  )
+})
+
+test_that("Jira issues are automatically linked", {
+  pkg <- list(repo = repo_meta(issue = "TEST/"))
+  pkg$repo$jira_projects <- c("JIRA", "OTHER")
+  expect_equal(repo_auto_link(pkg, "JIRA-123"), "<a href='TEST/JIRA-123'>JIRA-123</a>")
+  expect_equal(repo_auto_link(pkg, "OTHER-4321"), "<a href='TEST/OTHER-4321'>OTHER-4321</a>")
+  # but only the jira projects specified are caught
+  expect_equal(repo_auto_link(pkg, "NOPE-123"), "NOPE-123")
 })
 
 # repo_source -------------------------------------------------------------
@@ -22,7 +40,7 @@ test_that("issues are automatically linked", {
 test_that("repo_source() truncates automatically", {
   pkg <- list(repo = repo_meta_gh_like("https://github.com/r-lib/pkgdown"))
 
-  verify_output(test_path("test-repo-source.txt"), {
+  expect_snapshot({
     cat(repo_source(pkg, character()))
     cat(repo_source(pkg, "a"))
     cat(repo_source(pkg, letters[1:10]))
@@ -58,7 +76,7 @@ test_that("can find github from BugReports or URL", {
   ))
   expect_equal(package_repo(desc, list()), ref)
 
-  # Url can be in any position
+  # URL can be in any position
   desc <- desc::desc(text = c(
     "URL: https://pkgdown.r-lib.org, https://github.com/r-lib/pkgdown")
   )
@@ -73,8 +91,49 @@ test_that("can find gitlab url", {
   expect_equal(package_repo(desc, list()), ref)
 })
 
+test_that("GitLab subgroups are properly parsed", {
+  issue_url <- function(text) {
+    package_repo(desc::desc(text = text), list())$url$issue
+  }
+  target <- "https://gitlab.com/salim_b/r/pkgs/pal/issues/"
+  # 1) from URL field, with and without trailing slash
+  expect_equal(
+    issue_url("URL: https://gitlab.com/salim_b/r/pkgs/pal/"),
+    target
+  )
+  expect_equal(
+    issue_url("URL: https://gitlab.com/salim_b/r/pkgs/pal"),
+    target
+  )
+  # 2) from BugReports field, with and without trailing slash
+  expect_equal(
+    issue_url("BugReports: https://gitlab.com/salim_b/r/pkgs/pal/issues/"),
+    target
+  )
+  expect_equal(
+    issue_url("BugReports: https://gitlab.com/salim_b/r/pkgs/pal/issues"),
+    target
+  )
+  # 3) from URL + BugReports
+  expect_equal(
+    issue_url(paste0(
+      "URL: https://gitlab.com/salim_b/r/pkgs/pal\n",
+      "BugReports: https://gitlab.com/salim_b/r/pkgs/pal/issues/"
+    )),
+    target
+  )
+})
+
+test_that("can find github enterprise url", {
+  ref <- repo_meta_gh_like("https://github.acme.com/roadrunner/speed")
+  desc <- desc::desc(text = c(
+    "BugReports: https://github.acme.com/roadrunner/speed"
+  ))
+  expect_equal(package_repo(desc, list()), ref)
+})
+
 test_that("meta overrides autodetection", {
-  ref <- repo_meta("https://github.com/r-lib/pkgdown/blob/master/")
+  ref <- repo_meta("https://github.com/r-lib/pkgdown/blob/main/")
   desc <- desc::desc(text = "URL: https://github.com/r-lib/pkgdown")
   expect_equal(package_repo(desc, list(repo = ref)), ref)
 })
@@ -82,4 +141,16 @@ test_that("meta overrides autodetection", {
 test_that("returns NULL if no urls found", {
   desc <- desc::desc(text = "URL: https://pkgdown.r-lib.org")
   expect_equal(package_repo(desc, list()), NULL)
+})
+
+test_that("repo_type detects repo type", {
+  repo_type2 <- function(url) {
+   repo_type(list(repo = list(url = list(home = url))))
+  }
+
+  expect_equal(repo_type2("https://github.com/r-lib/pkgdown"), "github")
+  expect_equal(repo_type2("https://github.r-lib.com/pkgdown"), "github")
+  expect_equal(repo_type2("https://gitlab.com/r-lib/pkgdown"), "gitlab")
+  expect_equal(repo_type2("https://gitlab.r-lib.com/pkgdown"), "gitlab")
+  expect_equal(repo_type2(NULL), "other")
 })

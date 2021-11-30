@@ -1,41 +1,49 @@
 #' Build news section
 #'
-#' Your `NEWS.md` is parsed in to sections based on your use of headings.
+#' @description
+#' A `NEWS.md` will be broken up into versions using level one (`#`) or
+#' level two headings (`##`) that (partially) match one of the following forms
+#' (ignoring case):
 #'
-#' The `NEWS.md` file should be formatted with level one headings (`#`)
-#' containing the package name and version number, level two headings (`##`)
-#' with topic headings and lists of news bullets. Commonly used level two
-#' headings include 'Major changes', 'Bug fixes', or 'Minor changes'.
+#' * `{package name} 1.3.0`
+#' * `{package name} v1.3.0`
+#' * `Version 1.3.0`
+#' * `Changes in 1.3.0`
+#' * `Changes in v1.3.0`
 #'
-#' ```
-#' # pkgdown 0.1.0.9000
+#' @details
+#' A [common structure](https://style.tidyverse.org/news.html) for news files
+#' is to use a top level heading for each release, and use a second level
+#' heading to break up individual bullets into sections.
+#'
+#' ```yaml
+#' # foofy 1.0.0
 #'
 #' ## Major changes
 #'
-#' - Fresh approach based on the staticdocs package. Site configuration now based
-#'   on YAML files.
+#' * Can now work with all grooveable grobbles!
+#'
+#' ## Minor improvements and bug fixes
+#'
+#' * Printing scrobbles no longer errors (@githubusername, #100)
+#'
+#' * Wibbles are now 55% less jibbly (#200)
 #' ```
 #'
-#' If the package is available on CRAN, release dates will be added to versions
-#' in level-one headings, and "Unreleased" will be added versions that are not on
-#' CRAN.
+#' Issues and contributors will be automatically linked to the corresponding
+#' pages on GitHub if the GitHub repo can be discovered from the `DESCRIPTION`
+#' (typically from a `URL` entry containing `github.com`)
 #'
-#' Issues and contributors mentioned in news items are automatically linked to
-#' github if a `URL` entry linking to github.com is provided in the package
-#' `DESCRIPTION`.
-#'
-#' ```
-#' ## Major changes
-#'
-#'   - Lots of bug fixes (@hadley, #100)
-#' ```
+#' If a version is available on CRAN, the release date will automatically
+#' be added to the heading (see below for how to suppress); if not
+#' available on CRAN, "Unreleased" will be added.
 #'
 #' @section YAML config:
 #'
 #' To automatically link to release announcements, include a `releases`
 #' section.
 #'
-#' ```
+#' ```yaml
 #' news:
 #'  releases:
 #'  - text: "usethis 1.3.0"
@@ -47,14 +55,14 @@
 #' Control whether news is present on one page or multiple pages with the
 #' `one_page` field. The default is `true`.
 #'
-#' ```
+#' ```yaml
 #' news:
 #'   one_page: false
 #' ```
 #'
 #' Suppress the default addition of CRAN release dates with:
 #'
-#' ```
+#' ```yaml
 #' news:
 #'   cran_dates: false
 #' ```
@@ -89,7 +97,7 @@ build_news_single <- function(pkg) {
     "news",
     list(
       contents = purrr::transpose(news),
-      pagetitle = "Changelog",
+      pagetitle = tr_("Changelog"),
       source = repo_source(pkg, "NEWS.md")
     ),
     path("news", "index.html")
@@ -113,7 +121,7 @@ build_news_multi <- function(pkg) {
       list(
         version = version,
         contents = rev(purrr::transpose(contents)),
-        pagetitle = paste0("Version ", version)
+        pagetitle = sprintf(tr_("Version %s"), version)
       ),
       path("news", file_out),
     )
@@ -123,7 +131,10 @@ build_news_multi <- function(pkg) {
   render_page(
     pkg,
     "news-index",
-    list(versions = news_paged %>% purrr::transpose(), pagetitle = "News"),
+    list(
+      versions = news_paged %>% purrr::transpose(),
+      pagetitle = tr_("News")
+    ),
     path("news", "index.html")
   )
 }
@@ -133,24 +144,24 @@ globalVariables(".")
 data_news <- function(pkg = ".") {
   pkg <- as_pkgdown(pkg)
 
-  html <- markdown(path(pkg$src_path, "NEWS.md"))
+  html <- markdown_body(path(pkg$src_path, "NEWS.md"), pkg = pkg)
   xml <- xml2::read_html(html)
   downlit::downlit_html_node(xml)
 
   sections <- xml2::xml_find_all(xml, "./body/div")
 
-  titles <- sections %>%
-    xml2::xml_find_first(".//h1|h2") %>%
-    xml2::xml_text(trim = TRUE)
-  anchors <- sections %>% xml2::xml_attr("id")
+  # By convention NEWS.md, uses h1 for versions, but in pkgdown we reserve
+  # a single h1 for the page title, so we need to bump every heading down one
+  # level
+  tweak_section_levels(xml)
 
+  titles <- xml2::xml_text(xml2::xml_find_first(sections, ".//h2"), trim = TRUE)
   if (any(is.na(titles))) {
     stop("Invalid NEWS.md: bad nesting of titles", call. = FALSE)
   }
 
-  versions <- news_version(titles)
+  versions <- news_version(titles, pkg$package)
   sections <- sections[!is.na(versions)]
-  anchors <- anchors[!is.na(versions)]
   versions <- versions[!is.na(versions)]
 
   show_dates <- purrr::pluck(pkg, "meta", "news", "cran_dates", .default = TRUE)
@@ -161,10 +172,16 @@ data_news <- function(pkg = ".") {
   }
 
   html <- sections %>%
-    purrr::walk2(versions, tweak_news_heading, timeline = timeline) %>%
-    purrr::map_chr(as.character) %>%
+    purrr::walk2(
+      versions,
+      tweak_news_heading,
+      timeline = timeline,
+      bs_version = pkg$bs_version
+    ) %>%
+    purrr::map_chr(as.character, options = character()) %>%
     purrr::map_chr(repo_auto_link, pkg = pkg)
 
+  anchors <- xml2::xml_attr(sections, "id")
   news <- tibble::tibble(
     version = versions,
     page = purrr::map_chr(versions, version_page),
@@ -175,18 +192,19 @@ data_news <- function(pkg = ".") {
   news
 }
 
-news_version <- function(x) {
-  pattern <- "(?x)
-    ^(?<package>[[:alnum:],\\.]+)\\s+ # alpha-numeric package name
+news_version <- function(x, pkgname) {
+  pattern <- paste0("(?x)
+    (?:", pkgname, "|version|changes\\ in)
+    \\s+   # whitespace
+    v?     # optional v followed by
     (?<version>
-      v?                              # optional v
-      (\\d+[.-]\\d+)(?:[.-]\\d+)*     # followed by digits, dots and dashes
-      |                               # OR
-      (\\(development\\ version\\))   # literal used by usethis
+      (?:\\d+[.-]\\d+)(?:[.-]\\d+)*     # digits, dots, and dashes
+      |                             # OR
+      \\(development\\ version\\)   # literal used by usethis
     )
-  "
-  pieces <- rematch2::re_match(x, pattern)
-  gsub("^[v(]|[)]$", "", pieces$version)
+  ")
+  pieces <- re_match(x, pattern, ignore.case = TRUE)
+  gsub("^[(]|[)]$", "", pieces$version)
 }
 
 version_page <- function(x) {
@@ -206,18 +224,18 @@ version_page <- function(x) {
 navbar_news <- function(pkg) {
   releases_meta <- pkg$meta$news$releases
   if (!is.null(releases_meta)) {
-    menu("News",
+    menu(tr_("News"),
       c(
-        list(menu_text("Releases")),
+        list(menu_text(tr_("Releases"))),
         releases_meta,
         list(
           menu_spacer(),
-          menu_link("Changelog", "news/index.html")
+          menu_link(tr_("Changelog"), "news/index.html")
         )
       )
     )
   } else if (has_news(pkg$src_path)) {
-    menu_link("Changelog", "news/index.html")
+    menu_link(tr_("Changelog"), "news/index.html")
   }
 }
 
@@ -243,32 +261,63 @@ pkg_timeline <- function(package) {
   data.frame(
     version = names(timeline),
     date = as.Date(unlist(timeline)),
-    stringsAsFactors = FALSE
+    stringsAsFactors = FALSE,
+    row.names = NULL
   )
 }
 
-tweak_news_heading <- function(x, versions, timeline) {
-  x %>%
-    xml2::xml_find_all(".//h1") %>%
-    xml2::xml_set_attr("class", "page-header")
+tweak_news_heading <- function(html, version, timeline, bs_version) {
+  class <- if (bs_version == 3) "page-header" else "pkg-version"
 
-  x %>%
-    xml2::xml_find_all(".//h1") %>%
-    xml2::xml_set_attr("data-toc-text", versions)
+  h2 <- xml2::xml_find_all(html, ".//h2")
+  xml2::xml_set_attr(h2, "class", class)
+  xml2::xml_set_attr(h2, "data-toc-text", version)
 
-  if (is.null(timeline))
-    return(x)
+  # Add release date, if known
+  if (!is.null(timeline)) {
+    date <- timeline$date[match(version, timeline$version)]
+    if (!is.na(date)) {
+      if (bs_version == 3) {
+        release_str <- paste0(" <small>", date, "</small>")
+        release_html <- xml2::xml_find_first(xml2::read_html(release_str), ".//small")
+        xml2::xml_add_child(h2, release_html, .where = 1)
+      } else {
+        release_date <- sprintf(tr_("CRAN release: %s"), date)
+        release_str <- paste0("<p class='text-muted'>", release_date, "</p>")
+        release_html <- xml2::xml_find_first(xml2::read_html(release_str), ".//p")
+        xml2::xml_add_sibling(h2, release_html, .where = "after")
+      }
+    }
+  }
 
-  date <- timeline$date[match(versions, timeline$version)]
-  date_str <- ifelse(is.na(date), "Unreleased", as.character(date))
+  tweak_news_anchor(html, version)
 
-  date_nodes <- paste(" <small>", date_str, "</small>", collapse = "") %>%
-    xml2::read_html() %>%
-    xml2::xml_find_all(".//small")
+  invisible()
+}
 
-  x %>%
-    xml2::xml_find_all(".//h1") %>%
-    xml2::xml_add_child(date_nodes, .where = 1)
+# Manually de-duplicate repeated section anchors using version
+tweak_news_anchor <- function(html, version) {
+  div <- xml2::xml_find_all(html, ".//div")
+  div <- div[has_class(div, "section")]
+
+  id <- xml2::xml_attr(div, "id")
+  id <- gsub("-[0-9]+", "", id) # remove pandoc de-duplication suffixes
+  id <- paste0(id, "-", gsub("[^a-z0-9]+", "-", version)) # . breaks scrollspy
+  xml2::xml_attr(div, "id") <- id
+
+  invisible()
+}
+
+tweak_section_levels <- function(html) {
+  xml2::xml_set_name(xml2::xml_find_all(html, ".//h5"), "h6")
+  xml2::xml_set_name(xml2::xml_find_all(html, ".//h4"), "h5")
+  xml2::xml_set_name(xml2::xml_find_all(html, ".//h3"), "h4")
+  xml2::xml_set_name(xml2::xml_find_all(html, ".//h2"), "h3")
+  xml2::xml_set_name(xml2::xml_find_all(html, ".//h1"), "h2")
+
+  # Important because search index uses section class rather than heading
+  sections <- xml2::xml_find_all(html, ".//div[contains(@class, 'section level')]")
+  xml2::xml_attr(sections, "class") <- paste0("section level", get_section_level(sections) + 1)
 
   invisible()
 }

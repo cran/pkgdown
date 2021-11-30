@@ -7,7 +7,7 @@
 deploy_to_branch(
   pkg = ".",
   commit_message = construct_commit_message(pkg),
-  clean = FALSE,
+  clean = TRUE,
   branch = "gh-pages",
   remote = "origin",
   github_pages = (branch == "gh-pages"),
@@ -33,5 +33,6 @@ jekyll rendering.}
 }
 \description{
 Assumes that you're in a git clone of the project, and the package is
-already installed.
+already installed. Use \code{\link[usethis:use_pkgdown]{usethis::use_pkgdown_github_pages()}} to automate
+this process using GitHub actions.
 }

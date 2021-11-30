@@ -1,46 +1,43 @@
-meta_development <- function(meta, version) {
+meta_development <- function(meta, version, bs_version = 3) {
   development <- purrr::pluck(meta, "development", .default = list())
 
   destination <- purrr::pluck(development, "destination", .default = "dev")
 
-  mode <- purrr::pluck(development, "mode", .default = "release")
-  mode <- switch(mode,
-    auto = dev_mode(version),
-    release = ,
-    devel = ,
-    unreleased = mode,
-    stop(
-      "development$mode` in `_pkgdown.yml must be one of auto, release, devel, or unreleased",
-      call. = FALSE
-    )
-  )
+  mode <- dev_mode(version, development)
 
   version_label <- purrr::pluck(development, "version_label")
   if (is.null(version_label)) {
-    version_label <- if (mode == "release") "default" else "danger"
+    if (mode %in% c("release", "default")) {
+      version_label <- if (bs_version == 3) "default" else "muted"
+    } else {
+      version_label <- "danger"
+    }
   }
-
-  version_tooltip <- purrr::pluck(development, "version_tooltip")
-  if (is.null(version_tooltip)) {
-    version_tooltip <- switch(mode,
-      release = "Released version",
-      devel = "In-development version",
-      unreleased = "Unreleased version"
-    )
-  }
-
   in_dev <- mode == "devel"
 
   list(
     destination = destination,
     mode = mode,
     version_label = version_label,
-    version_tooltip = version_tooltip,
     in_dev = in_dev
   )
 }
 
-dev_mode <- function(version) {
+dev_mode <- function(version, development) {
+  mode <- Sys.getenv("PKGDOWN_DEV_MODE")
+  if (identical(mode, "")) {
+    mode <- purrr::pluck(development, "mode", .default = "default")
+  }
+
+  if (mode == "auto") {
+    mode <- dev_mode_auto(version)
+  }
+  check_mode(mode)
+
+  mode
+}
+
+dev_mode_auto <- function(version) {
   version <- unclass(package_version(version))[[1]]
 
   if (length(version) < 3) {
@@ -56,4 +53,24 @@ dev_mode <- function(version) {
   } else {
     "devel"
   }
+}
+
+check_mode <- function(mode) {
+  valid_mode <- c("auto", "default", "release", "devel", "unreleased")
+  if (!mode %in% valid_mode) {
+    abort(paste0(
+      "`development.mode` in `_pkgdown.yml` must be one of ",
+      paste(valid_mode, collapse = ", ")
+    ))
+  }
+}
+
+# Called in render_page() so that LANG env var set up
+version_tooltip <- function(mode) {
+  switch(mode,
+    default = "",
+    release = tr_("Released version"),
+    devel = tr_("In-development version"),
+    unreleased = tr_("Unreleased version")
+  )
 }
