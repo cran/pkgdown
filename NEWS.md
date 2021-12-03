@@ -1,3 +1,14 @@
+# pkgdown 2.0.1
+
+* Fix CRAN failures.
+
+* Reference sections are de-duplicated correctly (#1935).
+
+* Usage sections only generated for topics that have them; usage correctly
+  displayed with BS3 (#1931)
+
+* Empty `\value{}` no longer errors (#1930).
+
 # pkgdown 2.0.0
 
 ## New authors
