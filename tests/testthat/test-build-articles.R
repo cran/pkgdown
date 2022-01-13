@@ -7,7 +7,7 @@ test_that("can recognise intro variants", {
 
 test_that("links to man/figures are automatically relocated", {
   # weird path differences that I don't have the energy to dig into
-  skip_if(identical(R.version$crt, "ucrt"))
+  skip_on_cran()
   pkg <- local_pkgdown_site(test_path("assets/man-figures"))
 
   expect_output(copy_figures(pkg))
@@ -19,8 +19,7 @@ test_that("links to man/figures are automatically relocated", {
   expect_equal(src, c(
     "../reference/figures/kitten.jpg",
     "../reference/figures/kitten.jpg",
-    "another-kitten.jpg",
-    "https://www.tidyverse.org/rstudio-logo.svg"
+    "another-kitten.jpg"
   ))
 
   # And files aren't copied
@@ -59,7 +58,10 @@ test_that("can override html_document() options", {
 
   # Check that number_sections is respected
   html <- xml2::read_html(path)
-  expect_equal(xpath_text(html, ".//h1//span"), c("1", "2"))
+  expect_equal(xpath_text(html, ".//h2//span"), c("1", "2"))
+
+  # But title isn't affected
+  expect_equal(xpath_text(html, ".//h1"), "html_document + as_is")
 
   # And no links or scripts are inlined
   expect_equal(xpath_length(html, ".//body//link"), 0)
@@ -84,7 +86,7 @@ test_that("can override options with _output.yml", {
 
   # Check that number_sections is respected
   html <- xml2::read_html(path)
-  expect_equal(xpath_text(html, ".//h1//span"), c("1", "2"))
+  expect_equal(xpath_text(html, ".//h2//span"), c("1", "2"))
 })
 
 test_that("can set width", {
@@ -100,7 +102,7 @@ test_that("can set width", {
 
 test_that("finds external resources referenced by R code in the article html", {
   # weird path differences that I don't have the energy to dig into
-  skip_if(identical(R.version$crt, "ucrt"))
+  skip_on_cran()
   pkg <- local_pkgdown_site(test_path("assets", "articles-resources"))
 
   expect_output(path <- build_article("resources", pkg))
@@ -159,4 +161,34 @@ test_that("articles in vignettes/articles/ are unnested into articles/", {
     "https://example.com/articles/nested.html",
     fixed = TRUE
   )
+})
+
+test_that("pkgdown deps are included only once in articles", {
+  pkg <- local_pkgdown_site(test_path("assets/articles"), "
+    template:
+      bootstrap: 5
+  ")
+
+  expect_output(init_site(pkg))
+  expect_output(path <- build_article("html-deps", pkg))
+
+  html <- xml2::read_html(path)
+
+  # jquery is only loaded once, even though it's also added by code in the article
+  expect_equal(xpath_length(html, ".//script[(@src and contains(@src, '/jquery'))]"), 1)
+
+  # same for bootstrap js and css
+  str_subset_bootstrap <- function(x) {
+    bs_rgx <- "bootstrap-[\\d.]+" # ex: bootstrap-5.1.0 not bootstrap-toc,
+    grep(bs_rgx, x, value = TRUE, perl = TRUE)
+  }
+  bs_js_src <- str_subset_bootstrap(
+    xpath_attr(html, ".//script[(@src and contains(@src, '/bootstrap'))]", "src")
+  )
+  expect_length(bs_js_src, 1)
+
+  bs_css_href <- str_subset_bootstrap(
+    xpath_attr(html, ".//link[(@href and contains(@href, '/bootstrap'))]", "href")
+  )
+  expect_length(bs_css_href, 1)
 })

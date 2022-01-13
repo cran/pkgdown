@@ -23,6 +23,12 @@
   padding: 0.5rem;
 }
 
+// Align baselines of package name, version, and nav items
+.navbar > .container {
+  align-items: baseline;
+  -webkit-align-items: baseline;
+}
+
 .navbar-light .navbar-nav .active > .nav-link {
   background: $gray-200;
   color:      $body-color;
@@ -374,8 +380,13 @@ div.csl-indent {
 /* code ===================================================================== */
 
 pre, pre code {
-  white-space: pre-wrap;
-  word-break: break-all;
+  // override bootstrap deafult that causes problems in old safari + IE
+  // https://github.com/rstudio/shiny/issues/2233
+  word-wrap: normal;
+}
+
+code {
+  // break long functions into multiple lines
   overflow-wrap: break-word;
 }
 

@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Most theming features work only with Bootstrap 5, so first update your site by adding the following lines to your <code>_pkgdown.yml</code>:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">template</span><span class="kw">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">bootstrap</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span></code></pre></div>
-<p>Overall, the site should look pretty similar, but you will notice a number of small improvements. Most importantly, the default font is much bigger, making it considerably easier to read. Upgrading to Bootstrap 5 has a low chance of breaking your site unless you were using your <a href="#templates">own pkgdown templates</a> or custom CSS.</p>
+<p>Overall, the site should look pretty similar, but you will notice a number of small improvements. Most importantly, the default font is much bigger, making it considerably easier to read. Upgrading to Bootstrap 5 has a low chance of breaking your site unless you were using your <a href="#template-packages">own pkgdown templates</a> or custom CSS.</p>
 </div>
 <div id="theming" class="section level2">
 <h2>Theming</h2>
@@ -582,7 +582,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>PR previews</h2>
 <p>Lastly, it might be useful for you to get a preview of the website in internal pull requests. For that, you could use Netlify and GitHub Actions (or apply a similar logic to your toolset):</p>
 <ul>
-<li>Create a new Netlify website (either from scratch by dragging and dropping a simple index.html, or by creating a site from a GitHub repository and then unlinking that repository); from the site settings get its ID to be saved as <code>NETLIFY_SITE_ID</code> in your repo secrets; from your account developer settings get a token to be saved as <code>NETLIFY_TOKEN</code> in your repo secrets.</li>
+<li>Create a new Netlify website (either from scratch by dragging and dropping a simple index.html, or by creating a site from a GitHub repository and then unlinking that repository); from the site settings get its ID to be saved as <code>NETLIFY_SITE_ID</code> in your repo secrets; from your account developer settings get a token to be saved as <code>NETLIFY_AUTH_TOKEN</code> in your repo secrets.</li>
 <li>Starting from the standard pkgdown workflow <code>usethis::use_github_action(&quot;pkgdown&quot;)</code>, add some logic to build the site and deploy it to Netlify for pull requests from inside the repository, not pull requests from forks. <a href="https://github.com/r-lib/pkgdown/blob/master/.github/workflows/pkgdown.yaml">Example workflow</a>.</li>
 </ul>
 </div>

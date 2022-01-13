@@ -69,7 +69,7 @@ citation_auto <- function(pkg) {
     path_file(pkg$src_path),
     lib.loc = path_dir(pkg$src_path)
   )
-  cit_info$`Date/Publication` <- Sys.time()
+  cit_info$`Date/Publication` <- cit_info$`Date/Publication` %||% Sys.time()
 
   cit <- utils::citation(auto = cit_info)
   list(
@@ -94,8 +94,8 @@ build_citation_authors <- function(pkg = ".") {
     source = source
   )
 
-  data$before <- markdown_text_block(pkg$meta$authors$before, pkg = pkg)
-  data$after <- markdown_text_block(pkg$meta$authors$after, pkg = pkg)
+  data$before <- markdown_text_block(pkg$meta$authors$before)
+  data$after <- markdown_text_block(pkg$meta$authors$after)
 
   render_page(pkg, "citation-authors", data, "authors.html")
 }
