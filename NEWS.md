@@ -1,3 +1,49 @@
+# pkgdown 2.0.4
+
+* New `check_pkgdown()` provides a lightweight way to check that your 
+  `_pkgdown.yml` is valid without building the site (#2056). Invalid 
+  `_pkgdown.yml` now consistently generates errors both locally and on
+  CI (#2055).
+
+* `build_article()` now supports inline markdown in the `title` (#2039).
+
+* `build_home()` no longer shows development status badges on the released 
+  version of the site (#2054).
+
+* `build_news()` support automated `@username` links in more places (#2030).
+
+* `build_reference()`: 
+
+    * You can once again exclude topics from the reference index with `-` (#2040). 
+
+    * Inline markdown in `title`s and `subtitle`s is now supported(#2039). 
+
+    * Package logos will be automatically stripped from the `.Rd` you don't end 
+      up with two on one page. (#2083).
+
+    * `\figure{file}{alternative text}` with multline alt text is now parsed
+      correctly (#2080)
+
+    * roxygen 7.2.0 output for generic code blocks (#2092, @jabenninghoff) is
+      processed correctly.
+
+* Front end changes:
+
+    * Automatically added links in code blocks are now styled less aggressively,
+      so they occupy less visual weight on the page (#2007).
+
+    * All article pages are given class `col-md-9` for consistency with other
+      pages (#2045).
+
+    * Fixed width HTML widgets are sized correctly (@dmurdoch, #2062).
+
+    * Footnotes work with more contents, including code (@banfai, #2042).
+
+    * Navbar components now accept `target` argument (#2089, @JSchoenbachler).
+
+* New syntax highlighting themes a11y-light, a11y-dark, monochrome-light, 
+  monochrome-dark, and solarized
+
 # pkgdown 2.0.3
 
 * Fixes for R CMD check

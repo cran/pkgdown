@@ -12,6 +12,7 @@ tweak_reference_highlighting <- function(html) {
   purrr::walk(div_sourceCode_r, tweak_highlight_r)
 
   # 2) <div> with class sourceCode + another language, e.g. ```yaml
+  # or no language e.g. ```
   div_sourceCode_other <- div_sourceCode[!is_r]
   purrr::walk(div_sourceCode_other, tweak_highlight_other)
 
@@ -58,6 +59,8 @@ tweak_highlight_other <- function(div) {
   }
 
   lang <- sub("sourceCode ", "", xml2::xml_attr(div, "class"))
+  # since roxygen 7.2.0 generic code blocks have sourceCode with no lang
+  if (!is.na(lang) && lang == "sourceCode") lang <- "r"
   md <- paste0("```", lang, "\n", xml2::xml_text(code), "\n```")
   html <- markdown_text(md)
 
@@ -72,4 +75,12 @@ xml_replace_contents <- function(node, new) {
   for (child in contents) {
     xml2::xml_add_child(node, child)
   }
+}
+
+
+tweak_extra_logo <- function(html) {
+  img <- xml2::xml_find_all(html, ".//div[contains(@class,'ref-description')]//img[contains(@src,'logo')]")
+  xml2::xml_remove(img)
+
+  invisible()
 }

@@ -29,7 +29,7 @@ data_reference_index_rows <- function(section, index, pkg) {
   rows <- list()
   if (has_name(section, "title")) {
     rows[[1]] <- list(
-      title = section$title,
+      title = markdown_text_inline(section$title),
       slug = make_slug(section$title),
       desc = markdown_text_block(section$desc),
       is_internal = is_internal
@@ -38,7 +38,7 @@ data_reference_index_rows <- function(section, index, pkg) {
 
   if (has_name(section, "subtitle")) {
     rows[[2]] <- list(
-      subtitle = section$subtitle,
+      subtitle = markdown_text_inline(section$subtitle),
       slug = make_slug(section$subtitle),
       desc = markdown_text_block(section$desc),
       is_internal = is_internal
@@ -48,17 +48,15 @@ data_reference_index_rows <- function(section, index, pkg) {
 
   if (has_name(section, "contents")) {
     check_all_characters(section$contents, index, pkg)
-    contents <- purrr::imap(section$contents, content_info, pkg = pkg, section = index)
-    contents <- do.call(rbind, contents)
-    contents <- contents[!duplicated(contents$name), , drop = FALSE]
+    topics <- section_topics(section$contents, pkg)
 
-    names <- contents$name
-    contents$name <- NULL
+    names <- topics$name
+    topics$name <- NULL
 
     rows[[3]] <- list(
-      topics = purrr::transpose(contents),
+      topics = purrr::transpose(topics),
       names = names,
-      row_has_icons = !purrr::every(contents$icon, is.null),
+      row_has_icons = !purrr::every(topics$icon, is.null),
       is_internal = is_internal
     )
   }
@@ -141,16 +139,11 @@ check_missing_topics <- function(rows, pkg) {
   in_index <- pkg$topics$name %in% all_topics
 
   missing <- !in_index & !pkg$topics$internal
-  if (any(missing)) {
-    text <- sprintf("Topics missing from index: %s", unname(pkg$topics$name[missing]))
-    if (on_ci()) {
-      abort(text)
-    } else {
-      warn(text)
-    }
-  }
-}
 
-on_ci <- function() {
-  isTRUE(as.logical(Sys.getenv("CI")))
+  if (any(missing)) {
+    abort(c(
+      "All topics must be included in reference index",
+      paste0("Missing topics: ", paste0(pkg$topics$name[missing], collapse = ", "))
+    ))
+  }
 }

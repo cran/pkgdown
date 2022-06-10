@@ -151,8 +151,31 @@
       [1] "<li>\n  <a href=\"https://github.com/r-lib/pkgdown/\">\n    <span class=\"fab fa-github fa-lg\"></span>\n     \n  </a>\n</li>"
       
       $right
-      [1] "<li>\n  <a href=\"reference/index.html\">Reference</a>\n</li>"
+      [1] ""
       
+
+# data_navbar() works with empty side
+
+    Code
+      data_navbar(pkg)
+    Output
+      $type
+      [1] "default"
+      
+      $left
+      [1] ""
+      
+      $right
+      [1] ""
+      
+
+# data_navbar() errors with bad side specifications
+
+    Code
+      data_navbar(pkg)
+    Condition
+      Error in `yaml_character()`:
+      ! navbar.structure.left must be a character vector
 
 # render_navbar_links BS3 & BS4 default
 
@@ -236,4 +259,18 @@
           <a class="dropdown-item" href="articles/index.html">More...</a>
         </div>
       </li>
+
+# can specific link target
+
+    Code
+      bs4_navbar_links_tags(list(menu = list(text = "text", href = "href", target = "_blank")))
+    Output
+      <li class="nav-item">
+        <a class="nav-link" href="href" target="_blank">text</a>
+      </li>
+    Code
+      bs4_navbar_links_tags(list(menu = list(text = "text", href = "href", target = "_blank")),
+      depth = 1)
+    Output
+      <a class="dropdown-item" href="href" target="_blank">text</a>
 
