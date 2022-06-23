@@ -1,3 +1,22 @@
+# pkgdown 2.0.5
+
+* Correctly generate downlit link targets for topics that have a file name 
+  ending in `.` (#2128).
+
+* `build_articles()`: if build fails because the index doesn't include all
+  articles, you're now told what articles are missing (@zkamvar, #2121).
+
+* `build_home()` now escapes angle brackets in author comments(#2127).
+  
+* `build_home()` will automatically render and link `.github/SUPPORT.md`
+  (@IndrajeetPatil, #2124).
+
+* `build_news()` once again fails to link `@username` at start of 
+  bullet. I had to reverted #2030 because of #2122.
+
+* `build_reference()`: restore accidentally nerfed `has_keyword()` and
+  `has_concept()` reference selectors (#2126) and add tests.
+
 # pkgdown 2.0.4
 
 * New `check_pkgdown()` provides a lightweight way to check that your 
