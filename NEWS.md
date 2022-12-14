@@ -1,3 +1,13 @@
+# pkgdown 2.0.7
+
+* Fix topic match selection when there is an unmatched selection followed by a matched selection (@bundfussr, #2234)
+* Fix highlighting of nested not R code blocks (for instance, example of R 
+Markdown code with chunks) (@idavydov, #2237).
+* Tweak German translation (@krlmlr, @mgirlich, @lhdjung, #2149, #2236)
+* Remove mention of (defunct) Twitter card validator, provide alternatives (@Bisaloo, #2185)
+* Fix `keywords` typo in `check_missing_topics()` message (@swsoyee, #2178).
+* Use jsdeliver CDN for bootstrap-toc (@GregorDeCillia, #2207).
+
 # pkgdown 2.0.6
 
 * If you're using an RStudio daily, output file names are now clickable,
@@ -81,7 +91,7 @@
 
 # pkgdown 2.0.2
 
-* New Korean (`ko`) translation thanks to @mrchypark and @peremen (#1994).
+* New Korean (`ko`) translation thanks to @mrchypark and @peremen (#1944).
   New Danish (`dk`) translation thanks to @LDalby.
 
 * `build_articles()` now adjusts the heading levels of vignettes/articles that 
