@@ -23,13 +23,17 @@ ext_topics <- function(match_strings) {
   )
 }
 
-# Adatpted from roxygen2::get_rd_from_help
+# Adapted from roxygen2::get_rd_from_help
 get_rd_from_help <- function(package, alias) {
   check_installed(package, "as it's used in the reference index.")
 
   help <- utils::help((alias), (package))
   if (length(help) == 0) {
-    abort(sprintf("Could not find documentation for %s::%s", package, alias))
+    fun <- paste0(package, "::", alias)
+    cli::cli_abort(
+      "Could not find documentation for {.fn {fun}}.",
+      call = caller_env()
+    )
     return()
   }
 

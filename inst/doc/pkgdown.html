@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -343,13 +343,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>The goal of pkgdown is to make it easy to make an elegant and useful
 package website with a minimum of work. You can get a basic website up
 and running in just a couple of minutes:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run once to configure package to use pkgdown</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown</span>()</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Run to build the website</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pkgdown<span class="sc">::</span><span class="fu">build_site</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Run once to configure package to use pkgdown</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown</span>()</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Run to build the website</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>pkgdown<span class="sc">::</span><span class="fu">build_site</span>()</span></code></pre></div>
 <p>If you’re using GitHub, we also recommend setting up GitHub actions
 to automatically build and publish your site:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown_github_pages</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown_github_pages</span>()</span></code></pre></div>
 <p>While you’ll get a decent website without any additional work, if you
 want a website that really pops, you’ll need to read the rest of this
 vignette. It starts by showing you how to configure pkgdown with a
@@ -361,14 +361,17 @@ publish and promote your site.</p>
 <p>You can override pkgdown’s defaults with a YAML file called
 <code>_pkgdown.yml</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. The most important field is
 <code>url</code>, which gives the final location of the site:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">url</span><span class="kw">:</span><span class="at"> https://pkgdown.r-lib.org</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">url</span><span class="kw">:</span><span class="at"> https://pkgdown.r-lib.org</span></span></code></pre></div>
 <p><code>url</code> is used throughout the site to generate absolute
-urls where they are needed.</p>
+urls where they are needed. <code>url</code> is also part of what
+enables auto-links to your help topics or vignettes from sites external
+to your package, such as from other pkgdown sites or from Quarto
+websites. See <code>vignette(&quot;linking&quot;)</code> for more.</p>
 <p>Another important option is <code>template</code>, which allows you
 to control the overall appearance of your site:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">template</span><span class="kw">:</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">bootstrap</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">bootswatch</span><span class="kw">:</span><span class="at"> cerulean</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">template</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="at">  </span><span class="fu">bootstrap</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">  </span><span class="fu">bootswatch</span><span class="kw">:</span><span class="at"> cerulean</span></span></code></pre></div>
 <p>You can learn more about controlling the appearance of your site in
 <code>vignette(&quot;customise&quot;)</code>.</p>
 <div id="language" class="section level3">
@@ -377,11 +380,12 @@ to control the overall appearance of your site:</p>
 written in a language other than English, declare it by setting setting
 <code>lang</code> to the <a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">two letter
 language code</a> for your language:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lang</span><span class="kw">:</span><span class="at"> fr</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">lang</span><span class="kw">:</span><span class="at"> fr</span></span></code></pre></div>
 <p>This will be used to set the language of the web page and to
 translate the English words that pkgdown generates on your site. Current
 available translations are:</p>
 <ul>
+<li><code>ca</code>: Catalan</li>
 <li><code>de</code>: German</li>
 <li><code>dk</code>: Danish</li>
 <li><code>es</code>: Spanish</li>
@@ -395,7 +399,7 @@ available translations are:</p>
 </div>
 <div id="home-page" class="section level2">
 <h2>Home page</h2>
-<p>The contents of home page are automatically generated from
+<p>The contents of the home page are automatically generated from
 <code>index.md</code> or <code>README.md</code>. pkgdown tries them in
 order, so it’s possible to have a different display on GitHub and
 pkgdown by providing both files. The homepage also includes a sidebar
@@ -428,23 +432,23 @@ field in <code>_pkgdown.yml</code>.</p>
 <code>desc</code> (description) fields.</li>
 <li>A list of topics defined by a <code>contents</code> field.</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">reference</span><span class="kw">:</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Connecting to Spark&quot;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">  desc</span><span class="kw">: </span><span class="ch">&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    Functions for installing Spark components and managing</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    connections to Spark</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_config</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_connect</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_disconnect</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_install</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_log</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Reading and Writing Data&quot;</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">desc</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Functions for reading and writing Spark DataFrames.&quot;</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_read&quot;)</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_write&quot;)</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> matches(&quot;saveload&quot;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">reference</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Connecting to Spark&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">  desc</span><span class="kw">: </span><span class="ch">&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    Functions for installing Spark components and managing</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    connections to Spark</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_config</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_connect</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_disconnect</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_install</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_log</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Reading and Writing Data&quot;</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="at">  </span><span class="fu">desc</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Functions for reading and writing Spark DataFrames.&quot;</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_read&quot;)</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_write&quot;)</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> matches(&quot;saveload&quot;)</span></span></code></pre></div>
 <p>Note the use of <code>starts_with()</code> to select all functions
 with a common prefix. You can also use <code>ends_with()</code> and
 <code>matches()</code>. See complete details in
@@ -481,15 +485,15 @@ your <code>NEWS.md</code> is formatted using level one headings
 (<code>#</code>) to specify package name and version number, and level
 two headings (<code>##</code>) to provide topical organization for each
 release.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># pkgdown 1.1.0</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Bug Fixes</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Lots of them</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu"># pkgdown 1.0.0</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>This is the first release of pkgdown.</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu"># pkgdown 1.1.0</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">## Bug Fixes</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="ss">* </span>Lots of them</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu"># pkgdown 1.0.0</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="ss">* </span>This is the first release of pkgdown.</span></code></pre></div>
 <p>See more suggestions for writing news bullets in the <a href="https://style.tidyverse.org/news.html">tidyverse style
 guide</a>.</p>
 <p>See <code>?build_news</code> for more customisation options including
@@ -523,7 +527,9 @@ should publicize its URL in a few places:</p>
 <pre><code>URL: https://pkgdown.r-lib.org, https://github.com/r-lib/pkgdown</code></pre>
 <p>(<code>usethis::use_pkgdown_github_pages()</code> does this for
 you.)</p></li>
-<li><p>Your repository description on GitHub.</p></li>
+<li><p>Your repository description on GitHub.</p>
+<p>(<code>usethis::use_pkgdown_github_pages()</code> does this for
+you.)</p></li>
 <li><p>On Twitter (make sure to include <code>#rstats</code>).</p></li>
 </ol>
 </div>

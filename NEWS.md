@@ -1,3 +1,51 @@
+# pkgdown 2.0.8
+
+* pkgdown is now compatible with (and requires) bslib >= 0.5.1 
+  (@gadenbuie, #2395), including a fix to BS5 navbar template to get 
+  `navbar.type: dark` to work with Bootstrap 5.3+ (@tanho63, #2388)
+
+* Now uses [cli](https://github.com/r-lib/cli) to provide interactive feedback. 
+
+* Avoid unwanted linebreaks from parsing `DESCRIPTION` (@salim-b, #2247).
+
+* Translations  
+  * New Catalan translation (@jmaspons, #2333). 
+  * Citation sections are correctly translated (@eliocamp, #2410).
+
+* `build_article_index()` now sorts vignettes and non-vignette articles 
+   alphabetically by their filename (literally, their `basename()`), by default 
+   (@jennybc, #2253).
+
+* Deprecated `build_favicon()` was removed (`build_favicons()` remains).
+
+* `build_articles()` now sets RNG seed by default. Use 
+  `build_articles(seed = NULL)` for the old (unreproducible) behaviour. 
+  (@salim-b, #2354).
+
+* `build_articles()` will process `.qmd` articles with the quarto vignette
+  builder (@rcannood, #2404).
+
+* `build_articles()` and `build_reference()` now set RNG seed for htmlwidgets 
+  IDs. This reduces noise in final HTML output, both for articles and examples 
+  that contain htmlwidgets (@salim-b, #2294, #2354).
+
+* `build_news()` correctly parses  of github profiles and issues into links 
+  when present at the beginning of list items (@pearsonca, #2122)
+
+* `build_reference()` sets `seed` correctly; it was previously reset too early
+   (@salim-b, #2355)
+
+* Rd -> html translation
+  * `\cr` is now translated to `<br>` not `<br />` (#2400).
+  * Correct usage for S3 methods with non-syntactic class names (#2384).
+  * Preserve Markdown code blocks with class rmd from roxygen2 docs (@salim-b, #2298).
+
+* `build_reference_index()` no longer generates redundant entries when multiple 
+  explicit `@usage` tags are provided (@klmr, #2302)
+
+* `build_reference_index()` correctly handles topic names that conflict with 
+  selector functions (@dmurdoch, #2397).
+
 # pkgdown 2.0.7
 
 * Fix topic match selection when there is an unmatched selection followed by a matched selection (@bundfussr, #2234)
@@ -62,7 +110,7 @@ Markdown code with chunks) (@idavydov, #2237).
     * Package logos will be automatically stripped from the `.Rd` you don't end 
       up with two on one page. (#2083).
 
-    * `\figure{file}{alternative text}` with multline alt text is now parsed
+    * `\figure{file}{alternative text}` with multiline alt text is now parsed
       correctly (#2080)
 
     * roxygen 7.2.0 output for generic code blocks (#2092, @jabenninghoff) is
@@ -244,9 +292,9 @@ Markdown code with chunks) (@idavydov, #2237).
     pkgdown includes translations for:
     
     * `es`, Spanish, thanks to @edgararuiz-zz, @dieghernan, @rivaquiroga.
-    * `de`, German, thnaks to @hfrick.
+    * `de`, German, thanks to @hfrick.
     * `fr`, French, thanks to @romainfrancois, @lionel-, @jplecavalier, and @maelle.
-    * `pt`, Portoguese, thanks to @rich-iannone.
+    * `pt`, Portuguese, thanks to @rich-iannone.
     * `tr`, Turkish, thanks to @mine-cetinkaya-rundel.
     * `zh_CN`, simplified Chinese, thanks to @yitao.
   
@@ -651,7 +699,7 @@ Markdown code with chunks) (@idavydov, #2237).
     (#1045). 
 
 * There's much richer control over Open Graph and Twitter metadata for the 
-  whote site and for individual articles. See new `vignette("metadata")` for 
+  whole site and for individual articles. See new `vignette("metadata")` for 
   details (@gadenbuie, #936).
 
 * New `deploy_to_branch()` function to build and deploy a site to a branch,

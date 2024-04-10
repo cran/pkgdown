@@ -40,6 +40,8 @@ is_syntactic <- function(x) x == make.names(x)
 
 str_trim <- function(x) gsub("^\\s+|\\s+$", "", x)
 
+str_squish <- function(x) str_trim(gsub("\\s+", " ", x))
+
 # devtools metadata -------------------------------------------------------
 
 system_file <- function(..., package) {
@@ -57,36 +59,18 @@ devtools_meta <- function(x) {
 
 # CLI ---------------------------------------------------------------------
 
-dst_path <- function(...) {
-  cli::col_blue(encodeString(path(...), quote = "'"))
+dst_path <- cli::combine_ansi_styles(
+  cli::style_bold, cli::col_cyan
+)
+
+src_path <- cli::combine_ansi_styles(
+  cli::style_bold, cli::col_green
+)
+
+writing_file <- function(path, show) {
+  text <- dst_path(show)
+  cli::cli_inform("Writing {.run [{text}](pkgdown::preview_page('{path}'))}")
 }
-
-src_path <- function(...) {
-  cli::col_green(encodeString(path(...), quote = "'"))
-}
-
-cat_line <- function(...) {
-  cat(paste0(..., "\n"), sep = "")
-}
-
-rule <- function(x = NULL, line = "-") {
-  width <- getOption("width")
-
-  if (!is.null(x)) {
-    prefix <- paste0(line, line, " ")
-    suffix <- " "
-  } else {
-    prefix <- ""
-    suffix <- ""
-    x <- ""
-  }
-
-  line_length <- width - nchar(x) - nchar(prefix) - nchar(suffix)
-  # protect against negative values which can result in narrow terminals
-  line_length <- max(0, line_length)
-  cat_line(prefix, cli::style_bold(x), suffix, strrep(line, line_length))
-}
-
 
 skip_if_no_pandoc <- function(version = "1.12.3") {
   testthat::skip_if_not(rmarkdown::pandoc_available(version))
@@ -107,7 +91,9 @@ isFALSE <- function(x) {
 }
 
 modify_list <- function(x, y) {
-  if (is.null(y)) {
+  if (is.null(x)) {
+    return(y)
+  } else if (is.null(y)) {
     return(x)
   }
 

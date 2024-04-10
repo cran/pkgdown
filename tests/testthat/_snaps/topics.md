@@ -3,55 +3,70 @@
     Code
       t <- select_topics("x + ", topics)
     Condition
-      Error:
-      ! In '_pkgdown.yml', topic must be valid R code
-      x Not 'x + '
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Topic must be valid R code, not "x + ".
+      i Run `usethis::edit_pkgdown_config()` to edit.
     Code
       t <- select_topics("y", topics)
     Condition
-      Error:
-      ! In '_pkgdown.yml', topic must be a known topic name or alias
-      x Not 'y'
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Topic must be a known topic name or alias, not "y".
+      i Run `usethis::edit_pkgdown_config()` to edit.
     Code
       t <- select_topics("paste(1)", topics)
     Condition
-      Error:
-      ! In '_pkgdown.yml', topic must be a known selector function
-      x Not 'paste(1)'
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Topic must be a known selector function, not "paste(1)".
+      i Run `usethis::edit_pkgdown_config()` to edit.
       Caused by error in `paste()`:
       ! could not find function "paste"
     Code
       t <- select_topics("starts_with", topics)
     Condition
-      Error:
-      ! In '_pkgdown.yml', topic must be a known topic name or alias
-      x Not 'starts_with'
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Topic must be a known topic name or alias, not "starts_with".
+      i Run `usethis::edit_pkgdown_config()` to edit.
     Code
       t <- select_topics("1", topics)
     Condition
-      Error:
-      ! In '_pkgdown.yml', topic must be a string or function call
-      x Not '1'
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Topic must be a string or function call, not "1".
+      i Run `usethis::edit_pkgdown_config()` to edit.
     Code
       t <- select_topics("starts_with('y')", topics, check = TRUE)
     Condition
-      Error in `select_topics()`:
-      ! No topics matched in '_pkgdown.yml'. No topics selected.
+      Error:
+      ! No topics matched in pkgdown config. No topics selected.
+      i Run `usethis::edit_pkgdown_config()` to edit.
 
 # can select by name or alias
 
     Code
       select_topics("a4", topics)
     Condition
-      Error:
-      ! In '_pkgdown.yml', topic must be a known topic name or alias
-      x Not 'a4'
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Topic must be a known topic name or alias, not "a4".
+      i Run `usethis::edit_pkgdown_config()` to edit.
     Code
       select_topics("c::a", topics)
     Condition
-      Error:
-      ! In '_pkgdown.yml', topic must be a known topic name or alias
-      x Not 'c::a'
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Topic must be a known topic name or alias, not "c::a".
+      i Run `usethis::edit_pkgdown_config()` to edit.
 
 # an unmatched selection generates a warning
 
@@ -59,6 +74,6 @@
       select_topics(c("a", "starts_with('unmatched')"), topics, check = TRUE)
     Condition
       Error:
-      ! In '_pkgdown.yml', topic must match a function or concept
-      x Not 'starts_with(\'unmatched\')'
+      ! Topic must match a function or concept, not "starts_with('unmatched')".
+      i Run `usethis::edit_pkgdown_config()` to edit.
 

@@ -9,20 +9,26 @@
 #' @export
 as_pkgdown <- function(pkg = ".", override = list()) {
   if (is_pkgdown(pkg)) {
+    pkg$meta <- modify_list(pkg$meta, override)
     return(pkg)
   }
 
   if (!dir_exists(pkg)) {
-    stop("`pkg` is not an existing directory", call. = FALSE)
+    cli::cli_abort(
+      "{.file {pkg}} is not an existing directory",
+      call = caller_env()
+    )
   }
 
   desc <- read_desc(pkg)
   meta <- read_meta(pkg)
-  meta <- utils::modifyList(meta, override)
+  meta <- modify_list(meta, override)
+
+  bs_version <- get_bootstrap_version(list(meta = meta))
 
   template_config <- find_template_config(
     package = meta$template$package,
-    bs_version = meta$template$bootstrap
+    bs_version = bs_version
   )
   meta <- modify_list(template_config, meta)
 
@@ -31,10 +37,8 @@ as_pkgdown <- function(pkg = ".", override = list()) {
     meta[["url"]] <- sub("/$", "", meta[["url"]])
   }
 
-  package <- desc$get("Package")[[1]]
+  package <- desc$get_field("Package")
   version <- desc$get_field("Version")
-
-  bs_version <- check_bootstrap_version(meta$template$bootstrap, pkg)
 
   development <- meta_development(meta, version, bs_version)
 
@@ -89,28 +93,50 @@ is_pkgdown <- function(x) inherits(x, "pkgdown")
 read_desc <- function(path = ".") {
   path <- path(path, "DESCRIPTION")
   if (!file_exists(path)) {
-    stop("Can't find DESCRIPTION", call. = FALSE)
+    cli::cli_abort("Can't find {.file DESCRIPTION}", call = caller_env())
   }
   desc::description$new(path)
 }
 
-check_bootstrap_version <- function(version, pkg = list()) {
+get_bootstrap_version <- function(pkg) {
+  template_bootstrap <- pkg$meta[["template"]]$bootstrap
+  template_bslib <- pkg$meta[["template"]]$bslib$version
+
+  if (!is.null(template_bootstrap) && !is.null(template_bslib)) {
+    cli::cli_abort(
+      c(
+        sprintf(
+          "Both {.field %s} and {.field %s} are set.",
+          pkgdown_field(pkg, c("template", "bootstrap")),
+          pkgdown_field(pkg, c("template", "bslib", "version"))
+        ),
+        x = "Remove one of them from {.file {pkgdown_config_relpath(pkg)}}"
+      ),
+      call = caller_env()
+    )
+  }
+
+  version <- template_bootstrap %||% template_bslib
+  check_bootstrap_version(version, pkg)
+}
+
+check_bootstrap_version <- function(version, pkg) {
   if (is.null(version)) {
     3
   } else if (version %in% c(3, 5)) {
     version
   } else if (version == 4) {
-    warn("`bootstrap: 4` no longer supported; using `bootstrap: 5` instead")
+    cli::cli_warn("{.var bootstrap: 4} no longer supported, using {.var bootstrap: 5} instead")
     5
   } else {
-    abort(c(
-      "Boostrap version must be 3 or 5.",
-      x = sprintf(
-        "You specified a value of %s in %s.",
-        version,
-        pkgdown_field(pkg, c("template", "bootstrap"))
-      )
-    ))
+    msg_fld <- pkgdown_field(pkg, c("template", "bootstrap"), cfg = TRUE, fmt = TRUE)
+    cli::cli_abort(
+      c(
+        "Boostrap version must be 3 or 5.",
+        x = paste0("You set a value of {.val {version}} to ", msg_fld, ".")
+      ),
+      call = caller_env()
+    )
   }
 }
 
@@ -124,6 +150,12 @@ pkgdown_config_path <- function(path) {
       "pkgdown/_pkgdown.yml",
       "inst/_pkgdown.yml"
     )
+  )
+}
+pkgdown_config_href <- function(path) {
+  cli::style_hyperlink(
+    text = "_pkgdown.yml",
+    url = paste0("file://", pkgdown_config_path(path))
   )
 }
 
@@ -199,7 +231,7 @@ extract_title <- function(x) {
   x %>%
     purrr::detect(inherits, "tag_title") %>%
     flatten_text(auto_link = FALSE) %>%
-    str_trim()
+    str_squish()
 }
 
 extract_source <- function(x) {
@@ -226,7 +258,7 @@ package_vignettes <- function(path = ".") {
   if (!dir_exists(base)) {
     vig_path <- character()
   } else {
-    vig_path <- dir_ls(base, regexp = "\\.[rR]md$", type = "file", recurse = TRUE)
+    vig_path <- dir_ls(base, regexp = "\\.[Rrq]md$", type = "file", recurse = TRUE)
   }
 
   vig_path <- path_rel(vig_path, base)
@@ -248,7 +280,7 @@ package_vignettes <- function(path = ".") {
   )
   check_unique_article_paths(file_in, file_out)
 
-  tibble::tibble(
+  out <- tibble::tibble(
     name = path_ext_remove(vig_path),
     file_in = file_in,
     file_out = file_out,
@@ -256,6 +288,7 @@ package_vignettes <- function(path = ".") {
     description = desc,
     depth = dir_depth(file_out)
   )
+  out[order(basename(out$file_out)), ]
 }
 
 find_template_config <- function(package, bs_version = NULL) {
@@ -289,12 +322,14 @@ check_unique_article_paths <- function(file_in, file_out) {
   same_out_bullets <- purrr::map_chr(file_out_dup, function(f_out) {
     src_files <- src_path(file_in[which(file_out == f_out)])
     src_files <- paste(src_files, collapse = " and ")
-    sprintf("%s both create %s", src_files, dst_path(f_out))
   })
   names(same_out_bullets) <- rep_len("x", length(same_out_bullets))
 
-  rlang::abort(c(
-    "Rendered articles must have unique names. Rename or relocate one of the following source files:",
-    same_out_bullets
-  ))
+  cli::cli_abort(
+    c(
+      "Rendered articles must have unique names. Rename or relocate:",
+      same_out_bullets
+    ),
+    call = caller_env()
+  )
 }

@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -340,60 +340,66 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div id="checklist" class="section level2">
-<h2>Checklist</h2>
-<p>If you’re already up-to-speed, here’s the checklist:</p>
-<ul>
-<li><p>Make sure your dev site looks the way you want before embarking
-on an update of your released site. Here are good instructions for
-updating an existing site for pkgdown 2.0.0, Bootstrap 5, and
-“tidyverse/tidytemplate” (only applies to certain packages):<br />
-<a href="https://tidytemplate.tidyverse.org" class="uri">https://tidytemplate.tidyverse.org</a></p></li>
-<li><p>Make sure you are using automatic development mode. In
-<code>_pkgdown.yml</code>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">development</span><span class="kw">:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> auto</span></span></code></pre></div></li>
-<li><p>Push/pull to sync your default branch.</p></li>
-<li><p>Create and checkout a branch based on the tag of your most recent
-GitHub/CRAN release.</p>
-<p>Example for readr, whose latest release is 2.1.1:<br />
-<code>git checkout -b update-pkgdown-2-1-1 v2.1.1</code></p>
-<p>General pattern:<br />
-<code>git checkout -b NEW-BRANCH-NAME NAME-OF-RELEASE-TAG</code></p></li>
-<li><p>Backport innovations from the future. Example of a useful opening
-move:<br />
-<code>git checkout main -- _pkgdown.yml .github/workflows/pkgdown.yaml</code></p>
-<p>Most likely candidates:</p>
-<ul>
-<li><code>_pkgdown.yml</code></li>
-<li><code>.github/workflows/pkgdown.yaml</code></li>
-<li><code>Config/Needs/website: tidyverse/tidytemplate</code> in
-DESCRIPTION</li>
-<li>Any fixes to <code>README.Rmd</code> / <code>README.md</code> or
-released roxygen comments. Don’t forget to
-<code>devtools::build_readme()</code> or
-<code>devtools::document()</code>, in that case.</li>
-</ul>
-<p>These are the two main Git commands you’ll need:</p>
-<pre><code>git checkout REF -- path/to/a/specific/file
-git cherry-pick SHA</code></pre></li>
-<li><p>Monitor your progress locally with
-<code>pkgdown::build_site()</code>.</p></li>
-<li><p>Push this branch, maybe using <code>usethis::pr_push()</code>.
-Don’t bother opening a pull request (the branch will still be created
-and pushed).</p></li>
-<li><p>Go to your package’s GHA page, maybe using
-<code>usethis::browse_github_actions()</code>. Select the pkgdown
-workflow. Click <em>Run workflow</em> and select the branch you just
-pushed. If there’s no dropdown menu for this, that means your pkgdown
-workflow config is not current.</p></li>
-<li><p>Scrutinize your newly published <strong>released</strong> site
-and make sure things look right.</p></li>
-<li><p>You can let this branch sit around for a while, in case you need
-to iterate on this or if you’d like to backport more niceties before
-your next CRAN release. Or you can delete immediately, if you’re happy
-with the released site.</p></li>
-</ul>
+<p>This vignette shows you how to update the released version of your
+site to match the dev version of the site, so the first step is to
+ensure that the dev site looks the way that you want it.</p>
+<div id="process" class="section level2">
+<h2>Process</h2>
+<p>If you’re up to speed with the basic idea and just want some code to
+follow here it us. Otherwise, read more below.</p>
+<div id="setup" class="section level3">
+<h3>Setup</h3>
+<p>First, make sure you’re in the <code>main</code> branch, and you have
+the latest version:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>gert<span class="sc">::</span><span class="fu">git_branch_checkout</span>(<span class="st">&quot;main&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>gert<span class="sc">::</span><span class="fu">git_pull</span>()</span></code></pre></div>
+<p>Next figure out the released version that we’re updating:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>ver <span class="ot">&lt;-</span> desc<span class="sc">::</span><span class="fu">desc_get_version</span>()[<span class="dv">1</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code></pre></div>
+<p>We’ll use this to create and checkout the branch that you’ll work
+in:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>gert<span class="sc">::</span><span class="fu">git_branch_create</span>(<span class="fu">paste0</span>(<span class="st">&quot;pkgdown-v&quot;</span>, ver), <span class="fu">paste0</span>(<span class="st">&quot;v&quot;</span>, ver))</span></code></pre></div>
+</div>
+<div id="backport-changes" class="section level3">
+<h3>Backport changes</h3>
+<p>Now you need to backport changes from the dev site into this branch.
+Run this R code to generate the git code to pull changes for the most
+common locations:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="co"># overall site config </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="st">&quot;_pkgdown.yml&quot;</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="co"># the workflow that builds the site</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="st">&quot;.github/workflows/pkgdown.yaml&quot;</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="co"># readme and vignettes</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="st">&quot;README.md&quot;</span>, <span class="st">&quot;vignettes&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="co"># logo and favicon</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="st">&quot;man/figures/&quot;</span>, <span class="st">&quot;pkgdown/&quot;</span>, </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="co"># Author metadata and Config/Needs/Website</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="st">&quot;DESCRIPTION&quot;</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>)</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;git checkout v{ver} -- {files}&quot;</span>)</span></code></pre></div>
+<p>If you backport <code>DESCRIPTION</code>, you’ll also need undo the
+change to the <code>Version</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>desc<span class="sc">::</span><span class="fu">desc_set_version</span>(ver)</span></code></pre></div>
+<p>Now build the site locally and check that it looks as you expect:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>pkgdown<span class="sc">::</span><span class="fu">build_site</span>()</span></code></pre></div>
+</div>
+<div id="publish" class="section level3">
+<h3>Publish</h3>
+<p>Now you need to publish the site. First push your branch to
+GitHub:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>usethis<span class="sc">:::</span><span class="fu">git_push_first</span>()</span></code></pre></div>
+<p>Then trigger the pkgdown workflow:</p>
+<ol style="list-style-type: decimal">
+<li>Go to your package’s GHA page, e.g. with
+<code>usethis::browse_github_actions())</code>.</li>
+<li>Select the pkgdown workflow.</li>
+<li>Click <em>Run workflow</em> and select the branch you just
+pushed.</li>
+</ol>
+<p>If there’s no dropdown menu for this, that means your pkgdown
+workflow config is not current.</p>
+</div>
 </div>
 <div id="context" class="section level2">
 <h2>Context</h2>
@@ -411,8 +417,8 @@ Despite the name, this single site reflects “the current package state”,
 which could be either a released state or a development state.</p>
 <p>For packages with a substantial user base, it is recommended instead
 to specify <code>mode: auto</code> like so:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">development</span><span class="kw">:</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> auto</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">development</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> auto</span></span></code></pre></div>
 <p>This directs pkgdown to “generate different sites for the development
 and released versions of your package.”</p>
 <p>The readr package demonstrates what happens in automatic development
@@ -462,25 +468,25 @@ config:</p>
 important! If you use usethis to add/update workflow config, make sure
 you’re using the dev version of usethis, which will pull from the
 <code>v2</code> tag.</em></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">main</span><span class="kw">,</span><span class="at"> master</span><span class="kw">]</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pull_request</span><span class="kw">:</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">main</span><span class="kw">,</span><span class="at"> master</span><span class="kw">]</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">release</span><span class="kw">:</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">types</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">published</span><span class="kw">]</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">workflow_dispatch</span><span class="kw">:</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">&lt;snip, snip&gt;</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Build site</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">run</span><span class="kw">:</span><span class="at"> Rscript -e &#39;pkgdown::build_site_github_pages(...)&#39;</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">        </span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Deploy to GitHub pages 🚀</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">if</span><span class="kw">:</span><span class="at"> github.event_name != &#39;pull_request&#39;</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> JamesIves/github-pages-deploy-action@4.1.4</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="at">        </span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="at">        &lt;snip, snip&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">main</span><span class="kw">,</span><span class="at"> master</span><span class="kw">]</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="at">  </span><span class="fu">pull_request</span><span class="kw">:</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">main</span><span class="kw">,</span><span class="at"> master</span><span class="kw">]</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">  </span><span class="fu">release</span><span class="kw">:</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">    </span><span class="fu">types</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">published</span><span class="kw">]</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="at">  </span><span class="fu">workflow_dispatch</span><span class="kw">:</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="at">&lt;snip, snip&gt;</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Build site</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="at">        </span><span class="fu">run</span><span class="kw">:</span><span class="at"> Rscript -e &#39;pkgdown::build_site_github_pages(...)&#39;</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="at">        </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Deploy to GitHub pages 🚀</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="at">        </span><span class="fu">if</span><span class="kw">:</span><span class="at"> github.event_name != &#39;pull_request&#39;</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> JamesIves/github-pages-deploy-action@4.1.4</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="at">        </span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="at">        &lt;snip, snip&gt;</span></span></code></pre></div>
 <p>We build and deploy for pushes to <code>main</code> (or
 <code>master</code>).<br />
 We build for pull requests against <code>main</code> (or
@@ -514,12 +520,11 @@ the future, we might build some tooling around the API method.</p>
 <li><a href="https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" class="uri">https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow</a></li>
 <li><a href="https://docs.github.com/en/rest/reference/actions/#create-a-workflow-dispatch-event" class="uri">https://docs.github.com/en/rest/reference/actions/#create-a-workflow-dispatch-event</a></li>
 </ul>
-<p>Before we move on, I repeat:<br />
-It is important that your <code>main</code> branch have the latest
-pkgdown workflow. (Or whatever your default branch is called.) At the
-time of writing, this means the <code>v2</code> tag in
-<code>r-lib/actions</code>. The easiest way to get this is to install
-dev usethis and run
+<p>Before we move on, I repeat: It is important that your
+<code>main</code> branch have the latest pkgdown workflow. (Or whatever
+your default branch is called.) At the time of writing, this means the
+<code>v2</code> tag in <code>r-lib/actions</code>. The easiest way to
+get this is to install dev usethis and run
 <code>usethis::use_github_action(&quot;pkgdown&quot;)</code>.</p>
 </div>
 </div>
@@ -597,7 +602,7 @@ like backport to the released site, before your next CRAN release.</p>
 <h2>Problem-solving</h2>
 <p>Remember GitHub search is a great way to get other people’s
 <code>_pkgdown.yml</code> files in front of your eyeballs:</p>
-<p>Example query: <a href="https://github.com/search?q=filename%3A_pkgdown.yml+org%3Atidyverse+org%3Ar-lib"><code>filename:_pkgdown.yml org:tidyverse org:r-lib</code></a></p>
+<p>Example query: <a href="https://github.com/search?q=path%3A%22_pkgdown.yml%22+AND+%28org%3Atidyverse+OR+org%3Ar-lib%29&amp;type=code"><code>path:&quot;_pkgdown.yml&quot; AND (org:tidyverse OR org:r-lib)</code></a></p>
 <p>For any given <code>_pkgdown.yml</code> file on GitHub, remember that
 its History and Blame can be helpful for seeing how another package’s
 config has evolved over time.</p>
