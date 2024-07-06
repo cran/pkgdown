@@ -34,10 +34,9 @@ flatten_para <- function(x, ...) {
   needs_split <- !is_block & !empty
   html[needs_split] <- purrr::map(html[needs_split], split_at_linebreaks)
 
-  blocks <- html %>%
-    split(groups) %>%
-    purrr::map(unlist) %>%
-    purrr::map_chr(paste, collapse = "")
+  blocks <- purrr::map_chr(split(html, groups), function(x) {
+    paste(unlist(x), collapse = "")
+  })
 
   # There are three types of blocks:
   # 1. Combined text and inline tags
@@ -45,15 +44,19 @@ flatten_para <- function(x, ...) {
   # 3. Block-level tags
   #
   # Need to wrap 1 in <p>
-  needs_p <- (!(is_nl | is_block)) %>%
-    split(groups) %>%
-    purrr::map_lgl(any)
-
+  needs_p <- purrr::map_lgl(split(!(is_nl | is_block), groups), any)
   blocks[needs_p] <- paste0("<p>", str_trim(blocks[needs_p]), "</p>")
 
   paste0(blocks, collapse = "")
 }
 
+split_at_linebreaks <- function(text) {
+  if (length(text) == 0) {
+    character()
+  } else {
+    strsplit(text, "\\n\\s*\\n")[[1]]
+  }
+}
 
 flatten_text <- function(x, ...) {
   if (length(x) == 0) return("")
@@ -81,7 +84,16 @@ as_html.character <- function(x, ..., escape = TRUE) {
   }
 }
 #' @export
-as_html.TEXT <-  as_html.character
+as_html.TEXT <-  function(x, ..., escape = TRUE) {
+  # tools:::htmlify
+  x <- gsub("---", "\u2014", x)
+  x <- gsub("--", "\u2013", x)
+  x <- gsub("``", "\u201c", x)
+  x <- gsub("''", "\u201d", x)
+
+  x <- as_html.character(x, ..., escape = escape)
+  x
+}
 #' @export
 as_html.RCODE <- as_html.character
 #' @export
@@ -192,24 +204,6 @@ as_html.tag_linkS4class <- function(x, ...) {
   a(text, href = href)
 }
 
-# Miscellaneous --------------------------------------------------------------
-
-#' @export
-as_html.tag_method <- function(x, ...) method_usage(x, "S3")
-#' @export
-as_html.tag_S3method <- function(x, ...) method_usage(x, "S3")
-#' @export
-as_html.tag_S4method <- function(x, ...) method_usage(x, "S4")
-
-method_usage <- function(x, type) {
-  fun <- as_html(x[[1]])
-  class <- as_html(x[[2]])
-  paste0(
-    sprintf(tr_("# %s method for %s"), type, class),
-    "\n", fun
-  )
-}
-
 # Conditionals and Sexprs ----------------------------------------------------
 
 #' @export
@@ -222,18 +216,33 @@ as_html.tag_Sexpr <- function(x, ...) {
   on.exit(setwd(old_wd), add = TRUE)
 
   # Environment shared across a file
-  res <- eval(parse(text = code), context_get("sexpr_env"))
+  env <- context_get("sexpr_env")
 
   results <- options$results %||% "rd"
-  switch(results,
-    text = as.character(res),
-    rd = flatten_text(rd_text(as.character(res))),
-    hide = "",
-    cli::cli_abort(
-      "\\\\Sexpr{{result={results}}} not yet supported",
-      call = NULL
+  if (results == "verbatim") {
+    outlines <- utils::capture.output({
+      out <- withVisible(eval(parse(text = code), env))
+      res <- out$value
+      if (out$visible)
+        print(res)
+    })
+    paste0(
+      "<pre>\n",
+      paste0(escape_html(outlines), collapse = "\n"),
+      "\n</pre>\n"
     )
-  )
+  } else {
+    res <- eval(parse(text = code), env)
+    switch(results,
+      text = as.character(res),
+      rd = flatten_text(rd_text(as.character(res))),
+      hide = "",
+      cli::cli_abort(
+        "unknown \\Sexpr option: results={results}",
+        call = NULL
+      )
+    )
+  }
 }
 
 #' @export
@@ -378,31 +387,37 @@ parse_items <- function(rd, ...) {
     paste0("<li>", flatten_para(x, ...), "</li>\n")
   }
 
-  rd %>%
-    split(group) %>%
-    purrr::map_chr(parse_item) %>%
-    paste(collapse = "")
+  paste(purrr::map_chr(split(rd, group), parse_item), collapse = "")
 }
 
-parse_descriptions <- function(rd, ...) {
+parse_descriptions <- function(rd, ..., id_prefix = NULL) {
   if (length(rd) == 0) {
     return(character())
   }
 
   parse_item <- function(x) {
     if (inherits(x, "tag_item")) {
+      term <- flatten_text(x[[1]], ...)
+      def <- flatten_para(x[[2]], ...)
+
+      if (!is.null(id_prefix)) {
+        id <- paste0(id_prefix, make_slug(term))
+        id_attr <- paste0(" id='", id, "'")
+        anchor <- anchor_html(id)
+      } else {
+        id_attr <- ""
+        anchor <- ""
+      }
       paste0(
-        "<dt>", flatten_text(x[[1]], ...), "</dt>\n",
-        "<dd>", flatten_para(x[[2]], ...), "</dd>\n"
+        "<dt", id_attr, ">", term, anchor, "</dt>\n",
+        "<dd>", def , "</dd>\n"
       )
     } else {
       flatten_text(x, ...)
     }
   }
 
-  rd %>%
-    purrr::map_chr(parse_item) %>%
-    paste(collapse = "")
+  paste(purrr::map_chr(rd, parse_item), collapse = "")
 }
 
 # Marking text ------------------------------------------------------------

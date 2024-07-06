@@ -1,19 +1,21 @@
-activate_navbar <- function(html, path, pkg = list()) {
+activate_navbar <- function(html, path, pkg = list(bs_version = 5)) {
+  if (pkg$bs_version <= 3) {
+    return()
+  }
+
   path <- remove_useless_parts(path, pkg = pkg)
 
   # Get nav items, their links, their similarity to the current path
   navbar_haystack <- navbar_links_haystack(html, pkg, path)
-
-  # Nothing similar
   if (nrow(navbar_haystack) == 0) {
     return()
   }
 
   # Pick the most similar link, activate the corresponding nav item
-  tweak_class_prepend(
-    navbar_haystack$nav_item[which.max(navbar_haystack$similar)][[1]],
-    "active"
-  )
+  best_match <- navbar_haystack[which.max(navbar_haystack$similar), ]
+  tweak_class_prepend(best_match$nav_item[[1]], "active")
+
+  invisible()
 }
 
 navbar_links_haystack <- function(html, pkg, path) {
@@ -24,7 +26,7 @@ navbar_links_haystack <- function(html, pkg, path) {
   get_hrefs <- function(nav_item, pkg = pkg) {
     href <- xml2::xml_attr(xml2::xml_child(nav_item), "href")
 
-    if (href != "#") {
+    if (!is.na(href) && href != "#") {
       links <- href
     } else {
       # links in a drop-down

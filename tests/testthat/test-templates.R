@@ -73,8 +73,8 @@ test_that("find templates in local pkgdown first", {
 # Expected contents -------------------------------------------------------
 
 test_that("BS5 templates have main + aside", {
-  names <- dir(path_pkgdown("bs5", "templates"), pattern = "content-")
-  names <- path_ext_remove(names)
+  names <- dir_ls(path_pkgdown("BS5", "templates"), regexp = "content-")
+  names <- path_ext_remove(path_file(names))
   names <- gsub("content-", "", names)
 
   templates <- lapply(names, read_template_html,
@@ -91,7 +91,6 @@ test_that("BS5 templates have main + aside", {
     expect_equal(xpath_attr(template, ".//div/aside", "class"), "col-md-3", info = name)
   }
 })
-
 
 # Bootstrap version resolution --------------------------------------------
 test_that("Bootstrap version in template package under `template.bootstrap`", {
@@ -145,4 +144,45 @@ test_that("Valid local Bootstrap version masks invalid template package", {
       bootstrap = 5
     )))
   )
+})
+
+# Bootstrap theme resolution ----------------------------------------------
+test_that("Finds Bootstrap theme in all the places", {
+  pkg_sketchy <- local_pkgdown_site(meta = 
+    list(template = list(bslib = list(preset = "sketchy", version = 5)))
+  )
+  pkg_cosmo <- local_pkgdown_site(meta = 
+    list(template = list(bootstrap = 5, bootswatch = "cosmo"))
+  )
+  pkg_yeti <- local_pkgdown_site(meta = 
+    list(template = list(bootstrap = 5, params = list(bootswatch = "yeti")))
+  )
+  
+  expect_equal(get_bslib_theme(pkg_sketchy), "sketchy")
+  expect_equal(get_bslib_theme(pkg_cosmo), "cosmo")
+  expect_equal(get_bslib_theme(pkg_yeti), "yeti")
+})
+
+test_that("Warns when Bootstrap theme is specified in multiple locations", {
+  pkg <- local_pkgdown_site(meta = list(
+    template = list(
+      bootstrap = 5,
+      bootswatch = "cerulean",
+      bslib = list(preset = "flatly", bootswatch = "lux"),
+      params = list(bootswatch = "darkly")
+    )
+  ))
+   expect_snapshot(get_bslib_theme(pkg))
+})
+
+test_that("Doesn't warn when the same Bootstrap theme is specified in multiple locations", {
+  pkg <- local_pkgdown_site(meta = 
+    list(template = list(
+      bootstrap = 5,
+      bootswatch = "cerulean",
+      bslib = list(preset = "cerulean")
+    ))
+  )
+
+  expect_equal(expect_silent(get_bslib_theme(pkg)), "cerulean")
 })

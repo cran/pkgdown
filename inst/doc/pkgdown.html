@@ -342,14 +342,19 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <p>The goal of pkgdown is to make it easy to make an elegant and useful
 package website with a minimum of work. You can get a basic website up
-and running in just a couple of minutes:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Run once to configure package to use pkgdown</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown</span>()</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Run to build the website</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>pkgdown<span class="sc">::</span><span class="fu">build_site</span>()</span></code></pre></div>
-<p>If you’re using GitHub, we also recommend setting up GitHub actions
-to automatically build and publish your site:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown_github_pages</span>()</span></code></pre></div>
+and running in just a couple of minutes. If you’re using GitHub, we
+recommend setting up pkgdown and GitHub actions to automatically build
+and publish your site:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Run this once to publish your site regularly</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown_github_pages</span>()</span></code></pre></div>
+<p>If you are not using GitHub, you will have to run
+<code>pkgdown::build_site()</code> manually everytime you want to update
+the site.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Run once</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># Remove docs/ from gitignore to ensure it is checked into git.</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pkgdown</span>()</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Run everytime you want to update your site</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>pkgdown<span class="sc">::</span><span class="fu">build_site</span>()</span></code></pre></div>
 <p>While you’ll get a decent website without any additional work, if you
 want a website that really pops, you’ll need to read the rest of this
 vignette. It starts by showing you how to configure pkgdown with a
@@ -374,28 +379,13 @@ to control the overall appearance of your site:</p>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">  </span><span class="fu">bootswatch</span><span class="kw">:</span><span class="at"> cerulean</span></span></code></pre></div>
 <p>You can learn more about controlling the appearance of your site in
 <code>vignette(&quot;customise&quot;)</code>.</p>
-<div id="language" class="section level3">
-<h3>Language</h3>
-<p>If your documentation (<code>.Rd</code> and <code>.Rmd</code>) is
-written in a language other than English, declare it by setting setting
-<code>lang</code> to the <a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">two letter
-language code</a> for your language:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">lang</span><span class="kw">:</span><span class="at"> fr</span></span></code></pre></div>
-<p>This will be used to set the language of the web page and to
-translate the English words that pkgdown generates on your site. Current
-available translations are:</p>
-<ul>
-<li><code>ca</code>: Catalan</li>
-<li><code>de</code>: German</li>
-<li><code>dk</code>: Danish</li>
-<li><code>es</code>: Spanish</li>
-<li><code>fr</code>: French</li>
-<li><code>ko</code>: Korean</li>
-<li><code>pt</code>: Portuguese</li>
-<li><code>tr</code>: Turkish</li>
-<li><code>zh_CN</code>: Chinese (simplified)</li>
-</ul>
 </div>
+<div id="accessibility" class="section level2">
+<h2>Accessibility</h2>
+<p>pkgdown’s defaults work to ensure that your site is accessible to as
+many people as possible. But there are some accessibilty issues that
+only a human can solve, so make sure to also read
+<code>vignette(&quot;accessibility&quot;)</code> to learn about them.</p>
 </div>
 <div id="home-page" class="section level2">
 <h2>Home page</h2>
@@ -432,27 +422,28 @@ field in <code>_pkgdown.yml</code>.</p>
 <code>desc</code> (description) fields.</li>
 <li>A list of topics defined by a <code>contents</code> field.</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">reference</span><span class="kw">:</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Connecting to Spark&quot;</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">  desc</span><span class="kw">: </span><span class="ch">&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    Functions for installing Spark components and managing</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    connections to Spark</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_config</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_connect</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_disconnect</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_install</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_log</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Reading and Writing Data&quot;</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="at">  </span><span class="fu">desc</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Functions for reading and writing Spark DataFrames.&quot;</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_read&quot;)</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_write&quot;)</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> matches(&quot;saveload&quot;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">reference</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Connecting to Spark&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">  desc</span><span class="kw">: </span><span class="ch">&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    Functions for installing Spark components and managing</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    connections to Spark</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_config</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_connect</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_disconnect</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_install</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> spark_log</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Reading and Writing Data&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="at">  </span><span class="fu">desc</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Functions for reading and writing Spark DataFrames.&quot;</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="at">  </span><span class="fu">contents</span><span class="kw">:</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_read&quot;)</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> starts_with(&quot;spark_write&quot;)</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> matches(&quot;saveload&quot;)</span></span></code></pre></div>
 <p>Note the use of <code>starts_with()</code> to select all functions
 with a common prefix. You can also use <code>ends_with()</code> and
 <code>matches()</code>. See complete details in
-<code>?build_reference</code>.</p>
+<code>?build_reference</code>, including other topic matching helper
+functions.</p>
 <p>While iterating on the reference index you might want to run
 <code>pkgdown::build_reference_index()</code>. It just re-builds the
 index page, making it faster to quickly change <code>_pkgdown.yml</code>
@@ -462,20 +453,15 @@ and see how it affects your site.</p>
 <h2>Articles</h2>
 <p>pkgdown will automatically build all vignettes found in
 <code>vignettes/</code>, translating them to HTML files in
-<code>articles/</code>. Due to the way that pkgdown has to integrate
-RMarkdown generated HTML with its own HTML, relatively little control is
-available over the output format. You can see the details in
+<code>articles/</code>. It is recommended to name your intro article
+with your package name to generate a Get Started page automatically.</p>
+<p>Due to the way that pkgdown has to integrate R Markdown generated
+HTML with its own HTML, relatively little control is available over the
+output format. You can see the details in
 <code>?build_articles</code>.</p>
-<p>If you want to include an article on the website but not in the
-package (e.g., because it’s large), you can either place it in a
-subdirectory of <code>vignettes/</code>
-(e.g. <code>vignettes/web_only</code>) or add it to
-<code>.Rbuildignore</code> (and make sure that there’s no
-<code>vignettes:</code> section in the yaml header). In the extreme case
-where you want to produce only articles but not vignettes, you should
-add the complete <code>vignettes/</code> directory to
-<code>.Rbuildignore</code> and ensure that DESCRIPTION does not have a
-<code>VignetteBuilder</code> field.</p>
+<p>If you want to include an <a href="https://r-pkgs.org/website.html#non-vignette-articles">article</a>
+on the website but not in the package (e.g., because it’s large), you
+can use <code>usethis::use_article()</code> to set it up.</p>
 </div>
 <div id="news" class="section level2">
 <h2>News</h2>
@@ -485,15 +471,15 @@ your <code>NEWS.md</code> is formatted using level one headings
 (<code>#</code>) to specify package name and version number, and level
 two headings (<code>##</code>) to provide topical organization for each
 release.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu"># pkgdown 1.1.0</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">## Bug Fixes</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="ss">* </span>Lots of them</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu"># pkgdown 1.0.0</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="ss">* </span>This is the first release of pkgdown.</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu"># pkgdown 1.1.0</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">## Bug Fixes</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="ss">* </span>Lots of them</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu"># pkgdown 1.0.0</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="ss">* </span>This is the first release of pkgdown.</span></code></pre></div>
 <p>See more suggestions for writing news bullets in the <a href="https://style.tidyverse.org/news.html">tidyverse style
 guide</a>.</p>
 <p>See <code>?build_news</code> for more customisation options including
@@ -506,16 +492,12 @@ versions.</li>
 </div>
 <div id="publishing" class="section level2">
 <h2>Publishing</h2>
-<p>If you use GitHub, there are two ways to publish your site on GitHub
-Pages:</p>
-<ul>
-<li><p>Build the site locally, check in the docs directory, then
-configure GitHub Pages to <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">use
-that directory</a>.</p></li>
-<li><p>Use GitHub actions to automatically build and publish the site
-every time you make a change. The easiest way to set this up is to run
-<code>usethis::use_pkgdown_github_pages()</code>.</p></li>
-</ul>
+<p>If you use GitHub, the easiest way to build and publish your site is
+via GitHub actions. Using GitHub actions automatically builds and
+publishes the site every time you make a change. The easiest way to set
+this up is to run <code>usethis::use_pkgdown_github_pages()</code>, and
+if you need to customize the action, see <a href="https://github.com/r-lib/actions/tree/v2-branch/examples#build-pkgdown-site">README.md
+r-lib/actions</a>.</p>
 </div>
 <div id="promoting" class="section level2">
 <h2>Promoting</h2>
@@ -530,7 +512,8 @@ you.)</p></li>
 <li><p>Your repository description on GitHub.</p>
 <p>(<code>usethis::use_pkgdown_github_pages()</code> does this for
 you.)</p></li>
-<li><p>On Twitter (make sure to include <code>#rstats</code>).</p></li>
+<li><p>On social media (make sure to include
+<code>#rstats</code>).</p></li>
 </ol>
 </div>
 <div class="footnotes footnotes-end-of-document">
@@ -539,7 +522,8 @@ you.)</p></li>
 <li id="fn1"><p>You can also put it in <code>pkgdown/_pkgdown.yml</code>
 if you want to keep the package root clutter-free, or in
 <code>inst/_pkgdown.yml</code> if you want to make it available when
-your package is installed.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+your package is installed. You can also use <code>.yaml</code> as the
+extension if desired.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
