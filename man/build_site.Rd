@@ -246,14 +246,15 @@ recommend getting the HTML directly from the tool:
   includes:
     in_header: |
        <!-- Global site tag (gtag.js) - Google Analytics -->
-       <script async src="https://www.googletagmanager.com/gtag/js?id=\{YOUR TRACKING ID\}"#' ></script>
+       <script async src="https://www.googletagmanager.com/gtag/js?id=\{YOUR MEASUREMENT ID\}" ></script>
        <script>
          window.dataLayer = window.dataLayer || [];
          function gtag()\{dataLayer.push(arguments);\}
          gtag('js', new Date());
 
-         gtag('config', '\{YOUR TRACKING ID\}');
+         gtag('config', '\{YOUR MEASUREMENT ID\}');
        </script>
+       <!-- Google tag (gtag.js) -->
 }\if{html}{\out{</div>}}
 \item \href{https://www.goatcounter.com}{GoatCounter}:
 
@@ -271,8 +272,8 @@ Use the \code{repo} field to override pkgdown's automatically discovery
 of your source repository. This is used in the navbar, on the homepage,
 in articles and reference topics, and in the changelog (to link to issue
 numbers and user names). pkgdown can automatically figure out the necessary
-URLs if you link to a GitHub or GitLab repo in your \code{BugReports} or \code{URL}
-field.
+URLs if you link to a GitHub, GitLab or Codeberg repo in your \code{BugReports}
+or \code{URL} field.
 
 Otherwise, you can supply your own in the \code{repo} field:
 
@@ -327,18 +328,6 @@ time (e.g. because behind a firewall or requires auth).
   install_metadata: true
 }\if{html}{\out{</div>}}
 }
-}
-
-\section{Options}{
-Users with limited internet connectivity can disable CRAN checks by setting
-\code{options(pkgdown.internet = FALSE)}. This will also disable some features
-from pkgdown that requires an internet connectivity. However, if it is used
-to build docs for a package that requires internet connectivity in examples
-or vignettes, this connection is required as this option won't apply on them.
-
-Users can set a timeout for \code{build_site(new_process = TRUE)} with
-\code{options(pkgdown.timeout = Inf)}, which is useful to prevent stalled builds from
-hanging in cron jobs.
 }
 
 \examples{

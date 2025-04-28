@@ -6,7 +6,8 @@ rd_text <- function(x, fragment = TRUE) {
 }
 
 rd_file <- function(path, pkg_path = NULL) {
-  set_classes(tools::parse_Rd(path, encoding = "UTF-8"))
+  macros <- tools::loadPkgRdMacros(pkg_path)
+  set_classes(tools::parse_Rd(path, macros = macros, encoding = "UTF-8"))
 }
 
 #' Translate an Rd string to its HTML output
@@ -46,7 +47,8 @@ set_classes <- function(rd) {
 }
 
 set_class <- function(x) {
-  structure(x,
+  structure(
+    x,
     class = c(attr(x, "class"), tag(x), "tag"),
     Rd_tag = NULL,
     srcref = NULL,
