@@ -1,7 +1,7 @@
-af46b548b7b515b0c62ce4e3041c816f *DESCRIPTION
+1c0d767e8d8121e420bfa04f1cf70423 *DESCRIPTION
 86db9af582ce3a04bf47880d25041250 *LICENSE
 f55dc4830867e4b58555915cbba6455e *NAMESPACE
-7c70487b24d0dc2a4a243984b8abb966 *NEWS.md
+2da3eae58c9997ed26b6ff8845493c00 *NEWS.md
 ef87846a3b4d19e99b47cde66a43b7c5 *R/autolink_html.R
 bc875fd90de379da32251017cfe28134 *R/build-404.R
 114502ba1d6b5ea4a1f836632d78ffb1 *R/build-article.R
@@ -39,7 +39,7 @@ c80a9eb1427c585807cecf618b6f3870 *R/import-standalone-obj-type.R
 c40f882046a958444c6058a9e2cb9a3b *R/import-standalone-types-check.R
 29fb85832ac06920a9aba1736693034a *R/init.R
 68e499f1c824596dd6e91a1d9dab2e34 *R/markdown.R
-288f5463a2d11904743067635000bb23 *R/navbar-menu.R
+75ef2c98821034ab8b395ab7122f2b2a *R/navbar-menu.R
 a240644839bdbda07cfc6018dff65d48 *R/navbar.R
 1b8375386cb7d38da0e364dc8351707d *R/package.R
 e99fa1b10e6912df678211f63b693e64 *R/pkgdown-package.R
@@ -71,7 +71,7 @@ e58061e4c6ecf53815fcb8925d512aac *R/utils-io.R
 3dcca33c3f23310c446775f72b8698f0 *R/utils-pdf.R
 043b9340e028b0e54aa4267fd071ca7f *R/utils.R
 0046fc7f3cd966705935d695b9fc8662 *README.md
-68f1ec39d4f34fd5dc2d57c9095fef31 *build/stage23.rdb
+cfcc48c115844502d1df6a86954cab8c *build/stage23.rdb
 04da728d37c6933b18381dd6a18553b1 *build/vignette.rds
 5eec6702c35b15a8c2c123301987735d *inst/BS3/assets/bootstrap-toc.css
 aaa610b29d895e1128447e76b9bc0076 *inst/BS3/assets/bootstrap-toc.js
@@ -134,8 +134,8 @@ bac5ba630c20ff8470b808d6f50de783 *inst/BS5/templates/layout.html
 0117ffa2e1cae12eeaf4e60469a6083b *inst/doc/accessibility.Rmd
 a8a3cd4520dd33ca5e2fbd88199c6a98 *inst/doc/accessibility.html
 29b0914fe796e88731768796001a3cb9 *inst/doc/customise.R
-4ec95ee7940a1612f43b031fa8b916c7 *inst/doc/customise.Rmd
-e6cd5f756dcf7eb28cf5ee02cce89759 *inst/doc/customise.html
+ad5ba0ca0f50d3b3ecc5f404d0707980 *inst/doc/customise.Rmd
+e59e7a653e156aa7b394dccf4906ccb5 *inst/doc/customise.html
 aa2eea0ebf75f5d8a30f97f570bad37d *inst/doc/how-to-update-released-site.R
 69225dfdcd3707dea838a70104aed45b *inst/doc/how-to-update-released-site.Rmd
 b5d7a97598deaa63d0f8a8593afde25e *inst/doc/how-to-update-released-site.html
@@ -362,7 +362,7 @@ f28d1eb8badd0b6fa3c825bb9a4a3635 *tests/testthat/test-build-articles.R
 31c51e83f4b6f7f7e869588666d0457e *tests/testthat/test-build-favicons.R
 930c58188ad9446eb0371e6b17491f3c *tests/testthat/test-build-footer.R
 203703698cd9c937b5da3e57581785e4 *tests/testthat/test-build-github.R
-c37cd67d6b5e483a673add3f6192892c *tests/testthat/test-build-home-authors.R
+437f175d6bf86dbaea3b416abdc7cc80 *tests/testthat/test-build-home-authors.R
 2e2417a3196e27e899d16dcd80bec92b *tests/testthat/test-build-home-community.R
 5c4ca4d37580dad7aed0770a8f82e6e6 *tests/testthat/test-build-home-index.R
 4f6d1c11125fcc3d17ddf6ec30c2dd3e *tests/testthat/test-build-home-license.R
@@ -388,7 +388,7 @@ f730676627afbf94b47b76c76bbf59e7 *tests/testthat/test-highlight.R
 5574d50f1932a64782cf95168c571f0b *tests/testthat/test-html-build.R
 fff1e237f6aebf093d8c73a1df7e16bd *tests/testthat/test-init.R
 69b5a17f3f913b98c1e52831749507d9 *tests/testthat/test-markdown.R
-5028eb52205d9b1d64b79a271238bf7c *tests/testthat/test-navbar-menu.R
+ca4d127049c80dabb372fd9afb943da1 *tests/testthat/test-navbar-menu.R
 111cdb5724976c0f4e91de5b9fca2716 *tests/testthat/test-navbar.R
 884d6d8fe1d8abf4eec6090dc20c112f *tests/testthat/test-package.R
 5dc2286701a77f0c0168a4cde29f7d1d *tests/testthat/test-pkgdown_print.R
@@ -412,7 +412,7 @@ c5e7e8fa37b89639a1682e81508e7dfe *tests/testthat/test-usage.R
 55a91821f0f195b2f868270061e0935c *tests/testthat/test-utils-fs.R
 ccce0aa9007c180dcf206dfa886dade5 *tests/testthat/test-utils.R
 0117ffa2e1cae12eeaf4e60469a6083b *vignettes/accessibility.Rmd
-4ec95ee7940a1612f43b031fa8b916c7 *vignettes/customise.Rmd
+ad5ba0ca0f50d3b3ecc5f404d0707980 *vignettes/customise.Rmd
 69225dfdcd3707dea838a70104aed45b *vignettes/how-to-update-released-site.Rmd
 23bd46e4b9f4898e7fc9b9adc94ae1af *vignettes/linking.Rmd
 19efd0467cc00a875fc5ba303ba9ec5a *vignettes/metadata.Rmd
