@@ -2,7 +2,7 @@
 #' @export
 #' @rdname build_articles
 #' @param name Name of article to render. This should be either a path
-#'   relative to `vignettes/` without extension, or `index` or `README`.
+#'   relative to `vignettes/` *without extension*, or `index` or `README`.
 #' @param new_process Build the article in a clean R process? The default,
 #'   `TRUE`, ensures that every article is build in a fresh environment, but
 #'   you may want to set it to `FALSE` to make debugging easier.
@@ -208,6 +208,25 @@ rmarkdown_setup_pkgdown <- function(
     format$knitr$opts_chunk
   )
 
+  # Add knitr hook to inject CSS class into plot img tags
+  format$knitr$knit_hooks <- format$knitr$knit_hooks %||% list()
+  format$knitr$knit_hooks$plot <- function(x, options) {
+    # Get the default plot hook output
+    hook_output <- knitr::hook_plot_md(x, options)
+
+    # Add the fig.class to img tags if specified
+    if (!is.null(options$fig.class)) {
+      # Match img tags and add class attribute
+      hook_output <- gsub(
+        '<img src="([^"]+)"',
+        sprintf('<img src="\\1" class="%s"', options$fig.class),
+        hook_output
+      )
+    }
+
+    hook_output
+  }
+
   width <- config_pluck_number_whole(pkg, "code.width", default = 80)
   old_pre <- format$pre_knit
   format$pre_knit <- function(...) {
@@ -271,7 +290,7 @@ wrap_rmarkdown_error <- function(cnd, input, call = caller_env()) {
   cli::cli_abort(
     c(
       "!" = "Failed to render {.path {input}}.",
-      set_names(lines, "x")
+      set_names(cli_escape(lines), "x")
     ),
     parent = cnd$parent %||% cnd,
     trace = cnd$parent$trace,

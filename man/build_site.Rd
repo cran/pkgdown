@@ -14,7 +14,8 @@ build_site(
   preview = NA,
   devel = FALSE,
   new_process = !devel,
-  install = !devel
+  install = !devel,
+  quiet = TRUE
 )
 }
 \arguments{
@@ -56,6 +57,9 @@ in the current process affects the build process.}
 
 \item{install}{If \code{TRUE}, will install the package in a temporary library
 so it is available for vignettes.}
+
+\item{quiet}{If \code{FALSE}, generate build messages for build functions that
+take \code{quiet} arguments.}
 }
 \description{
 \code{build_site()} is a convenient wrapper around six functions:
@@ -67,6 +71,7 @@ so it is available for vignettes.}
 \item \code{\link[=build_tutorials]{build_tutorials()}}
 \item \code{\link[=build_news]{build_news()}}
 \item \code{\link[=build_redirects]{build_redirects()}}
+\item \code{\link[=build_llm_docs]{build_llm_docs()}}
 }
 
 See the documentation for the each function to learn how to control

@@ -10,7 +10,9 @@ dir_depth <- function(x) {
 invert_index <- function(x) {
   stopifnot(is.list(x))
 
-  if (length(x) == 0) return(list())
+  if (length(x) == 0) {
+    return(list())
+  }
 
   key <- rep(names(x), purrr::map_int(x, length))
   val <- unlist(x, use.names = FALSE)
@@ -224,4 +226,10 @@ xpath_length <- function(x, xpath) {
 print.pkgdown_xml <- function(x, ...) {
   cat(as.character(x, options = c("format", "no_declaration")), sep = "\n")
   invisible(x)
+}
+
+cli_escape <- function(x) {
+  x <- gsub("{", "{{", x, fixed = TRUE)
+  x <- gsub("}", "}}", x, fixed = TRUE)
+  x
 }
